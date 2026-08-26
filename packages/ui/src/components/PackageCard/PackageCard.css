@@ -1,0 +1,366 @@
+/*
+ * PackageCard
+ *
+ * Three layouts of one card. The parts are all components in their own right -
+ * Avatar, Badge, Rating, PriceDisplay, Skeleton - and nothing here re-implements
+ * any of them.
+ *
+ * Two things drive the whole file. The card must be the same height as its
+ * neighbours in a grid whether its title runs to one line or two, and the whole
+ * card must be clickable without nesting one interactive element inside
+ * another. The first is solved by reserving two lines of title; the second by
+ * stretching one button's ::after over the card and lifting the wishlist
+ * control above it.
+ */
+
+.uh-package {
+  position: relative;
+  display: flex;
+  /* Stretches to the tallest card in the row when the grid says so. */
+  height: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+  transition:
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    box-shadow var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-package[data-variant='grid'],
+.uh-package[data-variant='mobile'] {
+  flex-direction: column;
+}
+
+.uh-package[data-variant='list'] {
+  flex-direction: row;
+}
+
+.uh-package[data-variant='mobile'] {
+  width: 100%;
+}
+
+/* The hover belongs to the card, and is driven by the one focusable thing in
+   it, so a keyboard gets the same lift a pointer does. */
+.uh-package:hover,
+.uh-package:focus-within {
+  border-color: var(--uh-color-border-strong);
+  box-shadow: var(--uh-elevation-2);
+}
+
+/* ----------------------------------------------------------------- media */
+
+.uh-package__media {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-package[data-variant='grid'] .uh-package__media,
+.uh-package[data-variant='mobile'] .uh-package__media {
+  aspect-ratio: 3 / 2;
+}
+
+.uh-package[data-variant='list'] .uh-package__media {
+  /* A third of the card, and as tall as whatever the body turns out to be. */
+  flex: 0 0 var(--uh-size-media-split);
+  align-self: stretch;
+}
+
+.uh-package__image,
+.uh-package__media-skeleton {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uh-package__image-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-package__badge {
+  position: absolute;
+  inset-block-start: var(--uh-spacing-8);
+  inset-inline-start: var(--uh-spacing-8);
+  z-index: var(--uh-z-index-base);
+}
+
+/* ------------------------------------------------------------- wishlist */
+
+.uh-package__wishlist {
+  position: absolute;
+  inset-block-start: var(--uh-spacing-4);
+  inset-inline-end: var(--uh-spacing-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-secondary);
+  cursor: pointer;
+  /*
+   * Above the stretched hit area, which is what keeps a tap on the heart from
+   * opening the package. Above the sold-out scrim too: a trip that has gone is
+   * exactly the one worth watching for next season.
+   */
+  z-index: var(--uh-z-index-sticky);
+}
+
+.uh-package__wishlist > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-package__wishlist:hover {
+  color: var(--uh-color-text-primary);
+}
+
+.uh-package__wishlist[aria-pressed='true'] {
+  color: var(--uh-color-feedback-error-text);
+}
+
+.uh-package__wishlist:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+/* ------------------------------------------------------------- sold out */
+
+.uh-package__sold-out {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--uh-color-bg-overlay);
+}
+
+.uh-package__sold-out-label {
+  padding: var(--uh-spacing-4) var(--uh-spacing-12);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+/*
+ * The body is not dimmed.
+ *
+ * Fading it to 65% would have taken text.secondary from 6.92:1 down to about
+ * 4.2:1 against the surface, which fails the contract the whole palette is
+ * checked against - and it would have been a bare number with no token behind
+ * it. The scrim and the label on the image say the package has gone; the price
+ * and the dates underneath stay legible, because they are still what a pilgrim
+ * compares the remaining trips against.
+ */
+.uh-package[data-sold-out='true'] .uh-package__action {
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------------ body */
+
+.uh-package__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12);
+}
+
+.uh-package[data-variant='mobile'] .uh-package__body,
+.uh-package[data-variant='list'] .uh-package__body {
+  padding: var(--uh-spacing-16);
+}
+
+/* ----------------------------------------------------------------- title */
+
+.uh-package__title {
+  /*
+   * Exactly two lines, always. Clamped so a long name cannot push the card
+   * taller than its neighbours, and floored at two lines so a short one cannot
+   * pull it shorter. Reserving the second line is the whole reason a grid of
+   * these stays level.
+   */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  min-height: calc(2 * var(--uh-package-title-size) * var(--uh-package-title-leading));
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-package-title-size);
+  line-height: var(--uh-package-title-leading);
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+/*
+ * The grid column is the tightest place the title ever lands, and Malay and
+ * Indonesian package names run about fifteen percent longer than the English.
+ * A step down in size there is what keeps the whole name inside two lines
+ * rather than trimming the copy, which is the wrong end to shorten.
+ */
+.uh-package[data-variant='grid'] {
+  --uh-package-title-size: var(--uh-typography-web-body-s-font-size);
+  --uh-package-title-leading: var(--uh-typography-web-body-s-line-height);
+}
+
+.uh-package[data-variant='list'],
+.uh-package[data-variant='mobile'] {
+  --uh-package-title-size: var(--uh-typography-web-body-m-font-size);
+  --uh-package-title-leading: var(--uh-typography-web-body-m-line-height);
+}
+
+.uh-package__action {
+  display: inline;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+/* The whole card, from one button. Everything meant to stay clickable sits
+   above this with a z-index of its own. */
+.uh-package__action::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: var(--uh-z-index-base);
+}
+
+.uh-package__action:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+/* ---------------------------------------------------------------- agency */
+
+.uh-package__agency {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  min-width: 0;
+  margin: 0;
+}
+
+.uh-package__agency-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-package__verified {
+  display: inline-flex;
+  flex: none;
+  color: var(--uh-color-text-brand);
+}
+
+.uh-package__verified > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+/* ------------------------------------------------------------------ meta */
+
+.uh-package__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/*
+ * Walking distances, one per line. They are sentences rather than tokens, so
+ * they get no separator: a dot before a wrapped line orphans itself at the
+ * start of it, which is exactly what happened once real Malay copy went in.
+ */
+.uh-package__hotels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* A separator drawn rather than typed, so no character reaches a screen
+   reader and the list stays a list. */
+.uh-package__meta > li + li::before {
+  content: '';
+  display: inline-block;
+  width: var(--uh-spacing-2);
+  height: var(--uh-spacing-2);
+  margin-inline-end: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+  vertical-align: middle;
+}
+
+/* ----------------------------------------------------------------- seats */
+
+.uh-package__seats {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-package__seats[data-urgent='true'] {
+  color: var(--uh-color-feedback-warning-text);
+}
+
+/* ----------------------------------------------------------------- price */
+
+.uh-package__price {
+  /* Pinned to the bottom, so prices line up across a row whatever sits above
+     them. This is what makes a stretched card look deliberate. */
+  margin-block-start: auto;
+  padding-block-start: var(--uh-spacing-4);
+}
+
+/* -------------------------------------------------------------- skeleton */
+
+.uh-package[data-loading='true'] .uh-package__title {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-4);
+}

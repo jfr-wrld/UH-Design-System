@@ -1,0 +1,200 @@
+/*
+ * PriceBreakdown
+ *
+ * The last table a pilgrim reads before paying, which makes it the place a
+ * wobbling column is most visible and least forgivable. Every amount is
+ * tabular, the column is right-aligned, and the total is separated by a rule
+ * and a size step rather than by colour.
+ */
+
+.uh-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-breakdown[data-variant='card'] {
+  padding: var(--uh-spacing-16);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+}
+
+/* ------------------------------------------------------------ passengers */
+
+.uh-breakdown__passengers {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* ---------------------------------------------------------------- toggle */
+
+.uh-breakdown__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-8);
+  min-height: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--uh-color-text-link);
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-breakdown__toggle:hover {
+  color: var(--uh-color-text-link-hover);
+}
+
+.uh-breakdown__toggle:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+.uh-breakdown__chevron {
+  display: inline-flex;
+  flex: none;
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-breakdown__chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+.uh-breakdown__chevron > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+/* ----------------------------------------------------------------- table */
+
+.uh-breakdown__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.uh-breakdown__row > th,
+.uh-breakdown__row > td {
+  padding: var(--uh-spacing-4) 0;
+  vertical-align: baseline;
+}
+
+/* ----------------------------------------------------------------- label */
+
+/*
+ * No display:flex here: a th that stops being a table-cell is re-wrapped in an
+ * anonymous cell and the two columns quietly stop being columns. The label is
+ * plain cell text; the info control beside it is inline-flex, which flows in
+ * text just fine.
+ */
+.uh-breakdown__label {
+  color: var(--uh-color-text-primary);
+  text-align: start;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* Taxes and fees are the fine print of the set; a shade quieter, still AA. */
+.uh-breakdown__row[data-type='tax'] > .uh-breakdown__label,
+.uh-breakdown__row[data-type='fee'] > .uh-breakdown__label {
+  color: var(--uh-color-text-secondary);
+}
+
+/* ------------------------------------------------------------------ info */
+
+.uh-breakdown__info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-inline-start: var(--uh-spacing-4);
+  vertical-align: middle;
+  /*
+   * 24px, not the house 44: rows sit at line height, and a 44px target here
+   * would overlap the rows above and below it, stealing their taps. The same
+   * documented trade as the Badge remove control - WCAG 2.5.8's floor, not the
+   * house rule.
+   */
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background: none;
+  color: var(--uh-color-text-tertiary);
+  cursor: pointer;
+}
+
+.uh-breakdown__info > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-breakdown__info:hover {
+  color: var(--uh-color-text-primary);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-breakdown__info:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+/* ---------------------------------------------------------------- amount */
+
+.uh-breakdown__amount {
+  color: var(--uh-color-text-primary);
+  text-align: end;
+  white-space: nowrap;
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-breakdown__row[data-type='discount'] > .uh-breakdown__amount {
+  color: var(--uh-color-feedback-success-text);
+}
+
+/* ----------------------------------------------------------------- total */
+
+/*
+ * The rule above the total belongs to the row, so it holds whether the details
+ * above it are open, collapsed, or absent.
+ */
+.uh-breakdown__row[data-type='total'] > th,
+.uh-breakdown__row[data-type='total'] > td {
+  padding-block-start: var(--uh-spacing-8);
+  border-block-start: var(--uh-border-width-1) solid var(--uh-color-border-default);
+}
+
+.uh-breakdown__row[data-type='total'] > .uh-breakdown__label {
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-breakdown__row[data-type='total'] > .uh-breakdown__amount {
+  font-family: var(--uh-typography-numeric-price-md-font-family);
+  font-size: var(--uh-typography-numeric-price-md-font-size);
+  line-height: var(--uh-typography-numeric-price-md-line-height);
+  font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-md-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-md-font-variant-numeric);
+}

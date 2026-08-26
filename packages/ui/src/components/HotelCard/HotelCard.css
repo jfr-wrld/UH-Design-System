@@ -1,0 +1,187 @@
+/*
+ * HotelCard
+ *
+ * The hierarchy is deliberately upside-down from a booking site's habit: the
+ * distance to the mosque outranks the hotel's own name, because it is the
+ * number pilgrims choose on. Name at label size, distance a full step above it
+ * in tabular figures.
+ */
+
+.uh-hotel {
+  display: flex;
+  min-width: 0;
+  overflow: hidden;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-hotel[data-variant='compact'] {
+  flex-direction: row;
+}
+
+.uh-hotel[data-variant='full'] {
+  flex-direction: column;
+}
+
+/* ----------------------------------------------------------------- media */
+
+.uh-hotel__media {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-hotel[data-variant='compact'] .uh-hotel__media {
+  /* The shared horizontal-card image share; was 30% while PackageCard said
+     34%, which is exactly the drift the token now prevents. */
+  flex: 0 0 var(--uh-size-media-split);
+  align-self: stretch;
+}
+
+.uh-hotel[data-variant='full'] .uh-hotel__media {
+  aspect-ratio: 3 / 2;
+}
+
+.uh-hotel__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uh-hotel__image-fallback {
+  width: 100%;
+  height: 100%;
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+/* ------------------------------------------------------------------ body */
+
+.uh-hotel__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-4);
+  padding: var(--uh-spacing-12);
+}
+
+.uh-hotel[data-variant='full'] .uh-hotel__body {
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-16);
+}
+
+.uh-hotel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-hotel__name {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-hotel__stars {
+  flex: none;
+}
+
+/* -------------------------------------------------------------- distance */
+
+.uh-hotel__distance {
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-numeric-price-sm-font-family);
+  font-size: var(--uh-typography-numeric-price-sm-font-size);
+  line-height: var(--uh-typography-numeric-price-sm-line-height);
+  font-weight: var(--uh-typography-numeric-price-sm-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-sm-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-sm-font-variant-numeric);
+}
+
+.uh-hotel[data-variant='full'] .uh-hotel__distance {
+  font-family: var(--uh-typography-numeric-price-md-font-family);
+  font-size: var(--uh-typography-numeric-price-md-font-size);
+  line-height: var(--uh-typography-numeric-price-md-line-height);
+  font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-md-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-md-font-variant-numeric);
+}
+
+.uh-hotel__nights {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* ------------------------------------------------------------- amenities */
+
+.uh-hotel__amenities {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  margin: var(--uh-spacing-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-hotel__amenity {
+  display: inline-flex;
+}
+
+.uh-hotel__amenity-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 24px against the house 44: an icon row at 44 each would be wider than the
+     card. The same documented trade as the breakdown's info control. */
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-sm);
+  background: none;
+  color: var(--uh-color-text-secondary);
+  cursor: default;
+}
+
+.uh-hotel__amenity-button > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-hotel__amenity-button:hover {
+  color: var(--uh-color-text-primary);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-hotel__amenity-button:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-hotel__amenity-more {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}

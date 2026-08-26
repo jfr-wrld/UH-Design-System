@@ -1,0 +1,193 @@
+/*
+ * AgencyCard
+ *
+ * Trust is the whole point of this card, so the hierarchy is inverted from a
+ * typical listing card: the licence number and the verified mark are set to be
+ * read, not tucked away as small print. The licence is tabular, at the label
+ * size rather than the caption size, and the verified mark is a worded row,
+ * never an unlabelled tick.
+ */
+
+.uh-agency {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-12);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  color: inherit;
+  font: inherit;
+}
+
+/* The full card is a surface of its own; the compact one inherits whatever it
+   sits on, because it rides inside another card. */
+.uh-agency[data-variant='full'] {
+  gap: var(--uh-spacing-16);
+  padding: var(--uh-spacing-16);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+}
+
+/* Only the button form is interactive. */
+button.uh-agency {
+  cursor: pointer;
+  transition:
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    box-shadow var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+button.uh-agency[data-variant='full']:hover {
+  border-color: var(--uh-color-border-strong);
+  box-shadow: var(--uh-elevation-2);
+}
+
+button.uh-agency:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-md);
+}
+
+.uh-agency__logo {
+  flex: none;
+}
+
+/* ---------------------------------------------------------------- detail */
+
+.uh-agency__detail {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-4);
+}
+
+.uh-agency[data-variant='full'] .uh-agency__detail {
+  gap: var(--uh-spacing-8);
+}
+
+.uh-agency__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-agency__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-agency[data-variant='full'] .uh-agency__name {
+  white-space: normal;
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: calc(var(--uh-typography-web-h6-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+/*
+ * The verified mark is words with an icon, not an icon alone. It is the trust
+ * signal the card exists for, and colour-plus-shape is not a message everyone
+ * receives; the word is.
+ */
+.uh-agency__verified {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  color: var(--uh-color-text-brand);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-agency__verified > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+/* --------------------------------------------------------------- licence */
+
+/*
+ * Label size, not caption size, and text.secondary rather than tertiary: the
+ * licence is what separates a real operator from a Facebook page, and setting
+ * it as small print would say the opposite of what it is here to say. Tabular
+ * figures so two agencies' numbers line up when the cards stack.
+ */
+.uh-agency__license {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-agency__license-type {
+  padding: 0 var(--uh-spacing-4);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-agency__license-number {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  font-weight: var(--uh-font-weight-semibold);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+/* ----------------------------------------------------------------- facts */
+
+.uh-agency__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* The same drawn separator as PackageCard's meta row: no character reaches a
+   screen reader, and a wrapped line never begins with an orphaned dot. */
+.uh-agency__fact + .uh-agency__fact::before {
+  content: '';
+  display: inline-block;
+  width: var(--uh-spacing-2);
+  height: var(--uh-spacing-2);
+  margin-inline-end: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+  vertical-align: middle;
+}
+
+.uh-agency__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uh-spacing-4);
+}

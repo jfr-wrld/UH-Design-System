@@ -1,0 +1,191 @@
+/*
+ * BookingStatusTracker
+ *
+ * One list, two directions. The connector between markers is drawn by the
+ * steps themselves - a ::before reaching back towards the previous marker - so
+ * the line needs no absolute geometry and survives any label length.
+ *
+ * Every state is a shape as well as a colour: completed is a check, error a
+ * warning triangle, current a ring, upcoming a number. The same facts reach a
+ * screen reader as words appended to the label.
+ */
+
+.uh-tracker {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.uh-tracker[data-variant='horizontal'] {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.uh-tracker[data-variant='vertical'] {
+  flex-direction: column;
+  gap: var(--uh-spacing-24);
+}
+
+/* ------------------------------------------------------------------ step */
+
+.uh-tracker__step {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.uh-tracker[data-variant='horizontal'] .uh-tracker__step {
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  text-align: center;
+  padding-inline: var(--uh-spacing-4);
+}
+
+.uh-tracker[data-variant='vertical'] .uh-tracker__step {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--uh-spacing-12);
+}
+
+/* ------------------------------------------------------------- connector */
+
+.uh-tracker__step + .uh-tracker__step::before {
+  content: '';
+  position: absolute;
+  background-color: var(--uh-color-border-default);
+}
+
+.uh-tracker[data-variant='horizontal'] .uh-tracker__step + .uh-tracker__step::before {
+  /* From this marker's left edge back across the gap to the previous one. */
+  inset-inline-end: calc(50% + var(--uh-tracker-marker) / 2);
+  inset-inline-start: calc(-50% + var(--uh-tracker-marker) / 2);
+  inset-block-start: calc(var(--uh-tracker-marker) / 2);
+  height: var(--uh-border-width-2);
+}
+
+.uh-tracker[data-variant='vertical'] .uh-tracker__step + .uh-tracker__step::before {
+  inset-inline-start: calc(var(--uh-tracker-marker) / 2);
+  inset-block-start: calc(-1 * var(--uh-spacing-24));
+  height: var(--uh-spacing-24);
+  width: var(--uh-border-width-2);
+}
+
+/* A step that is done colours the line that led to it. */
+.uh-tracker__step[data-state='completed'] + .uh-tracker__step::before,
+.uh-tracker__step[data-state='completed'] ~ .uh-tracker__step[data-state='current']::before {
+  background-color: var(--uh-color-feedback-success-solid);
+}
+
+/* ---------------------------------------------------------------- marker */
+
+.uh-tracker {
+  --uh-tracker-marker: var(--uh-size-icon-lg);
+}
+
+.uh-tracker__marker {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-tracker-marker);
+  height: var(--uh-tracker-marker);
+  border: var(--uh-border-width-2) solid var(--uh-color-border-strong);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-secondary);
+  /* Above the connector lines. */
+  position: relative;
+  z-index: var(--uh-z-index-base);
+}
+
+.uh-tracker__marker > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-tracker__number {
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  font-weight: var(--uh-font-weight-semibold);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-tracker__step[data-state='completed'] .uh-tracker__marker {
+  border-color: var(--uh-color-feedback-success-solid);
+  background-color: var(--uh-color-feedback-success-solid);
+  color: var(--uh-color-feedback-success-on-solid);
+}
+
+/* The current marker: brand ring, and one size step up so it reads as "here". */
+.uh-tracker__step[data-state='current'] .uh-tracker__marker {
+  width: calc(var(--uh-tracker-marker) + var(--uh-spacing-8));
+  height: calc(var(--uh-tracker-marker) + var(--uh-spacing-8));
+  margin: calc(-1 * var(--uh-spacing-4));
+  border-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-default);
+}
+
+.uh-tracker__step[data-state='error'] .uh-tracker__marker {
+  border-color: var(--uh-color-feedback-error-border-strong);
+  color: var(--uh-color-feedback-error-text);
+  background-color: var(--uh-color-feedback-error-bg);
+}
+
+/* ------------------------------------------------------------------ body */
+
+.uh-tracker__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-tracker[data-variant='horizontal'] .uh-tracker__body {
+  align-items: center;
+}
+
+.uh-tracker__label {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-tracker__step[data-state='current'] .uh-tracker__label,
+.uh-tracker__step[data-state='completed'] .uh-tracker__label {
+  color: var(--uh-color-text-primary);
+}
+
+.uh-tracker__step[data-state='current'] .uh-tracker__label {
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-tracker__step[data-state='error'] .uh-tracker__label {
+  color: var(--uh-color-feedback-error-text);
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-tracker__description {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+.uh-tracker__stamp {
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}

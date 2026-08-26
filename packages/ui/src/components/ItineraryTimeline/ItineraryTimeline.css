@@ -1,0 +1,202 @@
+/*
+ * ItineraryTimeline
+ *
+ * A vertical line of days. The connecting line belongs to each item - a
+ * ::before running the item's full height - so it needs no measured geometry
+ * and holds whether a day is folded or open. The last item stops its line at
+ * the marker, which is what makes the timeline end rather than trail off.
+ */
+
+.uh-itinerary {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+
+.uh-itinerary__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  padding-inline-start: var(--uh-spacing-32);
+  padding-block-end: var(--uh-spacing-24);
+}
+
+.uh-itinerary__item:last-child {
+  padding-block-end: 0;
+}
+
+/* -------------------------------------------------------- line and marker */
+
+.uh-itinerary__item::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(var(--uh-size-icon-sm) / 2 - var(--uh-border-width-1));
+  inset-block-start: var(--uh-size-icon-sm);
+  inset-block-end: 0;
+  width: var(--uh-border-width-2);
+  background-color: var(--uh-color-border-default);
+}
+
+.uh-itinerary__item:last-child::before {
+  display: none;
+}
+
+.uh-itinerary__marker {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: calc(var(--uh-spacing-4) + var(--uh-border-width-1));
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  border: var(--uh-border-width-2) solid var(--uh-color-border-brand);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+}
+
+/* ------------------------------------------------------------------ head */
+
+.uh-itinerary__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-4) var(--uh-spacing-12);
+  min-width: 0;
+}
+
+.uh-itinerary__toggle,
+.uh-itinerary__static-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+  min-width: 0;
+  min-height: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  color: inherit;
+}
+
+.uh-itinerary__toggle {
+  cursor: pointer;
+}
+
+.uh-itinerary__toggle:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+.uh-itinerary__day {
+  color: var(--uh-color-text-brand);
+  white-space: nowrap;
+  font-family: var(--uh-typography-web-overline-font-family);
+  font-size: var(--uh-typography-web-overline-font-size);
+  line-height: calc(
+    var(--uh-typography-web-overline-line-height) + var(--uh-line-height-adjust, 0)
+  );
+  letter-spacing: var(--uh-typography-web-overline-letter-spacing);
+  font-weight: var(--uh-typography-web-overline-font-weight);
+  text-transform: var(--uh-typography-web-overline-text-transform);
+}
+
+.uh-itinerary__title {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-itinerary__chevron {
+  display: inline-flex;
+  flex: none;
+  color: var(--uh-color-text-secondary);
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-itinerary__chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+.uh-itinerary__chevron > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-itinerary__context {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-itinerary__date {
+  color: var(--uh-color-text-secondary);
+  white-space: nowrap;
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+/* ------------------------------------------------------------ activities */
+
+.uh-itinerary__activities {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-itinerary__activity {
+  display: flex;
+  align-items: baseline;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-itinerary__activity-icon {
+  display: inline-flex;
+  flex: none;
+  align-self: center;
+  color: var(--uh-color-text-secondary);
+}
+
+.uh-itinerary__activity-icon > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-itinerary__activity-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* Supplied preformatted; tabular so a column of times stays a column. */
+.uh-itinerary__activity-time {
+  flex: none;
+  color: var(--uh-color-text-tertiary);
+  white-space: nowrap;
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}

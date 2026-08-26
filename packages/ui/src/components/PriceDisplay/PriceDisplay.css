@@ -1,0 +1,144 @@
+/*
+ * PriceDisplay
+ *
+ * The one place a price is drawn. Everything numeric here is tabular, so a
+ * column of prices in a grid lines up on the thousands separator instead of
+ * wobbling as the digits change.
+ *
+ * Colour is deliberately quiet: the amount is text.primary, never the orange
+ * accent. Orange belongs to the badge and the call to action, and a grid of
+ * thirty cards each shouting its price in accent colour is noise, not
+ * hierarchy. Size carries the emphasis instead.
+ */
+
+.uh-price {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+  margin: 0;
+}
+
+.uh-price__row {
+  /*
+   * Baseline alignment, so the struck price and the per-pax label sit on the
+   * amount's baseline rather than its box. Wrapping is what keeps a long
+   * currency honest: Rp 45.000.000 beside its own struck original cannot fit a
+   * narrow card, and dropping to a second line is better than overflowing one.
+   */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- amount */
+
+.uh-price__amount {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-price-font-family);
+  font-size: var(--uh-price-font-size);
+  line-height: var(--uh-price-line-height);
+  letter-spacing: var(--uh-price-letter-spacing);
+  font-weight: var(--uh-price-font-weight);
+  font-feature-settings: var(--uh-price-font-feature-settings);
+  font-variant-numeric: var(--uh-price-font-variant-numeric);
+}
+
+.uh-price[data-size='sm'] {
+  --uh-price-font-family: var(--uh-typography-numeric-price-sm-font-family);
+  --uh-price-font-size: var(--uh-typography-numeric-price-sm-font-size);
+  --uh-price-line-height: var(--uh-typography-numeric-price-sm-line-height);
+  --uh-price-letter-spacing: var(--uh-typography-numeric-price-sm-letter-spacing);
+  --uh-price-font-weight: var(--uh-typography-numeric-price-sm-font-weight);
+  --uh-price-font-feature-settings: var(--uh-typography-numeric-price-sm-font-feature-settings);
+  --uh-price-font-variant-numeric: var(--uh-typography-numeric-price-sm-font-variant-numeric);
+
+  /* One step down for the struck price, and no lower than the table size. */
+  --uh-price-was-font-size: var(--uh-typography-numeric-table-font-size);
+  --uh-price-was-font-weight: var(--uh-typography-numeric-table-font-weight);
+}
+
+.uh-price[data-size='md'] {
+  --uh-price-font-family: var(--uh-typography-numeric-price-md-font-family);
+  --uh-price-font-size: var(--uh-typography-numeric-price-md-font-size);
+  --uh-price-line-height: var(--uh-typography-numeric-price-md-line-height);
+  --uh-price-letter-spacing: var(--uh-typography-numeric-price-md-letter-spacing);
+  --uh-price-font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  --uh-price-font-feature-settings: var(--uh-typography-numeric-price-md-font-feature-settings);
+  --uh-price-font-variant-numeric: var(--uh-typography-numeric-price-md-font-variant-numeric);
+
+  --uh-price-was-font-size: var(--uh-typography-numeric-price-sm-font-size);
+  --uh-price-was-font-weight: var(--uh-typography-numeric-price-sm-font-weight);
+}
+
+.uh-price[data-size='lg'] {
+  --uh-price-font-family: var(--uh-typography-numeric-price-lg-font-family);
+  --uh-price-font-size: var(--uh-typography-numeric-price-lg-font-size);
+  --uh-price-line-height: var(--uh-typography-numeric-price-lg-line-height);
+  --uh-price-letter-spacing: var(--uh-typography-numeric-price-lg-letter-spacing);
+  --uh-price-font-weight: var(--uh-typography-numeric-price-lg-font-weight);
+  --uh-price-font-feature-settings: var(--uh-typography-numeric-price-lg-font-feature-settings);
+  --uh-price-font-variant-numeric: var(--uh-typography-numeric-price-lg-font-variant-numeric);
+
+  --uh-price-was-font-size: var(--uh-typography-numeric-price-sm-font-size);
+  --uh-price-was-font-weight: var(--uh-typography-numeric-price-sm-font-weight);
+}
+
+.uh-price[data-size='xl'] {
+  --uh-price-font-family: var(--uh-typography-numeric-price-xl-font-family);
+  --uh-price-font-size: var(--uh-typography-numeric-price-xl-font-size);
+  --uh-price-line-height: var(--uh-typography-numeric-price-xl-line-height);
+  --uh-price-letter-spacing: var(--uh-typography-numeric-price-xl-letter-spacing);
+  --uh-price-font-weight: var(--uh-typography-numeric-price-xl-font-weight);
+  --uh-price-font-feature-settings: var(--uh-typography-numeric-price-xl-font-feature-settings);
+  --uh-price-font-variant-numeric: var(--uh-typography-numeric-price-xl-font-variant-numeric);
+
+  /* Capped at price-md: a 28px strike beside a 36px price reads as a second
+     price rather than as a footnote to the first. */
+  --uh-price-was-font-size: var(--uh-typography-numeric-price-md-font-size);
+  --uh-price-was-font-weight: var(--uh-typography-numeric-price-md-font-weight);
+}
+
+/* ------------------------------------------------------------ was-price */
+
+.uh-price__original {
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-numeric-price-sm-font-family);
+  font-size: var(--uh-price-was-font-size);
+  line-height: var(--uh-typography-numeric-price-sm-line-height);
+  font-weight: var(--uh-price-was-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-sm-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-sm-font-variant-numeric);
+  text-decoration-line: line-through;
+}
+
+/* ------------------------------------------------------------ qualifiers */
+
+.uh-price__prefix,
+.uh-price__per-pax {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+/* The gap belongs between the amount and its qualifier, not around the word. */
+.uh-price__prefix {
+  margin-inline-end: calc(-1 * var(--uh-spacing-4));
+}
+
+/* ------------------------------------------------------------ instalment */
+
+.uh-price__instalment {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: calc(
+    var(--uh-typography-numeric-table-line-height) + var(--uh-line-height-adjust, 0)
+  );
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}

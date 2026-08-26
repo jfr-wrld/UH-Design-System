@@ -1,0 +1,24 @@
+<!--
+  A geometric stand-in for a package photograph, used by the PackageCard
+  stories to exercise the "image loads" branch.
+
+  Deliberately not a photograph of the Haram, the Kaabah or any real place: the
+  direction is explicit that the weight of the journey is carried by restraint
+  rather than by stacked religious imagery, and a placeholder that borrowed one
+  would be doing the opposite. Arches and a horizon are enough to read as
+  architecture at thumbnail size.
+
+  The colours are teal-800, teal-600 and teal-200 copied from the palette; they
+  live here rather than in the story because this is an image asset, and an
+  image's own colours are not design tokens.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="320" viewBox="0 0 480 320">
+  <rect width="480" height="320" fill="#0A4A44" />
+  <rect y="232" width="480" height="88" fill="#08403A" />
+  <g fill="#C7E5E2">
+    <path d="M104 232v-84a40 40 0 0 1 80 0v84z" opacity="0.9" />
+    <path d="M212 232v-108a28 28 0 0 1 56 0v108z" opacity="0.75" />
+    <path d="M296 232v-72a32 32 0 0 1 64 0v72z" opacity="0.6" />
+  </g>
+  <circle cx="388" cy="80" r="26" fill="#C7E5E2" opacity="0.5" />
+</svg>

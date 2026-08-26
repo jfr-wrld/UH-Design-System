@@ -1,0 +1,267 @@
+/*
+ * ReviewCard and RatingBreakdown
+ *
+ * A review is prose from a stranger, so the card's job is restraint: the
+ * author row, the text, and nothing shouting. The clamp is measured rather
+ * than guessed - the Read more control appears only when four lines genuinely
+ * did not hold the text.
+ */
+
+.uh-review {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-16);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+}
+
+/* ------------------------------------------------------------------ head */
+
+.uh-review__head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-review__who {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-review__author {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-4) var(--uh-spacing-8);
+}
+
+.uh-review__name {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-review__context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-review__date {
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+.uh-review__package {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: calc(var(--uh-typography-web-caption-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+/* --------------------------------------------------------------- content */
+
+.uh-review__content {
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  overflow-wrap: anywhere;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-review__content[data-clamped='true'] {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+.uh-review__toggle {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--uh-color-text-link);
+  cursor: pointer;
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-review__toggle:hover {
+  color: var(--uh-color-text-link-hover);
+  text-decoration: underline;
+}
+
+.uh-review__toggle:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+/* ---------------------------------------------------------------- photos */
+
+.uh-review__photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uh-spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-review__photo-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: none;
+  cursor: pointer;
+}
+
+.uh-review__photo-button:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-review__photo {
+  display: block;
+  width: var(--uh-size-upload-thumb);
+  height: var(--uh-size-upload-thumb);
+  border-radius: var(--uh-radius-md);
+  object-fit: cover;
+  background-color: var(--uh-color-bg-muted);
+}
+
+/* --------------------------------------------------------------- helpful */
+
+.uh-review__helpful {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+button.uh-review__helpful {
+  cursor: pointer;
+  color: var(--uh-color-text-link);
+}
+
+button.uh-review__helpful:hover {
+  color: var(--uh-color-text-link-hover);
+  text-decoration: underline;
+}
+
+button.uh-review__helpful:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+/* ------------------------------------------------------------- breakdown */
+
+.uh-ratings {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-12);
+}
+
+.uh-ratings__summary {
+  display: flex;
+  align-items: baseline;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-ratings__average {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-numeric-price-lg-font-family);
+  font-size: var(--uh-typography-numeric-price-lg-font-size);
+  line-height: var(--uh-typography-numeric-price-lg-line-height);
+  letter-spacing: var(--uh-typography-numeric-price-lg-letter-spacing);
+  font-weight: var(--uh-typography-numeric-price-lg-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-lg-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-lg-font-variant-numeric);
+}
+
+.uh-ratings__total {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-ratings__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-ratings__row {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+/* Tabular and right-aligned on both sides of the bar, so five rows of digits
+   sit in two straight columns. */
+.uh-ratings__star,
+.uh-ratings__count {
+  flex: none;
+  color: var(--uh-color-text-secondary);
+  text-align: end;
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-ratings__count {
+  min-width: var(--uh-spacing-32);
+}
+
+.uh-ratings__track {
+  flex: 1 1 auto;
+  height: var(--uh-size-progress-track);
+  overflow: hidden;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-ratings__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-text-primary);
+}

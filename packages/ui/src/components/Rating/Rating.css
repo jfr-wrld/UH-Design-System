@@ -1,0 +1,72 @@
+/*
+ * Rating
+ *
+ * Monochrome stars, not gold ones.
+ *
+ * A package listing shows thirty cards at a time, which is a hundred and fifty
+ * stars. In the accent colour that is the "orange everywhere" the direction
+ * warns about: the accent is meant for the one thing on a surface that should
+ * be noticed, and a rating is information rather than a call to action. The
+ * score sits beside the stars in words, so nothing here depends on the colour.
+ */
+
+.uh-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+}
+
+.uh-rating__stars {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.uh-rating__layer {
+  display: inline-flex;
+  gap: var(--uh-spacing-2);
+  color: var(--uh-color-border-strong);
+}
+
+/* Clipped to the score by an inline inline-size, so 4.3 of 5 fills 86%. */
+.uh-rating__layer[data-filled='true'] {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  overflow: hidden;
+  color: var(--uh-color-text-primary);
+}
+
+.uh-rating__layer > svg {
+  flex: none;
+  width: var(--uh-rating-star);
+  height: var(--uh-rating-star);
+}
+
+.uh-rating[data-size='sm'] {
+  --uh-rating-star: var(--uh-size-icon-sm);
+}
+
+.uh-rating[data-size='md'] {
+  --uh-rating-star: var(--uh-size-icon-md);
+}
+
+.uh-rating__value {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-font-weight-semibold);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-rating__count {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
