@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 
 import { FieldShell, type FieldSize } from '../Field/FieldShell.js';
 import { Spinner } from '../Spinner/Spinner.js';
+import { useControllableState } from '../../hooks/useControllableState.js';
 
 export interface SelectOption {
   value: string;
@@ -134,9 +135,10 @@ function SelectImpl(props: SelectProps, ref: ForwardedRef<HTMLDivElement>) {
   const listId = `${reactId}-list`;
   const statusId = `${reactId}-status`;
 
-  const [uncontrolled, setUncontrolled] = useState<string | null>(defaultValue ?? null);
-  const isControlled = value !== undefined;
-  const selectedValue = isControlled ? value : uncontrolled;
+  const [selectedValue, setSelectedValue] = useControllableState<string | null>({
+    value,
+    defaultValue: defaultValue ?? null,
+  });
   const selected = options.find((o) => o.value === selectedValue) ?? null;
 
   const [open, setOpen] = useState(false);
@@ -229,7 +231,7 @@ function SelectImpl(props: SelectProps, ref: ForwardedRef<HTMLDivElement>) {
 
   function commit(option: SelectOption | null) {
     if (option?.disabled) return;
-    if (!isControlled) setUncontrolled(option?.value ?? null);
+    setSelectedValue(option?.value ?? null);
     onValueChange?.(option?.value ?? null, option);
     close();
     triggerRef.current?.focus();

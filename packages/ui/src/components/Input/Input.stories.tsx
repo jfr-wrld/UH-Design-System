@@ -202,7 +202,8 @@ export const Types: Story = {
           <code>PhoneInput</code>:
         </p>
         <div style={{ maxWidth: '20rem' }}>
-          <PhoneInput label="Mobile Number" required placeholder="12-345 6789" />
+          {/* No placeholder needed: it shows the selected country's own format. */}
+          <PhoneInput label="Mobile Number" required />
         </div>
       </div>
     </Page>

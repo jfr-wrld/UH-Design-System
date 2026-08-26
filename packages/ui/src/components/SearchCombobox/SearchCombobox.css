@@ -1,0 +1,422 @@
+/*
+ * SearchCombobox
+ *
+ * A combobox whose popup is a listbox, portalled so no `overflow: hidden`
+ * ancestor can clip it. On a phone the popup is a full-screen overlay carrying
+ * its own copy of the field, and the inline element becomes a button; that is
+ * different markup rather than the same markup restyled, so the choice is made
+ * in script from the breakpoint token.
+ */
+
+.uh-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-search__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+/* ----------------------------------------------------------------- field */
+
+.uh-search__control,
+.uh-search__trigger {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+  min-height: var(--uh-size-control-md);
+  padding-inline: var(--uh-spacing-12);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-strong);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+  text-align: start;
+  transition: border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-search__trigger {
+  cursor: pointer;
+}
+
+.uh-search__control:hover,
+.uh-search__trigger:hover:not(:disabled) {
+  border-color: var(--uh-color-border-focus);
+}
+
+.uh-search__control:focus-within,
+.uh-search__trigger:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-color: var(--uh-color-border-focus);
+}
+
+.uh-search__control[data-disabled='true'],
+.uh-search__trigger:disabled {
+  border-color: var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-muted);
+  cursor: not-allowed;
+}
+
+.uh-search[data-state='error'] .uh-search__control,
+.uh-search[data-state='error'] .uh-search__trigger {
+  border-color: var(--uh-color-feedback-error-border-strong);
+}
+
+.uh-search__icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--uh-color-text-secondary);
+}
+
+.uh-search__icon > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: calc(var(--uh-typography-web-body-m-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-search__input:focus {
+  /* The ring belongs to the whole control, not the bare input. */
+  outline: none;
+}
+
+.uh-search__input::placeholder {
+  color: var(--uh-color-text-tertiary);
+  opacity: 1;
+}
+
+.uh-search__input:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-search__trigger-value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: calc(var(--uh-typography-web-body-m-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-search__trigger-value[data-placeholder='true'] {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-search__clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  /*
+   * 24px, not the house 44. A 44px hit area inside a 44px field would sit on
+   * top of the last third of the text, so tapping to place the caret at the end
+   * of what you typed would clear it instead. Same reasoning as the Badge
+   * remove control, and above the 24px WCAG 2.5.8 floor.
+   */
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background: transparent;
+  color: var(--uh-color-text-secondary);
+  cursor: pointer;
+}
+
+.uh-search__clear > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-search__clear:hover {
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-search__clear:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-search__message {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-search[data-state='error'] .uh-search__message {
+  color: var(--uh-color-feedback-error-text);
+}
+
+/* ----------------------------------------------------------------- panel */
+
+.uh-search__panel {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface-raised);
+  box-shadow: var(--uh-elevation-3);
+  z-index: var(--uh-z-index-dropdown);
+}
+
+.uh-search__panel[data-placement='bottom'] {
+  margin-block-start: var(--uh-spacing-4);
+}
+
+.uh-search__panel[data-placement='top'] {
+  margin-block-start: calc(-1 * var(--uh-spacing-4));
+}
+
+.uh-search__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border-block-end: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+}
+
+.uh-search__header-title {
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-overline-font-family);
+  font-size: var(--uh-typography-web-overline-font-size);
+  line-height: calc(
+    var(--uh-typography-web-overline-line-height) + var(--uh-line-height-adjust, 0)
+  );
+  letter-spacing: var(--uh-typography-web-overline-letter-spacing);
+  font-weight: var(--uh-typography-web-overline-font-weight);
+  text-transform: var(--uh-typography-web-overline-text-transform);
+}
+
+.uh-search__clear-recent {
+  padding: var(--uh-spacing-4) var(--uh-spacing-8);
+  border: 0;
+  border-radius: var(--uh-radius-sm);
+  background: transparent;
+  color: var(--uh-color-text-link);
+  cursor: pointer;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-search__clear-recent:hover {
+  background-color: var(--uh-color-bg-muted);
+  text-decoration: underline;
+}
+
+.uh-search__clear-recent:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+/* --------------------------------------------------------------- listbox */
+
+.uh-search__list {
+  max-height: var(--uh-size-overlay-max-height);
+  overflow-y: auto;
+  padding: var(--uh-spacing-4);
+}
+
+/* Always in the DOM, because role=combobox needs aria-controls to point at
+   something; out of the way when it holds nothing. */
+.uh-search__list:empty {
+  display: none;
+}
+
+.uh-search__group-label {
+  padding: var(--uh-spacing-8) var(--uh-spacing-8) var(--uh-spacing-4);
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-overline-font-family);
+  font-size: var(--uh-typography-web-overline-font-size);
+  line-height: calc(
+    var(--uh-typography-web-overline-line-height) + var(--uh-line-height-adjust, 0)
+  );
+  letter-spacing: var(--uh-typography-web-overline-letter-spacing);
+  font-weight: var(--uh-typography-web-overline-font-weight);
+  text-transform: var(--uh-typography-web-overline-text-transform);
+}
+
+.uh-search__option {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  min-height: var(--uh-size-tap-target-min);
+  padding: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-md);
+  cursor: pointer;
+}
+
+.uh-search__option[data-active='true'] {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-search__option-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-search__option-icon > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-search__option-text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-search__option-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: calc(var(--uh-typography-web-body-m-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-search__option-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/*
+ * The matched run is marked with a teal tint and weight, not the orange accent.
+ * Orange is reserved for the single most important moment on a surface, and a
+ * result list can easily hold thirty matched runs.
+ *
+ * `bg.highlight` and not `bg.brand-subtle`: the latter is 1.03:1 against the
+ * surface it lands on, which is invisible behind six characters of text. The
+ * weight carries the emphasis on its own, so the tint is redundant rather than
+ * load-bearing, but a decoration nobody can see is not worth shipping.
+ */
+.uh-search__match {
+  background-color: var(--uh-color-bg-highlight);
+  color: var(--uh-color-text-primary);
+  font-weight: var(--uh-font-weight-semibold);
+  border-radius: var(--uh-radius-sm);
+}
+
+/* ---------------------------------------------------------------- status */
+
+.uh-search__status {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-search__status[data-error='true'] {
+  color: var(--uh-color-feedback-error-text);
+}
+
+.uh-search__status-icon {
+  display: inline-flex;
+  flex: none;
+}
+
+.uh-search__status-icon > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+/* -------------------------------------------------------- mobile overlay */
+
+.uh-search__layer[data-mobile='true'] {
+  position: fixed;
+  inset: 0;
+  z-index: var(--uh-z-index-modal);
+}
+
+.uh-search__panel[data-mobile='true'] {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  max-height: none;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background-color: var(--uh-color-bg-canvas);
+  box-shadow: none;
+}
+
+.uh-search__panel[data-mobile='true'] .uh-search__list {
+  flex: 1 1 auto;
+  max-height: none;
+  padding: var(--uh-spacing-8);
+}
+
+.uh-search__overlay-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12);
+  border-block-end: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-search__cancel {
+  flex: none;
+  min-height: var(--uh-size-control-md);
+  padding-inline: var(--uh-spacing-8);
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: transparent;
+  color: var(--uh-color-text-link);
+  cursor: pointer;
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-search__cancel:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}

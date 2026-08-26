@@ -16,7 +16,7 @@ export interface FieldShellProps {
   readOnly?: boolean;
   filled?: boolean;
   fullWidth?: boolean;
-  className?: string;
+  className?: string | undefined;
   /** Helper, error or success text. Whichever applies has already been chosen. */
   message?: string | undefined;
   messageId: string;

@@ -1,0 +1,144 @@
+/*
+ * OTPInput
+ *
+ * One box per character of a one-time code. Each box is a real input, so SMS
+ * autofill, the software keyboard and the caret all behave natively; the boxes
+ * are held together by focus management rather than by faking a caret over a
+ * single hidden field.
+ */
+
+.uh-otp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-otp__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-otp__boxes {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+/* ------------------------------------------------------------------ box */
+
+.uh-otp__box {
+  /*
+   * `flex: 0 1 auto` with a min-width of zero: the boxes hold their width
+   * until the row would otherwise run off the screen, and only then give way.
+   * Six boxes plus five gaps come to 304px, which overflows a 320px phone, and
+   * a horizontal scrollbar on a verification screen is worse than boxes that
+   * are a few pixels narrow. Below roughly 330px they settle near 40px, still
+   * clear of the 24px floor, and the row stays one continuous 52px-tall target.
+   */
+  flex: 0 1 auto;
+  width: var(--uh-size-otp-width);
+  min-width: 0;
+  height: var(--uh-size-otp-height);
+  padding: 0;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-strong);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+  text-align: center;
+
+  /*
+   * Tabular, so a 1 occupies the same width as a 0 and the row of boxes reads
+   * as an even rhythm rather than a set of differently weighted cells.
+   */
+  font-family: var(--uh-typography-numeric-price-md-font-family);
+  font-size: var(--uh-typography-numeric-price-md-font-size);
+  line-height: var(--uh-typography-numeric-price-md-line-height);
+  letter-spacing: var(--uh-typography-numeric-price-md-letter-spacing);
+  font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-md-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-md-font-variant-numeric);
+}
+
+.uh-otp__box:hover:not(:disabled) {
+  border-color: var(--uh-color-border-focus);
+}
+
+.uh-otp__box:focus-visible {
+  border-color: var(--uh-color-border-focus);
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-otp__box:disabled {
+  border-color: var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------- states */
+
+.uh-otp[data-state='error'] .uh-otp__box:not(:disabled) {
+  border-color: var(--uh-color-feedback-error-border-strong);
+}
+
+/*
+ * The shake runs on the box row when the error attribute appears, which is
+ * once per failed attempt rather than on every keystroke. Colour is never the
+ * only signal here: the red border arrives with the message below, which
+ * carries role="alert".
+ */
+@keyframes uh-otp-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(calc(-1 * var(--uh-spacing-8)));
+  }
+
+  40% {
+    transform: translateX(var(--uh-spacing-8));
+  }
+
+  60% {
+    transform: translateX(calc(-1 * var(--uh-spacing-4)));
+  }
+
+  80% {
+    transform: translateX(var(--uh-spacing-4));
+  }
+}
+
+.uh-otp[data-state='error'] .uh-otp__boxes {
+  animation: uh-otp-shake calc(var(--uh-motion-duration-base) * 2) var(--uh-motion-easing-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-otp[data-state='error'] .uh-otp__boxes {
+    animation: none;
+  }
+}
+
+/* text.tertiary, not text.disabled: see Choice.css for why. */
+.uh-otp[data-disabled='true'] .uh-otp__label {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-otp__message {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-otp[data-state='error'] .uh-otp__message {
+  color: var(--uh-color-feedback-error-text);
+}

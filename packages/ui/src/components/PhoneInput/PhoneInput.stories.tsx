@@ -1,30 +1,12 @@
+import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { PhoneInput } from './PhoneInput.js';
-import { DEFAULT_COUNTRIES } from './countries.js';
+import { COUNTRY_RULES, type PhoneCountry } from './phone.js';
 import type { FieldSize } from '../Field/FieldShell.js';
 
-const SIZES: FieldSize[] = ['sm', 'md', 'lg'];
-
-const STATES = [
-  { key: 'default', label: 'Default', props: {} },
-  { key: 'hover', label: 'Hover', props: {}, pseudo: 'pseudo-hover-all' },
-  { key: 'focus', label: 'Focus', props: {}, pseudo: 'pseudo-focus-within-all' },
-  { key: 'filled', label: 'Filled', props: { defaultValue: '12-345 6789' } },
-  { key: 'disabled', label: 'Disabled', props: { disabled: true, defaultValue: '12-345 6789' } },
-  { key: 'readonly', label: 'Read only', props: { readOnly: true, defaultValue: '12-345 6789' } },
-  {
-    key: 'error',
-    label: 'Error',
-    props: { defaultValue: '12-34', errorMessage: 'Enter a valid mobile number' },
-  },
-  {
-    key: 'success',
-    label: 'Success',
-    props: { defaultValue: '12-345 6789', successMessage: 'Number verified by SMS' },
-  },
-] as const;
+const COUNTRIES: PhoneCountry[] = ['MY', 'ID', 'SG', 'BN', 'other'];
 
 const surface: CSSProperties = {
   background: 'var(--uh-color-bg-canvas)',
@@ -56,56 +38,161 @@ const meta = {
     docs: {
       description: {
         component:
-          'Country calling code on the left, national number on the right. Flags are real ' +
-          'SVGs rather than emoji: regional-indicator emoji have no glyphs in Segoe UI Emoji, ' +
-          'so Chrome and Edge on Windows render them as bare letters. The selector follows the ' +
-          'APG select-only combobox pattern — focus stays put and aria-activedescendant tracks ' +
-          'the active option.',
+          'Four markets and a manual option, so the picker is a popover rather than a ' +
+          'searchable dropdown. Whatever gets typed or pasted, the value emitted is always ' +
+          'E.164 — the display formatting is per country, the stored value is not.',
       },
     },
   },
-  args: { label: 'Mobile Number' },
+  args: { label: 'Mobile number' },
 } satisfies Meta<typeof PhoneInput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-function Matrix({ size }: { size: FieldSize }) {
-  return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(17rem, 1fr))',
-        gap: 'var(--uh-spacing-20)',
-      }}
-    >
-      {STATES.map((state) => (
-        <div key={`${size}-${state.key}`}>
-          <Caption>{state.label}</Caption>
-          <div style={{ marginTop: 'var(--uh-spacing-8)' }}>
-            <PhoneInput
-              size={size}
-              label="Mobile Number"
-              placeholder="12-345 6789"
-              className={'pseudo' in state ? state.pseudo : undefined}
-              {...state.props}
-            />
+/**
+ * The story the brief asks for: one Malaysian mobile entered four ways, each
+ * landing on the same stored value.
+ */
+export const Normalisation: Story = {
+  name: 'One number, four formats',
+  render: () => {
+    const INPUTS = ['0123456789', '+60123456789', '60123456789', '012-345 6789'];
+
+    function Row({ raw }: { raw: string }) {
+      const [value, setValue] = useState('');
+      return (
+        <tr>
+          <td style={{ padding: 'var(--uh-spacing-8)' }}>
+            <code className="uh-type-web-caption">{raw}</code>
+          </td>
+          <td style={{ padding: 'var(--uh-spacing-8)', width: '18rem' }}>
+            <PhoneInput label="Mobile number" value={value} onChange={setValue} />
+          </td>
+          <td style={{ padding: 'var(--uh-spacing-8)' }}>
+            <span
+              className="uh-type-numeric-table"
+              style={{
+                color:
+                  value === '+60123456789'
+                    ? 'var(--uh-color-feedback-success-text)'
+                    : 'var(--uh-color-text-tertiary)',
+              }}
+            >
+              {value || '(paste the value on the left)'}
+            </span>
+          </td>
+        </tr>
+      );
+    }
+
+    return (
+      <Page>
+        <p
+          className="uh-type-web-body-s uh-measure"
+          style={{ color: 'var(--uh-color-text-secondary)', marginBottom: 'var(--uh-spacing-16)' }}
+        >
+          Paste each string on the left into the field beside it. All four are the same Malaysian
+          mobile, and all four have to come out as <code>+60123456789</code>.
+        </p>
+        <table style={{ borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: 'var(--uh-spacing-8)' }}>
+                <Caption>pasted</Caption>
+              </th>
+              <th style={{ textAlign: 'left', padding: 'var(--uh-spacing-8)' }}>
+                <Caption>field</Caption>
+              </th>
+              <th style={{ textAlign: 'left', padding: 'var(--uh-spacing-8)' }}>
+                <Caption>emitted value</Caption>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {INPUTS.map((raw) => (
+              <Row key={raw} raw={raw} />
+            ))}
+          </tbody>
+        </table>
+      </Page>
+    );
+  },
+};
+
+export const Countries: Story = {
+  render: () => (
+    <Page>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(18rem, 1fr))',
+          gap: 'var(--uh-spacing-20)',
+        }}
+      >
+        {COUNTRIES.map((country) => (
+          <div key={country}>
+            <Caption>
+              {country === 'other'
+                ? 'Other, manual code'
+                : `${COUNTRY_RULES[country].name} +${COUNTRY_RULES[country].dial}`}
+            </Caption>
+            <div style={{ marginTop: 'var(--uh-spacing-8)' }}>
+              <PhoneInput
+                label="Mobile number"
+                defaultCountry={country}
+                {...(country === 'other'
+                  ? { defaultValue: '' }
+                  : { defaultValue: `+${COUNTRY_RULES[country].dial}${sample(country)}` })}
+                helperText={country === 'other' ? 'Enter the country code yourself' : undefined}
+              />
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
-  );
+        ))}
+      </div>
+    </Page>
+  ),
+};
+
+function sample(country: Exclude<PhoneCountry, 'other'>): string {
+  return { MY: '123456789', ID: '81234567890', SG: '91234567', BN: '7123456' }[country];
 }
 
 export const StateMatrix: Story = {
   render: () => (
     <Page>
-      {SIZES.map((size) => (
-        <section key={size} style={{ marginBottom: 'var(--uh-spacing-40)' }}>
+      {(['sm', 'md', 'lg'] as FieldSize[]).map((size) => (
+        <section key={size} style={{ marginBottom: 'var(--uh-spacing-32)' }}>
           <h3 className="uh-type-web-h5" style={{ marginBottom: 'var(--uh-spacing-12)' }}>
             size = {size}
           </h3>
-          <Matrix size={size} />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(18rem, 1fr))',
+              gap: 'var(--uh-spacing-20)',
+            }}
+          >
+            {(
+              [
+                ['Empty', {}],
+                ['Filled', { defaultValue: '+60123456789' }],
+                ['Hover', { defaultValue: '+60123456789', className: 'pseudo-hover-all' }],
+                ['Focus', { defaultValue: '+60123456789', className: 'pseudo-focus-within-all' }],
+                ['Required', { defaultValue: '+60123456789', required: true }],
+                ['Error', { defaultValue: '+601', errorMessage: 'Number is too short' }],
+                ['Disabled', { defaultValue: '+60123456789', disabled: true }],
+                ['Read only', { defaultValue: '+60123456789', readOnly: true }],
+              ] as const
+            ).map(([label, props]) => (
+              <div key={label}>
+                <Caption>{label}</Caption>
+                <div style={{ marginTop: 'var(--uh-spacing-8)' }}>
+                  <PhoneInput label="Mobile number" size={size} {...props} />
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       ))}
     </Page>
@@ -116,72 +203,30 @@ export const DarkMode: Story = {
   parameters: { backgrounds: { disable: true } },
   render: () => (
     <Page theme="dark">
-      <Matrix size="md" />
-    </Page>
-  ),
-};
-
-/** The list is open so the flags, names and dial codes can be inspected. */
-export const CountryList: Story = {
-  parameters: { pseudo: { focusVisible: true } },
-  render: () => (
-    <Page>
-      <div style={{ display: 'grid', gap: 'var(--uh-spacing-16)', maxWidth: '22rem' }}>
-        <Caption>Press the code on the left, or focus it and press ArrowDown</Caption>
-        <PhoneInput
-          label="Mobile Number"
-          required
-          helperText="We send trip updates and departure reminders here"
-          placeholder="12-345 6789"
-        />
-        <p className="uh-type-web-body-s" style={{ color: 'var(--uh-color-text-secondary)' }}>
-          {DEFAULT_COUNTRIES.length} countries by default — the markets the platform sells in, the
-          pilgrimage destinations, and the origins that actually appear in bookings. Pass your own{' '}
-          <code>countries</code> to replace the list entirely.
-        </p>
-      </div>
-    </Page>
-  ),
-};
-
-export const Countries: Story = {
-  name: 'Dial codes and flags',
-  render: () => (
-    <Page>
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(15rem, 1fr))',
-          gap: 'var(--uh-spacing-12)',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(18rem, 1fr))',
+          gap: 'var(--uh-spacing-20)',
+          minHeight: '22rem',
         }}
       >
-        {DEFAULT_COUNTRIES.map((country) => {
-          const { Flag } = country;
-          return (
-            <div
-              key={country.iso2}
-              className="uh-type-web-body-s"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 'var(--uh-spacing-12)',
-                padding: 'var(--uh-spacing-8)',
-                border: 'var(--uh-border-width-1) solid var(--uh-color-border-default)',
-                borderRadius: 'var(--uh-radius-md)',
-              }}
-            >
-              <span
-                className="uh-phone__flag"
-                aria-hidden="true"
-                style={{ width: 'var(--uh-size-icon-lg)' }}
-              >
-                <Flag />
-              </span>
-              <span style={{ flex: '1 1 auto' }}>{country.name}</span>
-              <span className="uh-type-numeric-table">{country.dialCode}</span>
-            </div>
-          );
-        })}
+        <div>
+          <Caption>Open the picker</Caption>
+          <div style={{ marginTop: 'var(--uh-spacing-8)' }}>
+            <PhoneInput label="Mobile number" defaultValue="+60123456789" />
+          </div>
+        </div>
+        <div>
+          <Caption>Error</Caption>
+          <div style={{ marginTop: 'var(--uh-spacing-8)' }}>
+            <PhoneInput
+              label="Mobile number"
+              defaultValue="+601"
+              errorMessage="Number is too short"
+            />
+          </div>
+        </div>
       </div>
     </Page>
   ),
@@ -193,31 +238,29 @@ const LOCALES = [
   {
     code: 'en',
     label: 'English',
-    field: 'Mobile Number',
+    field: 'Mobile number',
     helper: 'We send trip updates here',
-    selector: 'Country calling code',
+    country: 'Country',
+    other: 'Other',
   },
   {
     code: 'ms',
     label: 'Bahasa Melayu',
-    field: 'Nombor Telefon Bimbit',
+    field: 'Nombor telefon bimbit',
     helper: 'Kemas kini perjalanan dihantar ke sini',
-    selector: 'Kod panggilan negara',
+    country: 'Negara',
+    other: 'Lain-lain',
   },
   {
     code: 'id',
     label: 'Bahasa Indonesia',
-    field: 'Nomor Telepon Seluler',
+    field: 'Nomor telepon seluler',
     helper: 'Pembaruan perjalanan dikirim ke sini',
-    selector: 'Kode panggilan negara',
+    country: 'Negara',
+    other: 'Lainnya',
   },
 ] as const;
 
-/**
- * The country trigger takes a fixed bite out of the field, so a longer label
- * plus a long dial code is where the number would get squeezed. 280px is
- * roughly a form column on a small phone.
- */
 export const TextExpansion: Story = {
   render: () => (
     <Page>
@@ -225,8 +268,8 @@ export const TextExpansion: Story = {
         className="uh-type-web-body-s uh-measure"
         style={{ color: 'var(--uh-color-text-secondary)', marginBottom: 'var(--uh-spacing-24)' }}
       >
-        Field width fixed at 280px, with the longest dial code in the default list (Bangladesh,
-        +880) selected in the second row.
+        Fixed 280px column. The picker takes a fixed bite out of the field, so a longer label and
+        helper are where the squeeze shows. Brunei is selected because +673 is the widest dial code.
       </p>
       <div style={{ display: 'flex', gap: 'var(--uh-spacing-24)', flexWrap: 'wrap' }}>
         {LOCALES.map((locale) => (
@@ -237,24 +280,23 @@ export const TextExpansion: Story = {
             <div
               style={{
                 display: 'grid',
-                gap: 'var(--uh-spacing-20)',
+                gap: 'var(--uh-spacing-16)',
                 marginTop: 'var(--uh-spacing-8)',
               }}
             >
               <PhoneInput
                 label={locale.field}
-                countryListLabel={locale.selector}
+                defaultValue="+60123456789"
                 helperText={locale.helper}
+                countryLabel={(name) => `${locale.country}: ${name}`}
+                otherLabel={locale.other}
                 required
-                defaultValue="12-345 6789"
               />
               <PhoneInput
                 label={locale.field}
-                countryListLabel={locale.selector}
-                defaultCountry="BD"
-                helperText={locale.helper}
-                required
-                defaultValue="1712-345678"
+                defaultValue="+6737123456"
+                countryLabel={(name) => `${locale.country}: ${name}`}
+                otherLabel={locale.other}
               />
             </div>
           </div>

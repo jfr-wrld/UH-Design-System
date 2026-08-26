@@ -1,0 +1,209 @@
+/*
+ * NumberStepper
+ *
+ * Two buttons and a field that can also be typed into. The field is a text
+ * input with role="spinbutton" rather than input[type=number]: the native one
+ * accepts "e", "+" and "-", reports an empty string for anything it considers
+ * invalid, and changes value on scroll wheel. None of that is wanted for a
+ * count of people.
+ */
+
+.uh-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-stepper__header {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-stepper__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-stepper__description {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* -------------------------------------------------------------- control */
+
+.uh-stepper__control {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-strong);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-stepper[data-size='sm'] {
+  --uh-stepper-button: var(--uh-size-control-sm);
+}
+
+.uh-stepper[data-size='md'] {
+  --uh-stepper-button: var(--uh-size-control-md);
+}
+
+.uh-stepper__button {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-stepper-button);
+  height: var(--uh-stepper-button);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  cursor: pointer;
+}
+
+/*
+ * At size sm the button is 36px, so an invisible overlay carries the pointer
+ * target up to 44px. Same trick as the small Button: expand the target rather
+ * than inflate the control.
+ */
+.uh-stepper__button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  transform: translate(-50%, -50%);
+}
+
+.uh-stepper__button > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-stepper__button:hover:not(:disabled) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-stepper__button:active:not(:disabled) {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-stepper__button:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-stepper__button:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------- value */
+
+.uh-stepper__value {
+  width: var(--uh-size-stepper-value);
+  min-width: 0;
+  height: var(--uh-stepper-button);
+  padding: 0;
+  border: 0;
+  border-inline: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  text-align: center;
+
+  /* Tabular, so the field does not twitch as digits change under the caret. */
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-stepper__value:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-stepper__value:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------- states */
+
+.uh-stepper[data-disabled='true'] .uh-stepper__control {
+  border-color: var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-stepper[data-state='error'] .uh-stepper__control {
+  border-color: var(--uh-color-feedback-error-border-strong);
+}
+
+/* text.tertiary, not text.disabled: see Choice.css for why. */
+.uh-stepper[data-disabled='true'] .uh-stepper__label,
+.uh-stepper[data-disabled='true'] .uh-stepper__description {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-stepper__message {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-stepper[data-state='error'] .uh-stepper__message {
+  color: var(--uh-color-feedback-error-text);
+}
+
+/* ----------------------------------------------------------- passengers */
+
+.uh-passengers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-20);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.uh-passengers__legend {
+  padding: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: calc(var(--uh-typography-web-h6-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+.uh-passengers__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--uh-spacing-16);
+}
+
+.uh-passengers__row .uh-stepper {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+}

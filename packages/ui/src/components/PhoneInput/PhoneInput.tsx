@@ -4,47 +4,62 @@ import {
   useId,
   useRef,
   useState,
-  type ChangeEvent,
   type ForwardedRef,
-  type InputHTMLAttributes,
   type KeyboardEvent,
 } from 'react';
 
 import { FieldShell, type FieldSize } from '../Field/FieldShell.js';
-import { DEFAULT_COUNTRIES, type Country, type FlagComponent } from './countries.js';
+import { useControllableState } from '../../hooks/useControllableState.js';
+import { CountryMark } from './flags.js';
+import {
+  COUNTRY_RULES,
+  formatNational,
+  fromE164,
+  parsePhone,
+  toE164,
+  type PhoneCountry,
+} from './phone.js';
 
-export type { Country, FlagComponent };
-export { DEFAULT_COUNTRIES };
+export type { PhoneCountry };
 
-type NativeProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'size' | 'required' | 'disabled' | 'readOnly' | 'children' | 'value' | 'onChange'
->;
+/** The four markets, then the manual escape hatch. */
+const OPTIONS: PhoneCountry[] = ['MY', 'ID', 'SG', 'BN', 'other'];
 
-export interface PhoneInputProps extends NativeProps {
+const optionName = (country: PhoneCountry, otherLabel: string) =>
+  country === 'other' ? otherLabel : COUNTRY_RULES[country].name;
+
+const optionDial = (country: PhoneCountry, otherDial: string) =>
+  country === 'other'
+    ? otherDial
+      ? `+${otherDial.replace(/\D/g, '')}`
+      : '+'
+    : `+${COUNTRY_RULES[country].dial}`;
+
+export interface PhoneInputProps {
   label: string;
-  size?: FieldSize;
-  helperText?: string;
-  errorMessage?: string;
-  successMessage?: string;
+  /** Always E.164, e.g. "+60123456789". */
+  value?: string;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
+  defaultCountry?: PhoneCountry;
+  /* Every optional prop admits an explicit undefined: with
+     exactOptionalPropertyTypes on, a value computed at the call site as
+     `cond ? x : undefined` is otherwise rejected, which is exactly how these
+     get passed. */
+  description?: string | undefined;
+  helperText?: string | undefined;
+  errorMessage?: string | undefined;
   required?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
   fullWidth?: boolean;
-  countries?: Country[];
-  /** Controlled selected country, by ISO 3166-1 alpha-2 code. */
-  country?: string;
-  defaultCountry?: string;
-  onCountryChange?: (country: Country) => void;
-  /** The national number, without the dial code. */
-  value?: string;
-  defaultValue?: string;
-  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
-  /**
-   * Accessible name for the country selector and its listbox. The selected
-   * country is announced as the combobox's *value*, so this stays static.
-   */
-  countryListLabel?: string;
+  size?: FieldSize;
+  /** Accessible name for the picker; receives the selected country's name. */
+  countryLabel?: ((country: string) => string) | undefined;
+  otherLabel?: string | undefined;
+  otherCodeLabel?: string | undefined;
+  id?: string | undefined;
+  className?: string | undefined;
 }
 
 function ChevronIcon() {
@@ -58,60 +73,74 @@ function ChevronIcon() {
 function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputElement>) {
   const {
     label,
-    size = 'md',
+    value,
+    defaultValue,
+    onChange,
+    defaultCountry = 'MY',
+    description,
     helperText,
     errorMessage,
-    successMessage,
     required = false,
     disabled = false,
     readOnly = false,
     fullWidth = false,
-    countries = DEFAULT_COUNTRIES,
-    country,
-    defaultCountry = 'MY',
-    onCountryChange,
-    value,
-    defaultValue,
-    onChange,
-    countryListLabel = 'Country calling code',
-    className,
+    size = 'md',
+    countryLabel = (name) => `Country: ${name}`,
+    otherLabel = 'Other',
+    otherCodeLabel = 'Country calling code',
     id,
-    ...rest
+    className,
   } = props;
 
   const reactId = useId();
-  const inputId = id ?? `${reactId}-input`;
+  const inputId = id ?? `${reactId}-number`;
   const messageId = `${reactId}-message`;
   const listId = `${reactId}-list`;
-  const triggerId = `${reactId}-trigger`;
+  const codeId = `${reactId}-code`;
+  const descriptionId = description ? `${reactId}-description` : undefined;
 
-  const fallback = countries[0] as Country;
-  const [uncontrolledIso, setUncontrolledIso] = useState(defaultCountry);
-  const selectedIso = country ?? uncontrolledIso;
-  const selected = countries.find((c) => c.iso2 === selectedIso) ?? fallback;
+  /*
+   * One stored value, always E.164. Country and national digits are derived
+   * from it rather than kept alongside, so the two can never disagree.
+   */
+  const [e164, setE164] = useControllableState<string>({
+    value,
+    defaultValue: defaultValue ?? '',
+    onChange,
+  });
 
-  const [uncontrolledValue, setUncontrolledValue] = useState(defaultValue ?? '');
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? value : uncontrolledValue;
+  /*
+   * The selected country is state, not something re-derived from the value.
+   * E.164 is ambiguous for an unlisted code: "+971501234567" gives no way to
+   * tell where the dial code ends, so the split has to come from what is
+   * selected. Re-parsing it every render fed the dial code back into the
+   * national number and grew the value on every keystroke.
+   */
+  const initial = fromE164(defaultValue ?? value ?? '', defaultCountry);
+  const [country, setCountry] = useState<PhoneCountry>(initial.country);
+  const [otherDial, setOtherDial] = useState(initial.country === 'other' ? initial.dial : '');
+
+  /* Raw digits while the caret is in the field; grouped when it is not. */
+  const [draft, setDraft] = useState<string | null>(null);
 
   const [open, setOpen] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(() =>
-    Math.max(
-      0,
-      countries.findIndex((c) => c.iso2 === selectedIso),
-    ),
-  );
-
+  const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
-  const typeAhead = useRef({ query: '', at: 0 });
+  const listRef = useRef<HTMLUListElement>(null);
 
-  const state = errorMessage ? 'error' : successMessage ? 'success' : 'default';
-  const message = errorMessage ?? successMessage ?? helperText;
+  const state = errorMessage ? 'error' : 'default';
+  const message = errorMessage ?? helperText;
   const inactive = disabled || readOnly;
 
-  /* Close on an outside press. Escape is handled on the trigger itself. */
+  /* E.164 always carries the dial code at the front, so once the country is
+     known the split is exact rather than a guess. */
+  const activeDial =
+    country === 'other' ? otherDial.replace(/\D/g, '') : COUNTRY_RULES[country].dial;
+  const allDigits = e164.replace(/\D/g, '');
+  const national =
+    activeDial && allDigits.startsWith(activeDial) ? allDigits.slice(activeDial.length) : allDigits;
+
   useEffect(() => {
     if (!open) return undefined;
     function onPointerDown(event: PointerEvent) {
@@ -121,44 +150,23 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, [open]);
 
-  /* Keep the active option in view while arrowing through a scrolled list. */
-  useEffect(() => {
-    if (!open) return;
-    const option = listRef.current?.children[activeIndex];
-    // Optional call: jsdom has no layout, and older engines lack the options form.
-    option?.scrollIntoView?.({ block: 'nearest' });
-  }, [open, activeIndex]);
+  function emit(nextCountry: PhoneCountry, nextNational: string, nextDial: string) {
+    setE164(toE164(nextCountry, nextNational, nextDial));
+  }
 
-  function selectIndex(index: number) {
-    const next = countries[index];
-    if (!next) return;
-    if (country === undefined) setUncontrolledIso(next.iso2);
-    onCountryChange?.(next);
+  function chooseCountry(next: PhoneCountry) {
+    setCountry(next);
     setOpen(false);
     triggerRef.current?.focus();
+    emit(next, national, next === 'other' ? otherDial : '');
   }
 
   function openList() {
     if (inactive) return;
-    setActiveIndex(
-      Math.max(
-        0,
-        countries.findIndex((c) => c.iso2 === selectedIso),
-      ),
-    );
+    setActiveIndex(Math.max(0, OPTIONS.indexOf(country)));
     setOpen(true);
   }
 
-  /**
-   * The APG select-only combobox pattern. The listbox never takes DOM focus:
-   * focus stays on the combobox and `aria-activedescendant` points at the
-   * active option, which avoids the focus-restoration bugs that come with
-   * moving focus into a popup.
-   *
-   * The trigger is a div with `role="combobox"` rather than a button, because
-   * `aria-activedescendant` is not a permitted attribute on `role="button"` -
-   * axe rejects it outright.
-   */
   function onTriggerKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (inactive) return;
 
@@ -175,16 +183,17 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
         event.preventDefault();
         setOpen(false);
         return;
+      /* Tab closes and moves on. The picker must never hold focus hostage. */
       case 'Tab':
         setOpen(false);
         return;
       case 'ArrowDown':
         event.preventDefault();
-        setActiveIndex((i) => (i + 1) % countries.length);
+        setActiveIndex((i) => (i + 1) % OPTIONS.length);
         return;
       case 'ArrowUp':
         event.preventDefault();
-        setActiveIndex((i) => (i - 1 + countries.length) % countries.length);
+        setActiveIndex((i) => (i - 1 + OPTIONS.length) % OPTIONS.length);
         return;
       case 'Home':
         event.preventDefault();
@@ -192,39 +201,21 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
         return;
       case 'End':
         event.preventDefault();
-        setActiveIndex(countries.length - 1);
+        setActiveIndex(OPTIONS.length - 1);
         return;
       case 'Enter':
       case ' ':
         event.preventDefault();
-        selectIndex(activeIndex);
+        chooseCountry(OPTIONS[activeIndex] as PhoneCountry);
         return;
       default:
-        break;
-    }
-
-    /* Type-ahead by country name, the way a native select behaves. */
-    if (event.key.length === 1 && /\S/.test(event.key)) {
-      const now = event.timeStamp;
-      const query =
-        now - typeAhead.current.at < 800 ? typeAhead.current.query + event.key : event.key;
-      typeAhead.current = { query, at: now };
-      const match = countries.findIndex((c) =>
-        c.name.toLowerCase().startsWith(query.toLowerCase()),
-      );
-      if (match >= 0) setActiveIndex(match);
     }
   }
 
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    if (!isControlled) setUncontrolledValue(event.target.value);
-    onChange?.(event);
-  }
-
-  const { Flag } = selected;
+  const display = draft ?? formatNational(country, national);
 
   return (
-    <div ref={rootRef} className="uh-phone">
+    <div ref={rootRef} className={['uh-phone', className].filter(Boolean).join(' ')}>
       <FieldShell
         label={label}
         controlId={inputId}
@@ -233,22 +224,21 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
         required={required}
         disabled={disabled}
         readOnly={readOnly}
-        filled={currentValue.length > 0}
+        filled={national.length > 0}
         fullWidth={fullWidth}
+        {...(description ? { description, descriptionId } : {})}
         message={message}
         messageId={messageId}
-        {...(className !== undefined ? { className } : {})}
       >
         <div className="uh-phone__country">
           <div
             ref={triggerRef}
-            id={triggerId}
             className="uh-phone__trigger"
             role="combobox"
-            /* Not tabbable while the field is disabled, matching the input
-               beside it, but still programmatically focusable. */
             tabIndex={inactive ? -1 : 0}
-            aria-label={countryListLabel}
+            /* Names the country outright, so the picker is unambiguous even
+               when read out of context. */
+            aria-label={countryLabel(optionName(country, otherLabel))}
             aria-haspopup="listbox"
             aria-expanded={open}
             aria-controls={open ? listId : undefined}
@@ -257,13 +247,9 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
             onClick={() => (open ? setOpen(false) : openList())}
             onKeyDown={onTriggerKeyDown}
           >
-            <span className="uh-phone__flag" aria-hidden="true">
-              <Flag />
-            </span>
-            {/* The combobox's value, so it is announced after the name. */}
-            <span className="uh-sr-only">{selected.name}</span>
-            <span className="uh-phone__dial">{selected.dialCode}</span>
-            <span className="uh-phone__chevron" aria-hidden="true">
+            <CountryMark country={country} />
+            <span className="uh-phone__dial">{optionDial(country, otherDial)}</span>
+            <span className="uh-phone__chevron" aria-hidden="true" data-open={open || undefined}>
               <ChevronIcon />
             </span>
           </div>
@@ -274,42 +260,56 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
               id={listId}
               className="uh-phone__list"
               role="listbox"
-              aria-label={countryListLabel}
+              aria-label={label}
             >
-              {countries.map((item, index) => {
-                const ItemFlag = item.Flag;
-                return (
-                  <li
-                    key={item.iso2}
-                    id={`${listId}-${index}`}
-                    role="option"
-                    className="uh-phone__option"
-                    aria-selected={item.iso2 === selected.iso2}
-                    data-active={index === activeIndex ? 'true' : undefined}
-                    /* pointerdown, not click: the outside-press listener fires
-                       on pointerdown and would close the list first. */
-                    onPointerDown={(event) => {
-                      event.preventDefault();
-                      selectIndex(index);
-                    }}
-                    onMouseEnter={() => setActiveIndex(index)}
-                  >
-                    <span className="uh-phone__flag" aria-hidden="true">
-                      <ItemFlag />
-                    </span>
-                    <span className="uh-phone__option-name">{item.name}</span>
-                    <span className="uh-phone__option-dial">{item.dialCode}</span>
-                  </li>
-                );
-              })}
+              {OPTIONS.map((option, index) => (
+                <li
+                  key={option}
+                  id={`${listId}-${index}`}
+                  role="option"
+                  className="uh-phone__option"
+                  aria-selected={option === country}
+                  data-active={index === activeIndex ? 'true' : undefined}
+                  onPointerDown={(event) => {
+                    event.preventDefault();
+                    chooseCountry(option);
+                  }}
+                  onMouseEnter={() => setActiveIndex(index)}
+                >
+                  <CountryMark country={option} />
+                  <span className="uh-phone__option-name">{optionName(option, otherLabel)}</span>
+                  <span className="uh-phone__option-dial">
+                    {option === 'other' ? '' : `+${COUNTRY_RULES[option].dial}`}
+                  </span>
+                </li>
+              ))}
             </ul>
           ) : null}
         </div>
 
         <span className="uh-phone__divider" aria-hidden="true" />
 
+        {country === 'other' ? (
+          <input
+            id={codeId}
+            className="uh-field__input uh-phone__code"
+            type="text"
+            inputMode="numeric"
+            autoComplete="off"
+            aria-label={otherCodeLabel}
+            disabled={disabled}
+            readOnly={readOnly}
+            placeholder="+971"
+            value={otherDial ? `+${otherDial.replace(/\D/g, '')}` : ''}
+            onChange={(event) => {
+              const next = event.target.value.replace(/\D/g, '');
+              setOtherDial(next);
+              emit('other', national, next);
+            }}
+          />
+        ) : null}
+
         <input
-          {...rest}
           ref={ref}
           id={inputId}
           className="uh-field__input uh-phone__number"
@@ -318,11 +318,24 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
           autoComplete="tel-national"
           disabled={disabled}
           readOnly={readOnly}
+          placeholder={country === 'other' ? undefined : COUNTRY_RULES[country].example}
           aria-required={required || undefined}
           aria-invalid={state === 'error' || undefined}
-          aria-describedby={message ? messageId : undefined}
-          value={currentValue}
-          onChange={handleChange}
+          aria-describedby={
+            [descriptionId, message ? messageId : undefined].filter(Boolean).join(' ') || undefined
+          }
+          value={display}
+          onFocus={() => setDraft(national)}
+          onChange={(event) => {
+            const raw = event.target.value;
+            setDraft(raw);
+            /* Parsed on every keystroke, so a pasted "+65..." switches the
+               picker immediately rather than waiting for blur. */
+            const next = parsePhone(raw, country, otherDial);
+            if (next.country !== country) setCountry(next.country);
+            emit(next.country, next.national, next.country === 'other' ? next.dial : otherDial);
+          }}
+          onBlur={() => setDraft(null)}
         />
       </FieldShell>
     </div>

@@ -1,6 +1,7 @@
-import { useId, useState, type ChangeEvent, type ReactNode } from 'react';
+import { useId, type ChangeEvent, type ReactNode } from 'react';
 
 import { RadioGroupContext, type RadioOrientation } from './RadioGroupContext.js';
+import { useControllableState } from '../../hooks/useControllableState.js';
 
 export type { RadioOrientation };
 
@@ -46,15 +47,16 @@ export function RadioGroup({
   const groupName = name ?? `${reactId}-radio-group`;
   const messageId = `${reactId}-message`;
 
-  const [uncontrolled, setUncontrolled] = useState(defaultValue);
-  const isControlled = value !== undefined;
-  const current = isControlled ? value : uncontrolled;
+  const [current, setCurrent] = useControllableState<string | undefined>({
+    value,
+    defaultValue,
+  });
 
   const message = errorMessage ?? helperText;
   const state = errorMessage ? 'error' : 'default';
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    if (!isControlled) setUncontrolled(event.target.value);
+    setCurrent(event.target.value);
     onChange?.(event.target.value, event);
   }
 

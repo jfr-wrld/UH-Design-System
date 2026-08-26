@@ -1,0 +1,47 @@
+/*
+ * CurrencyInput
+ *
+ * The symbol is a sibling of the input, not text inside it. That is what keeps
+ * Ctrl+A from selecting "RM" along with the number, and what lets the value
+ * stay a number rather than a formatted string that has to be re-parsed.
+ */
+
+.uh-currency__prefix {
+  flex: none;
+  color: var(--uh-color-text-secondary);
+  /* Same face and figures as the value, so the two read as one amount. */
+  font-family: var(--uh-typography-numeric-price-md-font-family);
+  font-size: var(--uh-typography-numeric-price-md-font-size);
+  line-height: var(--uh-typography-numeric-price-md-line-height);
+  font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.uh-currency__value {
+  /* Tabular, so the digits do not shuffle as the amount is typed. */
+  font-family: var(--uh-typography-numeric-price-md-font-family);
+  font-size: var(--uh-typography-numeric-price-md-font-size);
+  line-height: var(--uh-typography-numeric-price-md-line-height);
+  letter-spacing: var(--uh-typography-numeric-price-md-letter-spacing);
+  font-weight: var(--uh-typography-numeric-price-md-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-price-md-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-price-md-font-variant-numeric);
+}
+
+.uh-field[data-size='sm'] .uh-currency__prefix,
+.uh-field[data-size='sm'] .uh-currency__value {
+  font-size: var(--uh-typography-numeric-price-sm-font-size);
+}
+
+/*
+ * The symbol keeps text.secondary even when the field is disabled. Dimming it
+ * to text.disabled put it at 2.34:1 on the muted fill, and text.tertiary only
+ * clears the bar while the prefix is large - at size sm it drops to 16px and
+ * fails. The symbol is also the one part worth reading on a disabled field,
+ * since it says which currency the greyed-out number is in. Disabled is carried
+ * by the fill, the cursor and the input's own state.
+ *
+ * Note the asymmetry this leaves: the amount itself is dimmer than its symbol,
+ * because disabled inputs are exempt from the contrast rule and a <span> is not.
+ */

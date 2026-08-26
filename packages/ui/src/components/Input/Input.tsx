@@ -9,6 +9,7 @@ import {
 } from 'react';
 
 import { FieldShell } from '../Field/FieldShell.js';
+import { useControllableState } from '../../hooks/useControllableState.js';
 
 /**
  * `tel` is deliberately absent. Every phone number this product collects
@@ -118,16 +119,16 @@ function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
   const limitId = `${reactId}-limit`;
 
   const [passwordVisible, setPasswordVisible] = useState(false);
-  // Uncontrolled usage still needs the length for the counter and the clear
-  // button, so the value is mirrored when the caller does not own it.
-  const [uncontrolled, setUncontrolled] = useState(String(defaultValue ?? ''));
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? String(value) : uncontrolled;
+
   /*
    * The input is always controlled by React, even when the caller does not own
    * the value. Left uncontrolled, clearing would update this component's mirror
    * but never the DOM node, and the field would appear to ignore the button.
    */
+  const [currentValue, setValue] = useControllableState<string>({
+    value: value === undefined ? undefined : String(value),
+    defaultValue: String(defaultValue ?? ''),
+  });
 
   const state = errorMessage ? 'error' : successMessage ? 'success' : 'default';
   const message = errorMessage ?? successMessage ?? helperText;
@@ -138,7 +139,7 @@ function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
       .join(' ') || undefined;
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    if (!isControlled) setUncontrolled(event.target.value);
+    setValue(event.target.value);
     onChange?.(event);
   }
 
@@ -194,7 +195,7 @@ function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
           aria-label={clearLabel}
           aria-controls={inputId}
           onClick={() => {
-            if (!isControlled) setUncontrolled('');
+            setValue('');
             onClear?.();
           }}
         >

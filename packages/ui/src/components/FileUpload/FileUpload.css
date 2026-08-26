@@ -1,0 +1,330 @@
+/*
+ * FileUpload
+ *
+ * A drop zone that is a `<label>` wrapping a visually hidden file input, not a
+ * div dressed up as a button. That gives keyboard operation, the picker on
+ * Enter or Space, and a clickable area for free; the focus ring is drawn on
+ * the area through :focus-within.
+ */
+
+.uh-upload {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-upload__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+/* ------------------------------------------------------------- drop zone */
+
+.uh-upload__drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-spacing-4);
+  min-height: var(--uh-size-upload-drop);
+  padding: var(--uh-spacing-24) var(--uh-spacing-16);
+  border: var(--uh-border-width-1) dashed var(--uh-color-border-strong);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    background-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-upload__drop:hover {
+  border-color: var(--uh-color-border-brand);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-upload__drop:focus-within {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-color: var(--uh-color-border-focus);
+}
+
+/* Solid rather than dashed while a file is over it: the area has committed. */
+.uh-upload__drop[data-dragging='true'] {
+  border-style: solid;
+  border-color: var(--uh-color-border-brand);
+  background-color: var(--uh-color-bg-brand-subtle);
+}
+
+.uh-upload[data-disabled='true'] .uh-upload__drop {
+  border-color: var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-muted);
+  cursor: not-allowed;
+}
+
+.uh-upload__drop-icon {
+  display: inline-flex;
+  color: var(--uh-color-text-secondary);
+}
+
+.uh-upload__drop-icon > svg {
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+}
+
+.uh-upload__prompt {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: calc(var(--uh-typography-web-body-m-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-upload__constraints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* text.tertiary, not text.disabled: see Choice.css for why. */
+.uh-upload[data-disabled='true'] .uh-upload__label,
+.uh-upload[data-disabled='true'] .uh-upload__prompt,
+.uh-upload[data-disabled='true'] .uh-upload__constraints,
+.uh-upload[data-disabled='true'] .uh-upload__drop-icon {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-upload__message {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-upload__message[role='alert'] {
+  color: var(--uh-color-feedback-error-text);
+}
+
+/* ------------------------------------------------------------- file list */
+
+.uh-upload__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-upload__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-12);
+  padding: var(--uh-spacing-8);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-upload__item[data-status='error'] {
+  border-color: var(--uh-color-feedback-error-border-strong);
+  background-color: var(--uh-color-feedback-error-bg);
+}
+
+.uh-upload__item[data-status='success'] {
+  border-color: var(--uh-color-border-default);
+}
+
+.uh-upload__preview {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-upload-thumb);
+  height: var(--uh-size-upload-thumb);
+  overflow: hidden;
+  border-radius: var(--uh-radius-sm);
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-secondary);
+}
+
+.uh-upload__thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uh-upload__doc {
+  display: inline-flex;
+}
+
+.uh-upload__doc > svg {
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+}
+
+.uh-upload__detail {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-upload__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-font-weight-medium);
+}
+
+/* Tabular, so a column of sizes lines up on the decimal. */
+.uh-upload__size {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-typography-numeric-table-font-weight);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+.uh-upload__error {
+  color: var(--uh-color-feedback-error-text);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* -------------------------------------------------------------- progress */
+
+.uh-upload__progress {
+  display: block;
+  width: 100%;
+  height: var(--uh-size-progress-track);
+  margin-block-start: var(--uh-spacing-4);
+  overflow: hidden;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-upload__progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-action-primary-default);
+  transition: inline-size var(--uh-motion-duration-base) var(--uh-motion-easing-standard);
+}
+
+/* ---------------------------------------------------------------- remove */
+
+.uh-upload__remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: transparent;
+  color: var(--uh-color-text-secondary);
+  cursor: pointer;
+}
+
+.uh-upload__remove > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-upload__remove:hover:not(:disabled) {
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-upload__remove:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-upload__remove:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/*
+ * Confirming a removal happens in the row itself rather than in a modal: the
+ * thing being removed stays on screen and in view while the question is asked.
+ */
+.uh-upload__confirm {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--uh-spacing-8);
+  max-width: 100%;
+}
+
+.uh-upload__confirm-question {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-upload__confirm-yes,
+.uh-upload__confirm-no {
+  min-height: var(--uh-size-control-sm);
+  padding-inline: var(--uh-spacing-12);
+  border-radius: var(--uh-radius-md);
+  border: var(--uh-border-width-1) solid transparent;
+  cursor: pointer;
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-upload__confirm-yes {
+  background-color: var(--uh-color-action-danger-default);
+  color: var(--uh-color-action-danger-label);
+}
+
+.uh-upload__confirm-yes:hover {
+  background-color: var(--uh-color-action-danger-hover);
+}
+
+.uh-upload__confirm-no {
+  border-color: var(--uh-color-border-strong);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-upload__confirm-no:hover {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-upload__confirm-yes:focus-visible,
+.uh-upload__confirm-no:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}

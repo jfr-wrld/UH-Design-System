@@ -1,187 +1,206 @@
+import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { expectNoA11yViolations } from '../../test/a11y.js';
 import { PhoneInput } from './PhoneInput.js';
-import { DEFAULT_COUNTRIES } from './countries.js';
 
-const trigger = () => screen.getByRole('combobox', { name: 'Country calling code' });
+const number = () => screen.getByLabelText<HTMLInputElement>('Mobile number');
+const picker = () => screen.getByRole('combobox');
 
 describe('PhoneInput', () => {
-  it('labels the number field and defaults to Malaysia', () => {
-    render(<PhoneInput label="Mobile Number" />);
-    expect(screen.getByLabelText('Mobile Number')).toBeDefined();
-    expect(trigger().textContent).toContain('+60');
+  it('starts on the default country', () => {
+    render(<PhoneInput label="Mobile number" defaultCountry="ID" />);
+    expect(picker().textContent).toContain('+62');
   });
 
-  it('honours defaultCountry', () => {
-    render(<PhoneInput label="Mobile Number" defaultCountry="ID" />);
-    expect(trigger().textContent).toContain('+62');
+  it('names the selected country in the picker label', () => {
+    render(<PhoneInput label="Mobile number" defaultCountry="SG" />);
+    expect(screen.getByRole('combobox', { name: 'Country: Singapore' })).toBeDefined();
   });
 
-  it('uses type=tel and a national autocomplete hint', () => {
-    render(<PhoneInput label="Mobile Number" />);
-    const input = screen.getByLabelText('Mobile Number');
-    expect(input.getAttribute('type')).toBe('tel');
-    expect(input.getAttribute('autocomplete')).toBe('tel-national');
+  it('offers exactly the four markets plus a manual option', async () => {
+    render(<PhoneInput label="Mobile number" />);
+    await userEvent.click(picker());
+    const names = screen.getAllByRole('option').map((o) => o.textContent);
+    expect(names).toHaveLength(5);
+    expect(names.join(' ')).toContain('Malaysia');
+    expect(names.join(' ')).toContain('Other');
   });
 
-  describe('country listbox', () => {
-    it('is collapsed until opened, and exposes expanded state', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      expect(screen.queryByRole('listbox')).toBeNull();
-      expect(trigger().getAttribute('aria-expanded')).toBe('false');
+  describe('emits E.164', () => {
+    it.each(['0123456789', '+60123456789', '60123456789', '012-345 6789'])(
+      'normalises %s to +60123456789',
+      async (typed) => {
+        const onChange = vi.fn();
+        render(<PhoneInput label="Mobile number" onChange={onChange} defaultCountry="MY" />);
+        await userEvent.click(number());
+        await userEvent.paste(typed);
+        expect(onChange).toHaveBeenLastCalledWith('+60123456789');
+      },
+    );
 
-      await userEvent.click(trigger());
-
-      expect(screen.getByRole('listbox')).toBeDefined();
-      expect(trigger().getAttribute('aria-expanded')).toBe('true');
+    it('emits E.164 while typing, not only on blur', async () => {
+      const onChange = vi.fn();
+      render(<PhoneInput label="Mobile number" onChange={onChange} />);
+      await userEvent.type(number(), '12');
+      expect(onChange).toHaveBeenLastCalledWith('+6012');
     });
 
-    it('renders one option per country and marks the selected one', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      await userEvent.click(trigger());
+    it('re-emits when the country changes, keeping the digits', async () => {
+      const onChange = vi.fn();
+      render(<PhoneInput label="Mobile number" onChange={onChange} defaultValue="+60123456789" />);
+      await userEvent.click(picker());
+      await userEvent.click(screen.getByRole('option', { name: /Singapore/ }));
+      expect(onChange).toHaveBeenLastCalledWith('+65123456789');
+    });
+  });
 
-      const options = screen.getAllByRole('option');
-      expect(options).toHaveLength(DEFAULT_COUNTRIES.length);
-      expect(options[0]?.getAttribute('aria-selected')).toBe('true');
-      expect(within(options[0] as HTMLElement).getByText('Malaysia')).toBeDefined();
+  describe('pasting', () => {
+    it('switches the picker when the pasted number names another country', async () => {
+      render(<PhoneInput label="Mobile number" defaultCountry="MY" />);
+      await userEvent.click(number());
+      await userEvent.paste('+6591234567');
+      expect(picker().textContent).toContain('+65');
     });
 
-    it('selects with the pointer and reports the change', async () => {
-      const onCountryChange = vi.fn();
-      render(<PhoneInput label="Mobile Number" onCountryChange={onCountryChange} />);
-      await userEvent.click(trigger());
-      await userEvent.click(screen.getByRole('option', { name: /Indonesia/ }));
+    it('falls back to the manual option for an unsupported code', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      await userEvent.click(number());
+      await userEvent.paste('+971501234567');
+      expect(picker().getAttribute('aria-label')).toBe('Country: Other');
+    });
+  });
 
-      expect(onCountryChange).toHaveBeenCalledWith(expect.objectContaining({ iso2: 'ID' }));
-      expect(trigger().textContent).toContain('+62');
-      expect(screen.queryByRole('listbox')).toBeNull();
+  describe('display', () => {
+    it('groups the number when the field is not focused', () => {
+      render(<PhoneInput label="Mobile number" defaultValue="+60123456789" />);
+      expect(number().value).toBe('012-345 6789');
     });
 
-    it('opens on ArrowDown and selects with Enter', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
+    it('shows raw digits while the caret is in the field', async () => {
+      render(<PhoneInput label="Mobile number" defaultValue="+60123456789" />);
+      await userEvent.click(number());
+      // Separators appearing under the caret would move it as you type.
+      expect(number().value).toBe('123456789');
+    });
+  });
 
+  describe('other', () => {
+    it('reveals a manual code field and folds it into the value', async () => {
+      const onChange = vi.fn();
+      render(<PhoneInput label="Mobile number" onChange={onChange} />);
+      await userEvent.click(picker());
+      await userEvent.click(screen.getByRole('option', { name: /Other/ }));
+
+      const code = screen.getByLabelText<HTMLInputElement>('Country calling code');
+      await userEvent.type(code, '971');
+      await userEvent.type(number(), '501234567');
+
+      expect(onChange).toHaveBeenLastCalledWith('+971501234567');
+    });
+
+    it('has no manual code field for a listed country', () => {
+      render(<PhoneInput label="Mobile number" />);
+      expect(screen.queryByLabelText('Country calling code')).toBeNull();
+    });
+  });
+
+  describe('keyboard', () => {
+    it('opens the picker on ArrowDown and selects with Enter', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      picker().focus();
       await userEvent.keyboard('{ArrowDown}');
       expect(screen.getByRole('listbox')).toBeDefined();
 
       await userEvent.keyboard('{ArrowDown}{Enter}');
-      expect(trigger().textContent).toContain('+62');
+      expect(picker().textContent).toContain('+62');
     });
 
-    it('tracks the active option with aria-activedescendant instead of moving focus', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
+    it('keeps focus on the picker and tracks aria-activedescendant', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      picker().focus();
       await userEvent.keyboard('{ArrowDown}');
 
-      // Focus must stay on the trigger for this pattern to be sound.
-      expect(document.activeElement).toBe(trigger());
-      const active = trigger().getAttribute('aria-activedescendant');
-      expect(active).toBeTruthy();
+      expect(document.activeElement).toBe(picker());
+      const active = picker().getAttribute('aria-activedescendant');
       expect(document.getElementById(active as string)?.getAttribute('role')).toBe('option');
     });
 
-    it('wraps at both ends', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
-      await userEvent.keyboard('{ArrowDown}');
+    it('tabs from the picker into the number without being trapped', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      await userEvent.tab();
+      expect(document.activeElement).toBe(picker());
 
-      // From the first option, ArrowUp wraps to the last.
-      await userEvent.keyboard('{ArrowUp}{Enter}');
-      const last = DEFAULT_COUNTRIES[DEFAULT_COUNTRIES.length - 1];
-      expect(trigger().textContent).toContain(last?.dialCode);
+      await userEvent.tab();
+      expect(document.activeElement).toBe(number());
     });
 
-    it('supports Home and End', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
-      await userEvent.keyboard('{ArrowDown}{End}{Enter}');
-      expect(trigger().textContent).toContain('+61');
-    });
-
-    it('jumps by type-ahead', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
+    it('closes an open picker on Tab and moves on rather than holding focus', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      picker().focus();
       await userEvent.keyboard('{ArrowDown}');
-      await userEvent.keyboard('sing');
-      await userEvent.keyboard('{Enter}');
-      expect(trigger().textContent).toContain('+65');
-    });
+      expect(screen.getByRole('listbox')).toBeDefined();
 
-    it('closes on Escape and returns focus to the trigger', async () => {
-      render(<PhoneInput label="Mobile Number" />);
-      trigger().focus();
-      await userEvent.keyboard('{ArrowDown}');
-      await userEvent.keyboard('{Escape}');
-
+      await userEvent.tab();
       expect(screen.queryByRole('listbox')).toBeNull();
-      expect(document.activeElement).toBe(trigger());
+      expect(document.activeElement).toBe(number());
+    });
+
+    it('closes on Escape and keeps focus on the picker', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      picker().focus();
+      await userEvent.keyboard('{ArrowDown}{Escape}');
+      expect(screen.queryByRole('listbox')).toBeNull();
+      expect(document.activeElement).toBe(picker());
     });
 
     it('does not open when disabled', async () => {
-      render(<PhoneInput label="Mobile Number" disabled />);
-      await userEvent.click(trigger());
+      render(<PhoneInput label="Mobile number" disabled />);
+      await userEvent.click(picker());
       expect(screen.queryByRole('listbox')).toBeNull();
     });
   });
 
-  it('keeps the dial code out of the number value', async () => {
-    const onChange = vi.fn();
-    render(<PhoneInput label="Mobile Number" onChange={onChange} />);
-    const input = screen.getByLabelText<HTMLInputElement>('Mobile Number');
-    await userEvent.type(input, '123456789');
-    expect(input.value).toBe('123456789');
-  });
-
-  it('wires the error message', () => {
-    render(<PhoneInput label="Mobile Number" errorMessage="Enter a valid mobile number" />);
-    const input = screen.getByLabelText('Mobile Number');
-    expect(input.getAttribute('aria-invalid')).toBe('true');
-    const id = input.getAttribute('aria-describedby');
-    expect(document.getElementById(id as string)?.textContent).toBe('Enter a valid mobile number');
-    expect(screen.getByRole('alert')).toBeDefined();
-  });
-
-  it('accepts a custom country list', async () => {
-    const custom = DEFAULT_COUNTRIES.filter((c) => ['SG', 'BN'].includes(c.iso2));
-    render(<PhoneInput label="Mobile Number" countries={custom} defaultCountry="SG" />);
-    await userEvent.click(trigger());
-    expect(screen.getAllByRole('option')).toHaveLength(2);
-  });
-
-  it('accepts a localised selector name', () => {
-    render(<PhoneInput label="Nombor Telefon" countryListLabel="Kod negara" />);
-    expect(screen.getByRole('combobox', { name: 'Kod negara' })).toBeDefined();
-  });
-
-  it('announces the selected country as the combobox value, not its name', () => {
-    render(<PhoneInput label="Mobile Number" />);
-    // The name stays static; the country is the value.
-    expect(trigger().textContent).toContain('Malaysia');
-    expect(trigger().textContent).toContain('+60');
-  });
-
-  describe('accessibility', () => {
-    it('has no axe violations: closed', async () => {
-      const { container } = render(
-        <PhoneInput label="Mobile Number" required helperText="We send trip updates here" />,
-      );
-      await expectNoA11yViolations(container);
+  describe('controlled and uncontrolled', () => {
+    it('works uncontrolled', async () => {
+      render(<PhoneInput label="Mobile number" />);
+      await userEvent.type(number(), '123456789');
+      expect(number().value).toBe('123456789');
     });
 
-    it('has no axe violations: open listbox', async () => {
-      const { container } = render(<PhoneInput label="Mobile Number" />);
-      await userEvent.click(trigger());
-      await expectNoA11yViolations(container);
+    it('works controlled', async () => {
+      function Controlled() {
+        const [v, setV] = useState('');
+        return (
+          <>
+            <PhoneInput label="Mobile number" value={v} onChange={setV} />
+            <output>{v}</output>
+          </>
+        );
+      }
+      render(<Controlled />);
+      await userEvent.type(number(), '123456789');
+      expect(screen.getByRole('status').textContent).toBe('+60123456789');
     });
+  });
 
-    it('has no axe violations: error state', async () => {
-      const { container } = render(
-        <PhoneInput label="Mobile Number" required errorMessage="Enter a valid mobile number" />,
-      );
-      await expectNoA11yViolations(container);
-    });
+  it('never decides what is valid on its own', () => {
+    render(
+      <PhoneInput label="Mobile number" defaultValue="+601" errorMessage="Number is too short" />,
+    );
+    expect(number().getAttribute('aria-invalid')).toBe('true');
+    expect(screen.getByRole('alert').textContent).toBe('Number is too short');
+  });
+
+  it('has no axe violations, open and closed', async () => {
+    const { container } = render(
+      <PhoneInput label="Mobile number" required helperText="We send trip updates here" />,
+    );
+    await expectNoA11yViolations(container);
+
+    await userEvent.click(picker());
+    await expectNoA11yViolations(container);
   });
 });

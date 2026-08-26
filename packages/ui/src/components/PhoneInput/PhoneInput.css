@@ -63,6 +63,32 @@
   height: auto;
 }
 
+/* Stands in for a flag when the country is not one of the four. */
+.uh-phone__globe {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-field-icon);
+  height: var(--uh-field-icon);
+  color: var(--uh-color-text-secondary);
+}
+
+.uh-phone__globe > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* The manual dial code, only present for "Other". */
+.uh-phone__code {
+  flex: none;
+  width: var(--uh-size-icon-lg);
+  min-width: 0;
+  text-align: center;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+}
+
 .uh-phone__dial {
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
@@ -107,7 +133,9 @@
   inset-inline-start: calc(-1 * var(--uh-field-padding-inline));
   top: calc(100% + var(--uh-spacing-8));
   z-index: var(--uh-z-index-popover);
-  min-width: calc(var(--uh-spacing-96) * 3);
+  /* Five options, so the popover is sized to its content rather than to a
+     search field it does not have. */
+  min-width: calc(var(--uh-spacing-96) * 2);
   /* Six rows, then scroll - a fixed pixel height would drift from the scale. */
   max-height: calc(var(--uh-size-control-md) * 6);
   margin: 0;
@@ -160,10 +188,4 @@
 
 .uh-phone__option .uh-phone__flag {
   width: var(--uh-size-icon-md);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .uh-phone__chevron {
-    transition: none;
-  }
 }
