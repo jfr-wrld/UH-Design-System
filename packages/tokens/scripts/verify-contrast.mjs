@@ -159,6 +159,23 @@ async function main() {
       }
     }
 
+    /*
+     * The same trap on the brand tints. The calendar draws its range band with
+     * bg.brand-subtle and leaves the day numbers in neutral text, so those two
+     * pairings are load-bearing and must be contracted rather than assumed.
+     * bg.muted carries disabled surfaces the same way.
+     */
+    for (const surface of ['bg-brand-subtle', 'bg-accent-subtle', 'bg-muted', 'bg-highlight']) {
+      for (const text of ['primary', 'secondary']) {
+        check(
+          `--uh-color-text-${text}`,
+          `--uh-color-${surface}`,
+          TEXT_MIN,
+          `text.${text} on ${surface.replace('bg-', 'bg.')}`,
+        );
+      }
+    }
+
     // Only feedback roles carry an accessible control boundary.
     for (const role of FEEDBACK) {
       check(
