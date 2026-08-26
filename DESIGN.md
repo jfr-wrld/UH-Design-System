@@ -147,9 +147,9 @@ These are not negotiable and are already documented in the PRD:
 
 Do not re-decide these; they are built and verified in `packages/tokens`:
 
-- Colour, including 108 verified WCAG contrast contracts across light and dark.
+- Colour, including 154 verified WCAG contrast contracts across light and dark.
 - Typography: Plus Jakarta Sans _(PRD §2.2)_ and Noto Naskh Arabic, self-hosted.
-- Spacing, radius, elevation, motion durations and easings.
+- Spacing, radius, elevation (shadow ladder in light, surface ladder in dark), z-index, opacity, blur, and motion - durations, easings, and the enter/exit/state/overlay pairings, all collapsing to zero under reduced motion.
 - Tabular figures for every price.
 
 ---

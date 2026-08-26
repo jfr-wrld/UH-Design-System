@@ -4,14 +4,31 @@ import { Meta } from '@storybook/blocks';
 
 # UmrahHaji Design System
 
-This workspace is scaffolded and empty on purpose.
+The component library for umrahhaji.com: one system serving pilgrims booking
+Umrah and Hajj packages, the travel agencies running them, and the platform
+admins - in English, Malay and Indonesian, light and dark.
 
-- `packages/tokens` — the single source of truth for design tokens, built with
-  Style Dictionary into CSS custom properties, JS/TS, and JSON.
-- `packages/ui` — the React component library, bundled with Vite and styled
-  with Tailwind.
-- `apps/storybook` — this site, where every component is documented and checked
-  with `@storybook/addon-a11y`.
+## Where things are
 
-Add token files under `packages/tokens/src` and components under
-`packages/ui/src`; their stories are picked up automatically.
+- **Foundations** - the token layer, rendered from the build itself: colors
+  (154 contrast contracts checked on every build), typography (self-hosted,
+  tabular numerals verified against the shipped fonts), spacing and shape,
+  elevation (shadows in light, surface steps in dark, one name for both),
+  motion, and layering.
+- **Components** - thirty-plus components, primitives through composites.
+  Every one ships with a full state matrix, a dark-mode story, and a
+  text-expansion story in the three languages, and passes axe in a real
+  browser on every story.
+- **Patterns** - whole flows assembled from the components, built to be
+  walked with the keyboard alone.
+
+## The rules the code enforces
+
+- Every visual value resolves to a token; a literal hex, px or duration in a
+  component stylesheet fails the build.
+- `currency` is never derived from `locale`, and every number and date goes
+  through Intl.
+- Validation belongs to the consumer; components report state, they do not
+  decide it.
+- 44px tap targets, visible focus everywhere, and colour is never the only
+  signal.
