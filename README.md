@@ -85,6 +85,10 @@ plain CSS cascade with no JS involved:
   badge component covers every state.
 - **Scales** — `spacing` on a 4pt grid (2–96), `radius`, `elevation` 0–5,
   `border-width`, `z-index`, and `motion` durations and easings.
+- **Control sizes** — `size.control` (36/44/52), `size.tap-target-min` (44),
+  `size.icon`, `size.focus-ring`. Deliberately separate from `spacing`: these
+  are the size of a thing, not the gap between things, and 44px is a tap floor
+  rather than a grid step.
 
 #### Accessibility is encoded, not documented
 
@@ -112,8 +116,14 @@ Two consequences worth knowing:
   the system stops a white label landing on an orange fill; with it, a badge is
   always `solid` + `on-solid` and the pairing is guaranteed.
 - **`border.strong` is `neutral-500` in both modes** — the only neutral that
-  clears the 3:1 minimum for UI-component boundaries. `border.default` is
-  decorative and must never be a control's only affordance.
+  clears the 3:1 minimum for UI-component boundaries (4.76:1 light, 3.07:1 on
+  the dark field surface). `border.default` is decorative at 1.23:1 and must
+  never be a control's only affordance.
+- **Feedback roles carry `border-strong` as well as `border`.** The plain
+  `border` is a decorative ramp-200 hairline, fine behind a badge and useless as
+  an error outline on an input. `border-strong` is the accessible one —
+  ramp-700 in light, ramp-400 in dark, measured against the field surface.
+  Status roles deliberately do not have it: they label badges, not controls.
 
 #### Typography
 
@@ -149,8 +159,10 @@ every digit to 600 units. Measured in a real browser at 20px:
 The two five-digit prices become identical; `RM 9,800` is narrower by exactly
 one 12px digit, which is what right-alignment is for.
 
-`pnpm --filter @umrahhaji/tokens test` re-checks this against the shipped subset
-fonts at every weight. It exists because `tnum` is **not** in fontTools' default
+`pnpm --filter @umrahhaji/tokens test` re-checks every accessibility contract
+(122 of them, both themes) against the built stylesheet with `var()` chains
+resolved, and re-checks the numerals against the shipped subset fonts at every
+weight. It exists because `tnum` is **not** in fontTools' default
 keep-list — a careless change to the subsetting step would silently break every
 price column, with no error anywhere.
 
@@ -246,6 +258,36 @@ are transformed; values are emitted verbatim.
 the pipeline stays safe to run in CI.
 
 ### `@umrahhaji/ui`
+
+Components so far: `Button`, `Input`, `PhoneInput`, `Select`, `Checkbox`,
+`Radio` / `RadioGroup`.
+
+**`Input` has no `type="tel"`.** Every phone number this platform collects
+crosses a border, so the country code is structured data, not a prefix someone
+types into a free-text field: `"+60 12..."`, `"0060 12..."` and `"012..."` are
+all the same number and none of them parse. `PhoneInput` owns phone numbers and
+keeps the country as a value. The union is narrowed so the wrong path fails to
+compile rather than failing in the database. A field that genuinely needs a
+telephone keypad with no country passes `type="text"` with `inputMode="tel"` -
+deliberate, not the default.
+
+**Every value in a component stylesheet must resolve to a token.**
+`pnpm --filter @umrahhaji/ui verify:tokens` fails the build on a literal hex,
+px, rem, em, duration or `rgb()` in any component CSS — comments are stripped
+first, so prose may still cite concrete numbers. Component tests then run axe
+in jsdom for structure and ARIA; contrast is left to the token layer and to
+Storybook's addon-a11y, which runs axe in a real browser with the stylesheet
+loaded.
+
+Two deliberate inconsistencies, both with reasons:
+
+- **`Button` uses `aria-disabled`; `Input` uses the native `disabled`.** A
+  disabled button should stay focusable so it can still be found and read, and
+  the component blocks activation itself. A disabled input must not submit its
+  value, which `aria-disabled` alone would not prevent.
+- **`Input` is always controlled internally.** Left uncontrolled, the clear
+  button would update the component's mirror of the value but never the DOM
+  node, and the field would appear to ignore it.
 
 React 19 components bundled by Vite in library mode:
 

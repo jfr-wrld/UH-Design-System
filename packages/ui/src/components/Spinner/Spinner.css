@@ -1,0 +1,61 @@
+/*
+ * Spinner
+ *
+ * Under prefers-reduced-motion the arc stops rather than slowing down. A
+ * frozen ring is admittedly a poor visual, which is why every use of this
+ * component pairs it with text: the announced label here, the visually hidden
+ * label in Button, the status row in Select. Motion is never the only signal.
+ */
+
+.uh-spinner {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-spinner-size);
+  height: var(--uh-spinner-size);
+}
+
+.uh-spinner[data-size='sm'] {
+  --uh-spinner-size: var(--uh-size-spinner-sm);
+}
+
+.uh-spinner[data-size='md'] {
+  --uh-spinner-size: var(--uh-size-spinner-md);
+}
+
+.uh-spinner[data-size='lg'] {
+  --uh-spinner-size: var(--uh-size-spinner-lg);
+}
+
+/* `inherit` is the default: inside a control the spinner takes the label colour,
+   which is already contrast-checked against that control's fill. */
+.uh-spinner[data-color='inherit'] {
+  color: currentcolor;
+}
+
+.uh-spinner[data-color='primary'] {
+  color: var(--uh-color-action-primary-default);
+}
+
+.uh-spinner[data-color='white'] {
+  color: var(--uh-color-text-inverse);
+}
+
+.uh-spinner__svg {
+  width: 100%;
+  height: 100%;
+  animation: uh-spinner-spin var(--uh-motion-duration-spin) var(--uh-motion-easing-linear) infinite;
+}
+
+@keyframes uh-spinner-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-spinner__svg {
+    animation: none;
+  }
+}

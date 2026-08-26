@@ -17,3 +17,15 @@
 @import '@umrahhaji/tokens/tailwind.css';
 @import '@umrahhaji/tokens/fonts.css';
 @import '@umrahhaji/tokens/typography.css';
+@import './styles/utilities.css';
+@import './components/Button/Button.css';
+@import './components/Input/Input.css';
+@import './components/PhoneInput/PhoneInput.css';
+@import './components/Select/Select.css';
+@import './components/Choice/Choice.css';
+@import './components/Switch/Switch.css';
+@import './components/Badge/Badge.css';
+@import './components/Avatar/Avatar.css';
+@import './components/Spinner/Spinner.css';
+@import './components/Skeleton/Skeleton.css';
+@import './components/Tooltip/Tooltip.css';

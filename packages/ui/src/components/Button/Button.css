@@ -1,0 +1,286 @@
+/*
+ * Button
+ *
+ * Every value here resolves to a token. There are no literal colours, sizes or
+ * durations in this file - `pnpm --filter @umrahhaji/ui verify:tokens` enforces
+ * that, so a hardcoded value fails the build rather than shipping quietly.
+ *
+ * State is driven by data attributes so the variant/size matrix stays flat and
+ * greppable, and so Storybook's pseudo-state addon can force :hover / :active /
+ * :focus-visible without the component knowing.
+ */
+
+.uh-btn {
+  /* Size-driven values; each data-size block below overrides these. */
+  --uh-btn-height: var(--uh-size-control-md);
+  --uh-btn-padding-inline: var(--uh-spacing-16);
+  --uh-btn-gap: var(--uh-spacing-8);
+  --uh-btn-icon: var(--uh-size-icon-md);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-btn-gap);
+  min-height: var(--uh-btn-height);
+  padding-inline: var(--uh-btn-padding-inline);
+  border: var(--uh-border-width-1) solid transparent;
+  border-radius: var(--uh-radius-md);
+  background-color: transparent;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  transition:
+    background-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+/* ---------------------------------------------------------------- sizes */
+
+.uh-btn[data-size='sm'] {
+  --uh-btn-height: var(--uh-size-control-sm);
+  --uh-btn-padding-inline: var(--uh-spacing-12);
+  --uh-btn-icon: var(--uh-size-icon-sm);
+
+  font-family: var(--uh-typography-web-button-sm-font-family);
+  font-size: var(--uh-typography-web-button-sm-font-size);
+  line-height: var(--uh-typography-web-button-sm-line-height);
+  letter-spacing: var(--uh-typography-web-button-sm-letter-spacing);
+  font-weight: var(--uh-typography-web-button-sm-font-weight);
+}
+
+.uh-btn[data-size='md'] {
+  --uh-btn-height: var(--uh-size-control-md);
+  --uh-btn-padding-inline: var(--uh-spacing-16);
+  --uh-btn-icon: var(--uh-size-icon-md);
+
+  font-family: var(--uh-typography-web-button-md-font-family);
+  font-size: var(--uh-typography-web-button-md-font-size);
+  line-height: var(--uh-typography-web-button-md-line-height);
+  letter-spacing: var(--uh-typography-web-button-md-letter-spacing);
+  font-weight: var(--uh-typography-web-button-md-font-weight);
+}
+
+.uh-btn[data-size='lg'] {
+  --uh-btn-height: var(--uh-size-control-lg);
+  --uh-btn-padding-inline: var(--uh-spacing-20);
+  --uh-btn-gap: var(--uh-spacing-12);
+  --uh-btn-icon: var(--uh-size-icon-lg);
+
+  font-family: var(--uh-typography-web-button-lg-font-family);
+  font-size: var(--uh-typography-web-button-lg-font-size);
+  line-height: var(--uh-typography-web-button-lg-line-height);
+  letter-spacing: var(--uh-typography-web-button-lg-letter-spacing);
+  font-weight: var(--uh-typography-web-button-lg-font-weight);
+}
+
+/*
+ * `sm` is 36px, below the 44px touch floor. Rather than inflate the control,
+ * an invisible overlay extends the POINTER target to 44px while the visual
+ * height and the layout stay at 36px.
+ */
+.uh-btn[data-size='sm']::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  height: var(--uh-size-tap-target-min);
+  transform: translateY(-50%);
+}
+
+/* --------------------------------------------------------------- layout */
+
+.uh-btn[data-full-width='true'] {
+  display: flex;
+  width: 100%;
+}
+
+.uh-btn[data-icon-only='true'] {
+  /* Square, and never below the touch floor - including at size sm. */
+  min-width: var(--uh-size-tap-target-min);
+  min-height: var(--uh-size-tap-target-min);
+  padding-inline: 0;
+}
+
+.uh-btn__content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-btn-gap);
+}
+
+.uh-btn__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-btn-icon);
+  height: var(--uh-btn-icon);
+}
+
+.uh-btn__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* -------------------------------------------------------------- loading */
+
+/*
+ * The label keeps its box and only loses visibility, so the button's width is
+ * identical loading or not. Swapping the content for a spinner would resize the
+ * button mid-submit and shift everything around it.
+ */
+.uh-btn[data-loading='true'] .uh-btn__content {
+  visibility: hidden;
+}
+
+.uh-btn__spinner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/*
+ * The spinner itself lives in Spinner.css, including how it behaves under
+ * reduced motion. The button only has to stop its own colour transitions.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .uh-btn {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- focus */
+
+.uh-btn:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-btn[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
+.uh-btn[data-loading='true'] {
+  cursor: progress;
+}
+
+/* ------------------------------------------------------------- variants */
+
+.uh-btn[data-variant='primary'] {
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-btn[data-variant='primary']:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-primary-hover);
+}
+
+.uh-btn[data-variant='primary']:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-primary-active);
+}
+
+.uh-btn[data-variant='primary'][aria-disabled='true'] {
+  background-color: var(--uh-color-action-primary-disabled);
+  color: var(--uh-color-action-primary-label-disabled);
+}
+
+/*
+ * Secondary lightens on hover instead of darkening. Its label is the dark
+ * #0B1220, and orange-600 would drop that pairing to 3.87:1. The token layer
+ * already encodes this - the hover token points at orange-400.
+ */
+.uh-btn[data-variant='secondary'] {
+  background-color: var(--uh-color-action-secondary-default);
+  color: var(--uh-color-action-secondary-label);
+}
+
+.uh-btn[data-variant='secondary']:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-secondary-hover);
+}
+
+.uh-btn[data-variant='secondary']:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-secondary-active);
+}
+
+.uh-btn[data-variant='secondary'][aria-disabled='true'] {
+  background-color: var(--uh-color-action-secondary-disabled);
+  color: var(--uh-color-action-secondary-label-disabled);
+}
+
+.uh-btn[data-variant='destructive'] {
+  background-color: var(--uh-color-action-danger-default);
+  color: var(--uh-color-action-danger-label);
+}
+
+.uh-btn[data-variant='destructive']:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-danger-hover);
+}
+
+.uh-btn[data-variant='destructive']:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-danger-active);
+}
+
+.uh-btn[data-variant='destructive'][aria-disabled='true'] {
+  background-color: var(--uh-color-action-danger-disabled);
+  color: var(--uh-color-action-danger-label-disabled);
+}
+
+/* border.strong is the only neutral that clears 3:1 against the surface. */
+.uh-btn[data-variant='outline'] {
+  border-color: var(--uh-color-border-strong);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-btn[data-variant='outline']:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-btn[data-variant='outline']:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-btn[data-variant='outline'][aria-disabled='true'] {
+  border-color: var(--uh-color-border-default);
+  color: var(--uh-color-text-disabled);
+}
+
+.uh-btn[data-variant='ghost'] {
+  color: var(--uh-color-text-primary);
+}
+
+.uh-btn[data-variant='ghost']:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-btn[data-variant='ghost']:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-btn[data-variant='ghost'][aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+}
+
+/*
+ * Link keeps the control height so the touch target survives, but drops the
+ * inline padding so it sits in a text flow. The underline appears on hover and
+ * focus only - a permanent one makes a page of buttons look like a link farm.
+ */
+.uh-btn[data-variant='link'] {
+  padding-inline: 0;
+  color: var(--uh-color-text-link);
+}
+
+.uh-btn[data-variant='link']:hover:not([aria-disabled='true']),
+.uh-btn[data-variant='link']:focus-visible:not([aria-disabled='true']) {
+  color: var(--uh-color-text-link-hover);
+  text-decoration: underline;
+}
+
+.uh-btn[data-variant='link'][aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+}

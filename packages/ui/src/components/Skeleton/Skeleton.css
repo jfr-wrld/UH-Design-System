@@ -1,0 +1,137 @@
+/*
+ * Skeleton
+ *
+ * A placeholder for content that is arriving, never a stand-in for content
+ * that is missing. An empty result gets an empty state with words in it; a
+ * skeleton that never resolves is a frozen page.
+ *
+ * Under prefers-reduced-motion both animations stop and the shape stays flat.
+ * The loading state is still announced by the wrapper's status role, so nothing
+ * is lost by holding it still.
+ */
+
+.uh-skeleton {
+  display: block;
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-skeleton[data-variant='text'] {
+  height: calc(
+    var(--uh-typography-web-body-m-font-size) * var(--uh-typography-web-body-m-line-height)
+  );
+  border-radius: var(--uh-radius-sm);
+}
+
+.uh-skeleton[data-variant='rect'] {
+  border-radius: var(--uh-radius-md);
+}
+
+.uh-skeleton[data-variant='circle'] {
+  border-radius: var(--uh-radius-full);
+}
+
+/* ----------------------------------------------------------- animations */
+
+.uh-skeleton[data-animation='pulse'] {
+  animation: uh-skeleton-pulse calc(var(--uh-motion-duration-spin) * 2)
+    var(--uh-motion-easing-standard) infinite;
+}
+
+@keyframes uh-skeleton-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+/*
+ * The sweep is a gradient moving across the shape rather than the shape
+ * itself moving, so nothing shifts in the layout.
+ */
+.uh-skeleton[data-animation='wave'] {
+  position: relative;
+  overflow: hidden;
+}
+
+.uh-skeleton[data-animation='wave']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--uh-color-bg-surface-raised), transparent);
+  transform: translateX(-100%);
+  animation: uh-skeleton-wave calc(var(--uh-motion-duration-spin) * 2)
+    var(--uh-motion-easing-standard) infinite;
+}
+
+@keyframes uh-skeleton-wave {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-skeleton[data-animation='pulse'],
+  .uh-skeleton[data-animation='wave']::after {
+    animation: none;
+  }
+
+  /* Without the sweep the overlay is a solid bar sitting on the shape. */
+  .uh-skeleton[data-animation='wave']::after {
+    content: none;
+  }
+}
+
+/* -------------------------------------------------------------- groups */
+
+.uh-skeleton-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-skeleton-group {
+  display: block;
+}
+
+/* --------------------------------------------------------------- presets */
+
+.uh-skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-12);
+  padding: var(--uh-spacing-16);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-lg);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-16);
+}
+
+.uh-skeleton-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-12);
+}
+
+.uh-skeleton-list__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-skeleton-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-12);
+}
+
+.uh-skeleton-table__row {
+  display: grid;
+  gap: var(--uh-spacing-16);
+  align-items: center;
+}

@@ -1,9 +1,15 @@
 /*
- * Story canvas styles. Mirrors packages/ui/src/styles.css so components render
- * against the same tokens they will in the product. Import order matters -
- * see that file for why typography.css comes last.
+ * Story canvas styles.
+ *
+ * This imports the ui package's own stylesheet SOURCE rather than re-listing
+ * the token imports. Stories therefore render exactly what ships, and every
+ * new component stylesheet is picked up without touching this file.
  */
-@import 'tailwindcss';
-@import '@umrahhaji/tokens/tailwind.css';
-@import '@umrahhaji/tokens/fonts.css';
-@import '@umrahhaji/tokens/typography.css';
+@import '../../../packages/ui/src/styles.css';
+
+/*
+ * Tailwind infers its source globs from the stylesheet's own location, which
+ * would miss both story trees. Point it at them explicitly.
+ */
+@source '../stories';
+@source '../../../packages/ui/src';

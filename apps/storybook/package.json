@@ -5,11 +5,13 @@
   "description": "Documentation and preview surface for the UmrahHaji design system",
   "type": "module",
   "scripts": {
-    "dev": "storybook dev -p 6006",
-    "start": "storybook dev -p 6006",
     "build": "storybook build -o storybook-static",
-    "preview": "http-server storybook-static",
     "clean": "rm -rf storybook-static",
+    "dev": "storybook dev -p 6006",
+    "preview": "http-server storybook-static",
+    "start": "storybook dev -p 6006",
+    "test:a11y": "test-storybook --url http://127.0.0.1:6007",
+    "test:a11y:ci": "concurrently -k -s first -n build,a11y -c magenta,blue \"http-server storybook-static --port 6007 --silent\" \"wait-on tcp:127.0.0.1:6007 && test-storybook --url http://127.0.0.1:6007\"",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
@@ -25,14 +27,20 @@
     "@storybook/blocks": "^8.6.18",
     "@storybook/react": "^8.6.18",
     "@storybook/react-vite": "^8.6.18",
+    "@storybook/test-runner": "^0.22.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^22.19.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.7.0",
+    "axe-playwright": "^2.2.2",
+    "concurrently": "^10.0.5",
+    "http-server": "^14.1.1",
     "storybook": "^8.6.18",
+    "storybook-addon-pseudo-states": "^4.0.4",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",
-    "vite": "^6.3.6"
+    "vite": "^6.3.6",
+    "wait-on": "^9.1.0"
   }
 }

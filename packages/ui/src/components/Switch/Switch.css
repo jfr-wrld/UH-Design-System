@@ -1,0 +1,143 @@
+/*
+ * Switch
+ *
+ * A switch applies immediately; a checkbox is submitted with a form. That is
+ * the whole difference, and it is why this is role="switch" rather than a
+ * restyled checkbox.
+ *
+ * The off track is a mid grey rather than a pale one so the white thumb keeps
+ * 4.76:1 against it. A near-white track would look lighter and leave the thumb
+ * invisible to anyone who needs the contrast.
+ */
+
+.uh-switch {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-12);
+  min-height: var(--uh-size-tap-target-min);
+}
+
+.uh-switch__control {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  width: var(--uh-switch-width);
+  /* Aligns the track with the label's first line, not the text block. */
+  height: calc(
+    var(--uh-typography-web-label-font-size) * var(--uh-typography-web-label-line-height)
+  );
+}
+
+.uh-switch[data-size='sm'] {
+  --uh-switch-width: var(--uh-size-switch-sm-width);
+  --uh-switch-height: var(--uh-size-switch-sm-height);
+  --uh-switch-thumb: var(--uh-size-switch-sm-thumb);
+}
+
+.uh-switch[data-size='md'] {
+  --uh-switch-width: var(--uh-size-switch-md-width);
+  --uh-switch-height: var(--uh-size-switch-md-height);
+  --uh-switch-thumb: var(--uh-size-switch-md-thumb);
+}
+
+/* Transparent, not hidden: keeps native semantics and a full 44px target. */
+.uh-switch__input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: max(var(--uh-switch-width), var(--uh-size-tap-target-min));
+  height: var(--uh-size-tap-target-min);
+  margin: 0;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  cursor: pointer;
+}
+
+.uh-switch__track {
+  display: flex;
+  align-items: center;
+  width: var(--uh-switch-width);
+  height: var(--uh-switch-height);
+  padding: calc((var(--uh-switch-height) - var(--uh-switch-thumb)) / 2);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+  transition: background-color var(--uh-motion-duration-base) var(--uh-motion-easing-standard);
+}
+
+.uh-switch__thumb {
+  width: var(--uh-switch-thumb);
+  height: var(--uh-switch-thumb);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  /* The 200ms the brief asks for, from the token rather than a literal. */
+  transition: transform var(--uh-motion-duration-base) var(--uh-motion-easing-standard);
+}
+
+.uh-switch__input:checked + .uh-switch__track {
+  background-color: var(--uh-color-action-primary-default);
+}
+
+.uh-switch__input:checked + .uh-switch__track .uh-switch__thumb {
+  transform: translateX(calc(var(--uh-switch-width) - var(--uh-switch-height)));
+}
+
+.uh-switch__input:hover:not(:disabled) + .uh-switch__track {
+  background-color: var(--uh-color-text-secondary);
+}
+
+.uh-switch__input:checked:hover:not(:disabled) + .uh-switch__track {
+  background-color: var(--uh-color-action-primary-hover);
+}
+
+.uh-switch__input:focus-visible + .uh-switch__track {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-switch[data-disabled='true'] .uh-switch__track {
+  background-color: var(--uh-color-border-default);
+}
+
+.uh-switch[data-disabled='true'] .uh-switch__input {
+  cursor: not-allowed;
+}
+
+.uh-switch__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+}
+
+.uh-switch__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: calc(var(--uh-typography-web-label-line-height) + var(--uh-line-height-adjust, 0));
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+  cursor: pointer;
+}
+
+.uh-switch__description {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* text.tertiary, not text.disabled: see Choice.css for why. */
+.uh-switch[data-disabled='true'] .uh-switch__label,
+.uh-switch[data-disabled='true'] .uh-switch__description {
+  color: var(--uh-color-text-tertiary);
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-switch__track,
+  .uh-switch__thumb {
+    transition: none;
+  }
+}

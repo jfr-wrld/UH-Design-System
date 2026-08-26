@@ -1,0 +1,104 @@
+/*
+ * Avatar
+ *
+ * Three fallbacks in order: image, initials from the name, generic icon. Each
+ * step is a real degradation, not a placeholder pretending to be a photo - a
+ * broken image that silently shows a grey square tells nobody anything.
+ *
+ * The ground is neutral rather than a colour hashed from the name. A hashed
+ * palette generates pairs nobody has checked, and initials at 12px need 4.5:1
+ * like any other text.
+ */
+
+.uh-avatar {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-avatar-size);
+  height: var(--uh-avatar-size);
+  overflow: hidden;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-secondary);
+  user-select: none;
+}
+
+.uh-avatar[data-shape='square'] {
+  border-radius: var(--uh-radius-md);
+}
+
+.uh-avatar[data-size='xs'] {
+  --uh-avatar-size: var(--uh-size-avatar-xs);
+  font-size: var(--uh-typography-web-caption-font-size);
+}
+
+.uh-avatar[data-size='sm'] {
+  --uh-avatar-size: var(--uh-size-avatar-sm);
+  font-size: var(--uh-typography-web-caption-font-size);
+}
+
+.uh-avatar[data-size='md'] {
+  --uh-avatar-size: var(--uh-size-avatar-md);
+  font-size: var(--uh-typography-web-body-s-font-size);
+}
+
+.uh-avatar[data-size='lg'] {
+  --uh-avatar-size: var(--uh-size-avatar-lg);
+  font-size: var(--uh-typography-web-body-m-font-size);
+}
+
+.uh-avatar[data-size='xl'] {
+  --uh-avatar-size: var(--uh-size-avatar-xl);
+  font-size: var(--uh-typography-web-h4-font-size);
+}
+
+.uh-avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.uh-avatar__initials {
+  font-family: var(--uh-typography-web-label-font-family);
+  font-weight: var(--uh-font-weight-semibold);
+  line-height: 1;
+  letter-spacing: var(--uh-typography-web-caption-letter-spacing);
+}
+
+.uh-avatar__icon {
+  display: inline-flex;
+  width: 60%;
+  height: 60%;
+}
+
+.uh-avatar__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ------------------------------------------------------------- group */
+
+.uh-avatar-group {
+  display: inline-flex;
+  align-items: center;
+}
+
+/*
+ * Overlap, then a ring in the page colour so each avatar keeps a visible
+ * edge against the one beneath it.
+ */
+.uh-avatar-group .uh-avatar {
+  margin-inline-start: calc(-1 * var(--uh-spacing-8));
+  box-shadow: 0 0 0 var(--uh-border-width-2) var(--uh-color-bg-surface);
+}
+
+.uh-avatar-group .uh-avatar:first-child {
+  margin-inline-start: 0;
+}
+
+.uh-avatar-group__overflow {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+}

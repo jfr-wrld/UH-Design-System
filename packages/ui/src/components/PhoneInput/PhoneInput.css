@@ -1,0 +1,169 @@
+/*
+ * PhoneInput
+ *
+ * The country trigger lives inside the shared field chrome, so the border,
+ * focus ring and state colours all come from Input.css and cannot drift.
+ * Only the trigger, divider and listbox are defined here.
+ */
+
+.uh-phone {
+  position: relative;
+}
+
+.uh-phone__country {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.uh-phone__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  /* Fills the control height so the whole left edge is one target. */
+  align-self: stretch;
+  min-height: var(--uh-size-tap-target-min);
+  margin-inline-start: calc(-1 * var(--uh-field-padding-inline));
+  padding-inline: var(--uh-field-padding-inline);
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.uh-phone__trigger[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-phone__trigger:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-phone__flag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-field-icon);
+  overflow: hidden;
+  border-radius: var(--uh-radius-sm);
+}
+
+/*
+ * Flags carry national colours, which are not design tokens and must not be
+ * themed. They are the one exemption to the "every value is a token" rule.
+ */
+.uh-phone__flag > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.uh-phone__dial {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+}
+
+.uh-phone__chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-phone__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-phone__trigger[aria-expanded='true'] .uh-phone__chevron {
+  transform: rotate(180deg);
+}
+
+.uh-phone__divider {
+  flex: none;
+  align-self: center;
+  width: var(--uh-border-width-1);
+  /* Two thirds of the control height reads as a separator, not a border. */
+  height: calc(var(--uh-field-height) / 3 * 2);
+  background-color: var(--uh-color-border-default);
+}
+
+.uh-phone__number {
+  /* The dial code already sits to the left; keep the number beside it. */
+  margin-inline-start: var(--uh-spacing-4);
+}
+
+/* -------------------------------------------------------------- listbox */
+
+.uh-phone__list {
+  position: absolute;
+  inset-inline-start: calc(-1 * var(--uh-field-padding-inline));
+  top: calc(100% + var(--uh-spacing-8));
+  z-index: var(--uh-z-index-popover);
+  min-width: calc(var(--uh-spacing-96) * 3);
+  /* Six rows, then scroll - a fixed pixel height would drift from the scale. */
+  max-height: calc(var(--uh-size-control-md) * 6);
+  margin: 0;
+  padding: var(--uh-spacing-4);
+  overflow-y: auto;
+  list-style: none;
+  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+  box-shadow: var(--uh-elevation-3);
+}
+
+.uh-phone__option {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-12);
+  min-height: var(--uh-size-tap-target-min);
+  padding-inline: var(--uh-spacing-12);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+  cursor: pointer;
+}
+
+.uh-phone__option[data-active='true'] {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-phone__option[aria-selected='true'] {
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-phone__option-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uh-phone__option-dial {
+  flex: none;
+  color: var(--uh-color-text-secondary);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+}
+
+.uh-phone__option .uh-phone__flag {
+  width: var(--uh-size-icon-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-phone__chevron {
+    transition: none;
+  }
+}

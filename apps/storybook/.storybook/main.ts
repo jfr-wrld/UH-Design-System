@@ -4,10 +4,18 @@ const config: StorybookConfig = {
   stories: [
     '../stories/**/*.mdx',
     '../stories/**/*.stories.@(ts|tsx)',
-    '../../packages/ui/src/**/*.mdx',
-    '../../packages/ui/src/**/*.stories.@(ts|tsx)',
+    // Relative to this directory (.storybook), not to the app root - which is
+    // why reaching packages/ui takes three levels, not two.
+    '../../../packages/ui/src/**/*.stories.@(ts|tsx)',
   ],
-  addons: ['@storybook/addon-essentials', '@storybook/addon-links', '@storybook/addon-a11y'],
+  addons: [
+    '@storybook/addon-essentials',
+    '@storybook/addon-links',
+    '@storybook/addon-a11y',
+    // Lets the state matrix render real :hover / :focus-visible / :active,
+    // instead of faking them with demo-only classes in the component CSS.
+    'storybook-addon-pseudo-states',
+  ],
   framework: {
     name: '@storybook/react-vite',
     options: {},

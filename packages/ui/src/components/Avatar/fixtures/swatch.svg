@@ -1,0 +1,14 @@
+<!--
+  A geometric stand-in for a profile photo, used by the Avatar stories to
+  exercise the "image loads" branch.
+
+  Deliberately not a picture of a person: inventing a photo of a pilgrim would
+  be fabricated content. The colours are teal-700 and teal-300 copied from the
+  palette; they live here rather than in the story because this is an image
+  asset, and an image's own colours are not design tokens.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <rect width="96" height="96" fill="#0D625B" />
+  <circle cx="48" cy="38" r="16" fill="#95CFCA" />
+  <path d="M16 92a32 32 0 0 1 64 0z" fill="#95CFCA" />
+</svg>

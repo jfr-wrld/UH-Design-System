@@ -1,0 +1,49 @@
+/*
+ * Tooltip
+ *
+ * Supplementary only. It appears on hover and on focus, and neither is
+ * available to someone using a touch screen, so anything a person needs in
+ * order to finish a booking belongs on the page instead. This component cannot
+ * enforce that rule; the story states it and reviews have to hold it.
+ */
+
+.uh-tooltip {
+  position: fixed;
+  z-index: var(--uh-z-index-tooltip);
+  max-width: var(--uh-size-tooltip-max-width);
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-inverse);
+  color: var(--uh-color-text-inverse);
+  box-shadow: var(--uh-elevation-3);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+  /* Never swallows a pointer: hovering the tip must not keep it alive on its own. */
+  pointer-events: none;
+}
+
+.uh-tooltip__arrow {
+  position: absolute;
+  width: var(--uh-spacing-8);
+  height: var(--uh-spacing-8);
+  background-color: var(--uh-color-bg-inverse);
+  transform: rotate(45deg);
+}
+
+.uh-tooltip[data-side='top'] .uh-tooltip__arrow {
+  bottom: calc(-1 * var(--uh-spacing-4));
+}
+
+.uh-tooltip[data-side='bottom'] .uh-tooltip__arrow {
+  top: calc(-1 * var(--uh-spacing-4));
+}
+
+.uh-tooltip[data-side='left'] .uh-tooltip__arrow {
+  right: calc(-1 * var(--uh-spacing-4));
+}
+
+.uh-tooltip[data-side='right'] .uh-tooltip__arrow {
+  left: calc(-1 * var(--uh-spacing-4));
+}

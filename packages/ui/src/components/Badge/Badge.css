@@ -1,0 +1,207 @@
+/*
+ * Badge
+ *
+ * Tinted, never solid. A grid of package cards can carry six or seven of these
+ * at once, and solid fills at that density stop being labels and start being
+ * decoration competing with the price.
+ *
+ * The dot uses the role's `-text` token, not `-solid`. Measured: success-500 on
+ * success-50 is 2.18:1 and warning-500 is 2.07:1, both under the 3:1 a
+ * graphical object needs. The -700 text tokens clear it everywhere (4.79-6.81).
+ */
+
+.uh-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uh-badge-gap);
+  max-width: 100%;
+  min-height: var(--uh-badge-height);
+  padding-inline: var(--uh-badge-padding);
+  border: var(--uh-border-width-1) solid var(--uh-badge-border);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-badge-bg);
+  color: var(--uh-badge-text);
+}
+
+.uh-badge[data-size='sm'] {
+  --uh-badge-height: var(--uh-size-badge-sm);
+  --uh-badge-padding: var(--uh-spacing-8);
+  --uh-badge-gap: var(--uh-spacing-4);
+  --uh-badge-icon: var(--uh-size-icon-xs);
+
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  letter-spacing: var(--uh-typography-web-caption-letter-spacing);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-badge[data-size='md'] {
+  --uh-badge-height: var(--uh-size-badge-md);
+  --uh-badge-padding: var(--uh-spacing-12);
+  --uh-badge-gap: var(--uh-spacing-4);
+  --uh-badge-icon: var(--uh-size-icon-sm);
+
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-badge__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uh-badge__dot {
+  flex: none;
+  width: var(--uh-spacing-8);
+  height: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-full);
+  background-color: currentcolor;
+}
+
+.uh-badge__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-badge-icon);
+  height: var(--uh-badge-icon);
+}
+
+.uh-badge__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/*
+ * The remove control cannot reach the house 44px target: it lives inside a
+ * 20-24px badge, and a 44px hit area would spill over whichever badge sits
+ * beside it in a wrapped row and steal its taps. 24px is the WCAG 2.2 AA
+ * minimum (SC 2.5.8) and is what a badge can honestly offer.
+ */
+.uh-badge__remove {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-badge-icon);
+  height: var(--uh-badge-icon);
+  margin-inline-end: calc(-1 * var(--uh-spacing-4));
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.uh-badge__remove::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+  transform: translate(-50%, -50%);
+}
+
+.uh-badge__remove > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-badge__remove:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+/* ------------------------------------------------------------- variants */
+
+.uh-badge[data-variant='neutral'] {
+  --uh-badge-bg: var(--uh-color-bg-muted);
+  --uh-badge-text: var(--uh-color-text-secondary);
+  --uh-badge-border: var(--uh-color-border-default);
+}
+
+.uh-badge[data-variant='primary'] {
+  --uh-badge-bg: var(--uh-color-bg-brand-subtle);
+  --uh-badge-text: var(--uh-color-text-brand);
+  --uh-badge-border: var(--uh-color-border-brand);
+}
+
+.uh-badge[data-variant='secondary'] {
+  --uh-badge-bg: var(--uh-color-bg-accent-subtle);
+  --uh-badge-text: var(--uh-color-text-accent);
+  --uh-badge-border: var(--uh-color-border-accent);
+}
+
+.uh-badge[data-variant='success'] {
+  --uh-badge-bg: var(--uh-color-feedback-success-bg);
+  --uh-badge-text: var(--uh-color-feedback-success-text);
+  --uh-badge-border: var(--uh-color-feedback-success-border);
+}
+
+.uh-badge[data-variant='warning'] {
+  --uh-badge-bg: var(--uh-color-feedback-warning-bg);
+  --uh-badge-text: var(--uh-color-feedback-warning-text);
+  --uh-badge-border: var(--uh-color-feedback-warning-border);
+}
+
+.uh-badge[data-variant='error'] {
+  --uh-badge-bg: var(--uh-color-feedback-error-bg);
+  --uh-badge-text: var(--uh-color-feedback-error-text);
+  --uh-badge-border: var(--uh-color-feedback-error-border);
+}
+
+.uh-badge[data-variant='info'] {
+  --uh-badge-bg: var(--uh-color-feedback-info-bg);
+  --uh-badge-text: var(--uh-color-feedback-info-text);
+  --uh-badge-border: var(--uh-color-feedback-info-border);
+}
+
+/* ------------------------------------------------- booking status roles */
+
+.uh-badge[data-variant='pending'] {
+  --uh-badge-bg: var(--uh-color-status-pending-bg);
+  --uh-badge-text: var(--uh-color-status-pending-text);
+  --uh-badge-border: var(--uh-color-status-pending-border);
+}
+
+.uh-badge[data-variant='paid'] {
+  --uh-badge-bg: var(--uh-color-status-paid-bg);
+  --uh-badge-text: var(--uh-color-status-paid-text);
+  --uh-badge-border: var(--uh-color-status-paid-border);
+}
+
+.uh-badge[data-variant='confirmed'] {
+  --uh-badge-bg: var(--uh-color-status-confirmed-bg);
+  --uh-badge-text: var(--uh-color-status-confirmed-text);
+  --uh-badge-border: var(--uh-color-status-confirmed-border);
+}
+
+.uh-badge[data-variant='inProgress'] {
+  --uh-badge-bg: var(--uh-color-status-in-progress-bg);
+  --uh-badge-text: var(--uh-color-status-in-progress-text);
+  --uh-badge-border: var(--uh-color-status-in-progress-border);
+}
+
+.uh-badge[data-variant='completed'] {
+  --uh-badge-bg: var(--uh-color-status-completed-bg);
+  --uh-badge-text: var(--uh-color-status-completed-text);
+  --uh-badge-border: var(--uh-color-status-completed-border);
+}
+
+.uh-badge[data-variant='cancelled'] {
+  --uh-badge-bg: var(--uh-color-status-cancelled-bg);
+  --uh-badge-text: var(--uh-color-status-cancelled-text);
+  --uh-badge-border: var(--uh-color-status-cancelled-border);
+}
+
+.uh-badge[data-variant='refunded'] {
+  --uh-badge-bg: var(--uh-color-status-refunded-bg);
+  --uh-badge-text: var(--uh-color-status-refunded-text);
+  --uh-badge-border: var(--uh-color-status-refunded-border);
+}

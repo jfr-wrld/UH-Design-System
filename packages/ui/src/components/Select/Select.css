@@ -1,0 +1,158 @@
+/*
+ * Select
+ *
+ * The field chrome comes from Input.css; only the value row, the chevron and
+ * the portalled listbox live here.
+ */
+
+.uh-select__control {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-select__value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--uh-color-text-primary);
+  cursor: pointer;
+}
+
+.uh-select__value[data-placeholder='true'] {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-select__value[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-select__value:focus-visible {
+  /* The ring belongs to the whole control, drawn by .uh-field__control. */
+  outline: none;
+}
+
+.uh-select__chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-select__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-select__chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+/* -------------------------------------------------------------- listbox */
+
+/*
+ * Portalled to <body>, so position is fixed and driven by a measured anchor.
+ * This is what keeps the list from being clipped by an `overflow: hidden`
+ * card or scroll container further up the tree.
+ */
+.uh-select__portal {
+  position: fixed;
+  z-index: var(--uh-z-index-popover);
+  padding-top: var(--uh-spacing-4);
+}
+
+.uh-select__panel {
+  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-surface);
+  box-shadow: var(--uh-elevation-3);
+}
+
+/* An empty listbox still exists for aria-controls, but must not show. */
+.uh-select__list:empty {
+  display: none;
+}
+
+.uh-select__list {
+  max-height: var(--uh-size-overlay-max-height);
+  margin: 0;
+  padding: var(--uh-spacing-4);
+  overflow-y: auto;
+  list-style: none;
+}
+
+.uh-select__status {
+  padding-block: var(--uh-spacing-4);
+}
+
+.uh-select__option,
+.uh-select__status {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  min-height: var(--uh-size-tap-target-min);
+  padding-inline: var(--uh-spacing-12);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: calc(var(--uh-typography-web-body-s-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-select__option {
+  cursor: pointer;
+}
+
+.uh-select__option[data-active='true'] {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-select__option[aria-selected='true'] {
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-select__option[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-select__option-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uh-select__check {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-brand);
+}
+
+.uh-select__check > svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* The status row is not selectable, so it must not look like an option. */
+.uh-select__status {
+  color: var(--uh-color-text-secondary);
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-select__chevron {
+    transition: none;
+  }
+}
