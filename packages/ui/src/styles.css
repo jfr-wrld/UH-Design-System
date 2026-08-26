@@ -1,0 +1,19 @@
+/*
+ * Stylesheet entry point of @umrahhaji/ui.
+ *
+ * Import order matters:
+ *   1. tailwindcss        the engine
+ *   2. tokens/tailwind.css @theme mapping - also pulls in variables.css
+ *   3. tokens/fonts.css    self-hosted @font-face declarations
+ *   4. tokens/typography.css  .uh-type-*, .uh-measure, .uh-clamp-* utilities
+ *
+ * typography.css deliberately does not import variables.css itself, so the
+ * custom properties land in the bundle exactly once.
+ *
+ * Note: the spacing scale is named in pixels (p-4 is 4px, not 16px) and
+ * replaces Tailwind's default step scale.
+ */
+@import 'tailwindcss';
+@import '@umrahhaji/tokens/tailwind.css';
+@import '@umrahhaji/tokens/fonts.css';
+@import '@umrahhaji/tokens/typography.css';

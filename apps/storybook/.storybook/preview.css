@@ -1,0 +1,9 @@
+/*
+ * Story canvas styles. Mirrors packages/ui/src/styles.css so components render
+ * against the same tokens they will in the product. Import order matters -
+ * see that file for why typography.css comes last.
+ */
+@import 'tailwindcss';
+@import '@umrahhaji/tokens/tailwind.css';
+@import '@umrahhaji/tokens/fonts.css';
+@import '@umrahhaji/tokens/typography.css';

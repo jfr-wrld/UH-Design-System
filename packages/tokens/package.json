@@ -1,0 +1,38 @@
+{
+  "name": "@umrahhaji/tokens",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Single source of truth for UmrahHaji design tokens",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "build",
+    "assets"
+  ],
+  "exports": {
+    "./css": "./build/css/variables.css",
+    "./typography.css": "./build/css/typography.css",
+    "./fonts.css": "./build/css/fonts.css",
+    "./fonts/*": "./build/css/fonts/*",
+    "./tailwind.css": "./build/tailwind/theme.css",
+    "./tailwind": "./build/tailwind/tokens.js",
+    "./json": "./build/json/tokens.json",
+    "./json/flat": "./build/json/tokens.flat.json",
+    "./assets/*": "./assets/*",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "watch": "node ./scripts/build.mjs --watch",
+    "fonts:build": "node ./scripts/build-fonts.mjs",
+    "test": "node ./scripts/verify-numerals.mjs",
+    "clean": "rm -rf build",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.2",
+    "fontkit": "^2.0.4",
+    "style-dictionary": "^5.5.2",
+    "typescript": "^5.9.3"
+  }
+}

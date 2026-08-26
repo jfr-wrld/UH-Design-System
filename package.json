@@ -1,0 +1,41 @@
+{
+  "name": "umrahhaji-ds",
+  "version": "0.0.0",
+  "private": true,
+  "description": "UmrahHaji Design System monorepo",
+  "type": "module",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "build:packages": "pnpm --filter \"./packages/**\" build",
+    "dev": "pnpm --filter @umrahhaji/storybook dev",
+    "clean": "pnpm -r clean && rm -rf node_modules packages/*/node_modules apps/*/node_modules",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.4",
+    "eslint-plugin-storybook": "^0.12.0",
+    "globals": "^17.11.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "esbuild"
+    ]
+  }
+}
