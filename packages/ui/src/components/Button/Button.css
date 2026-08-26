@@ -148,12 +148,6 @@
  * The spinner itself lives in Spinner.css, including how it behaves under
  * reduced motion. The button only has to stop its own colour transitions.
  */
-@media (prefers-reduced-motion: reduce) {
-  .uh-btn {
-    transition: none;
-  }
-}
-
 /* ---------------------------------------------------------------- focus */
 
 .uh-btn:focus-visible {

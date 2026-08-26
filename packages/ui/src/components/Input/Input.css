@@ -277,9 +277,3 @@
 .uh-field__counter[data-over='true'] {
   color: var(--uh-color-feedback-error-text);
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .uh-field__control {
-    transition: none;
-  }
-}

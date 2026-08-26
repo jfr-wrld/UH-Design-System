@@ -175,12 +175,6 @@
   cursor: not-allowed;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .uh-choice__box {
-    transition: none;
-  }
-}
-
 /* ----------------------------------------------------------- radio group */
 
 .uh-choice-group {

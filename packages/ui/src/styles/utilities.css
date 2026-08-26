@@ -1,6 +1,36 @@
 /* Shared primitives used across components. */
 
 /*
+ * The one reduced-motion rule.
+ *
+ * Every decorative transition in the package dies here, in one place, instead
+ * of each stylesheet repeating the same three lines - the Phase 5.5 audit
+ * counted eighteen copies. Nothing in the package listens for transitionend,
+ * so zeroing the duration is safe.
+ *
+ * Deliberately transitions only. Animations are NOT killed globally: several
+ * components replace their animation with a designed static state under
+ * reduced motion (the skeleton's flat fill, the wave's removed overlay), and
+ * a blanket animation kill would fight those. Animations stay per-component,
+ * where their replacements live.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: var(--uh-motion-duration-instant) !important;
+  }
+
+  /* The presets are decorative by definition; their end state is the content. */
+  .uh-anim-fade,
+  .uh-anim-slide-up,
+  .uh-anim-slide-down,
+  .uh-anim-scale {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}
+
+/*
  * Visually hidden, still announced. Used for state that is conveyed visually
  * by something other than text - a spinner, an icon-only control.
  */
@@ -14,4 +44,81 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+/*
+ * Motion presets - the Phase 5.5 set: fade, slide-up, slide-down, scale,
+ * collapse. Each is one class; timing comes from the preset tokens, so the
+ * enter/exit pairings cannot drift from the documented rules. `both` fill
+ * means that under reduced motion (duration zero, below) the end state simply
+ * applies at once - nothing flashes, nothing moves.
+ */
+
+@keyframes uh-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes uh-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--uh-spacing-8));
+  }
+}
+
+@keyframes uh-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--uh-spacing-8)));
+  }
+}
+
+@keyframes uh-scale {
+  from {
+    opacity: 0;
+    /* Structural, not a design token: a beginning, like translateY's 50%. */
+    transform: scale(0.96);
+  }
+}
+
+.uh-anim-fade {
+  animation: uh-fade var(--uh-motion-preset-enter-duration) var(--uh-motion-preset-enter-easing)
+    both;
+}
+
+.uh-anim-slide-up {
+  animation: uh-slide-up var(--uh-motion-preset-enter-duration) var(--uh-motion-preset-enter-easing)
+    both;
+}
+
+.uh-anim-slide-down {
+  animation: uh-slide-down var(--uh-motion-preset-enter-duration)
+    var(--uh-motion-preset-enter-easing) both;
+}
+
+.uh-anim-scale {
+  animation: uh-scale var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+/*
+ * Collapse is a transition, not a keyframe: the closed and open states are
+ * both real states, and the 0fr/1fr grid row is what lets CSS animate to an
+ * unknown content height. The inner element only needs min-height: 0.
+ */
+.uh-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--uh-motion-preset-state-duration)
+    var(--uh-motion-preset-state-easing);
+}
+
+.uh-collapse[data-open='true'] {
+  grid-template-rows: 1fr;
+}
+
+.uh-collapse > * {
+  min-height: 0;
+  overflow: hidden;
 }

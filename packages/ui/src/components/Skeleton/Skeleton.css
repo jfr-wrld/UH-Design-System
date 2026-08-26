@@ -39,7 +39,9 @@
 
 @keyframes uh-skeleton-pulse {
   50% {
-    opacity: 0.55;
+    /* The dim phase of the pulse; the one opacity literal the Phase 5.5
+       audit found, now on the token it was waiting for. */
+    opacity: var(--uh-opacity-skeleton);
   }
 }
 

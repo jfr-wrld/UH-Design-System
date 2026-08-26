@@ -150,9 +150,3 @@
   color: var(--uh-color-text-secondary);
   cursor: default;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .uh-select__chevron {
-    transition: none;
-  }
-}

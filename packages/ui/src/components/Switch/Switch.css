@@ -134,10 +134,3 @@
   color: var(--uh-color-text-tertiary);
   cursor: not-allowed;
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .uh-switch__track,
-  .uh-switch__thumb {
-    transition: none;
-  }
-}
