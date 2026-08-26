@@ -23,11 +23,13 @@
   },
   "scripts": {
     "build": "node ./scripts/build.mjs",
-    "watch": "node ./scripts/build.mjs --watch",
-    "fonts:build": "node ./scripts/build-fonts.mjs",
-    "test": "node ./scripts/verify-numerals.mjs",
     "clean": "rm -rf build",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "fonts:build": "node ./scripts/build-fonts.mjs",
+    "test": "node ./scripts/verify-contrast.mjs && node ./scripts/verify-numerals.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "verify:contrast": "node ./scripts/verify-contrast.mjs",
+    "verify:numerals": "node ./scripts/verify-numerals.mjs",
+    "watch": "node ./scripts/build.mjs --watch"
   },
   "devDependencies": {
     "@types/node": "^22.19.2",

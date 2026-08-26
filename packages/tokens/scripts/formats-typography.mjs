@@ -25,6 +25,15 @@ const CSS_PROPERTY = {
 const FIELD_ORDER = Object.keys(CSS_PROPERTY);
 
 /**
+ * Styles that never wrap keep their own line-height verbatim. Buttons are
+ * centred by padding at line-height 1, and numerals sit on a single line, so
+ * the per-language correction would only push them off-centre.
+ */
+function wraps(style) {
+  return style.scale !== 'numeric' && !style.name.startsWith('button');
+}
+
+/**
  * Utility classes, one per composite style, built out of the custom properties
  * that `css/uh-themed` already emitted. Applying `.uh-type-web-h1` therefore
  * costs nothing extra and stays in sync with the tokens automatically.
@@ -44,11 +53,30 @@ export const typographyUtilitiesFormat = {
       if (!fields.length) continue;
 
       const selector = `.${prefix}-type-${toCssSegment(style.scale)}-${toCssSegment(style.name)}`;
-      const decls = fields.map(
-        ([field, token]) => `${INDENT}${CSS_PROPERTY[field]}: var(--${publicName(token, prefix)});`,
-      );
+      const decls = fields.map(([field, token]) => {
+        const value = `var(--${publicName(token, prefix)})`;
+        // Malay and Indonesian wrap more often, so wrapping styles add the
+        // per-language correction. line-height is unitless, so calc() works.
+        const resolved =
+          field === 'lineHeight' && wraps(style)
+            ? `calc(${value} + var(--${prefix}-line-height-adjust, 0))`
+            : value;
+        return `${INDENT}${CSS_PROPERTY[field]}: ${resolved};`;
+      });
       blocks.push(`${selector} {\n${decls.join('\n')}\n}`);
     }
+
+    const adjust = dictionary.allTokens.filter(
+      (t) => t.path[0] === 'typography' && t.path[1] === 'adjust',
+    );
+    const adjustBlocks = adjust.map((token) => {
+      const lang = token.path[2];
+      const selector = lang === 'en' ? ':root' : `:lang(${lang})`;
+      return (
+        `${selector} {\n` +
+        `${INDENT}--${prefix}-line-height-adjust: var(--${publicName(token, prefix)});\n}`
+      );
+    });
 
     const measure = dictionary.allTokens.find(
       (t) => t.path[0] === 'typography' && t.path[1] === 'measure' && t.path[2] === 'base',
@@ -63,6 +91,12 @@ export const typographyUtilitiesFormat = {
       ' * Deliberately not imported here, so the two entry points cannot both pull',
       ' * variables.css into one bundle.',
       ' */',
+      '',
+      '/*',
+      ' * Per-language line-height correction. `:lang()` inherits, so setting',
+      ' * lang on <html> or on one section is enough - nested elements follow.',
+      ' */',
+      adjustBlocks.join('\n\n'),
       '',
       '/* One class per composite text style. */',
       blocks.join('\n\n'),

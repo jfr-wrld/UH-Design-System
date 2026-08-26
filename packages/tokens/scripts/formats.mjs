@@ -64,6 +64,12 @@ export const cssThemedFormat = {
       '}',
     ].join('\n');
 
+    // Light lives on :root, but that alone is one-directional: a subtree can opt
+    // into dark, and nothing can opt back out. Repeating the light semantics
+    // under an explicit selector makes the switch work both ways, and lets a
+    // page force light even when the OS asks for dark.
+    const lightBody = declarations(light, dictionary, options, prefix);
+
     const darkBody = [
       `${INDENT}color-scheme: dark;`,
       '',
@@ -75,7 +81,10 @@ export const cssThemedFormat = {
       '',
       root,
       '',
-      "/* Explicit opt-in: <html data-theme='dark'>. */",
+      '/* Force light on any subtree, including when the OS prefers dark. */',
+      `[data-theme='light'] {\n${INDENT}color-scheme: light;\n\n${lightBody}\n}`,
+      '',
+      "/* Explicit opt-in: <html data-theme='dark'>, or any subtree. */",
       `[data-theme='dark'] {\n${darkBody}\n}`,
       '',
       '/* System preference, unless the page has explicitly asked for light. */',
