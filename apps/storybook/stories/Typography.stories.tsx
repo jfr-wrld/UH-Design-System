@@ -524,3 +524,52 @@ export const LineLengthAndTruncation: Story = {
     </div>
   ),
 };
+
+export const MixedMalayArabic: Story = {
+  render: () => (
+    <div style={{ padding: 'var(--uh-spacing-32)', maxWidth: '40rem' }}>
+      <Section
+        title="Mixed Malay-Arabic content"
+        hint="The everyday bidirectional case: an Arabic run inside a Malay sentence. The run is wrapped in <bdi lang='ar'> so neighbouring punctuation and numbers keep their places, marked lang='ar' so screen readers switch voice, and set in the Arabic scale - which sits a step larger than the Latin around it, because Naskh at Latin size reads one to two points too small."
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--uh-spacing-16)' }}>
+          <p className="uh-type-web-body-m" style={{ margin: 0 }}>
+            Selepas solat Subuh, jemaah dinasihatkan membaca{' '}
+            <bdi lang="ar" className="uh-type-arabic-md">
+              اللَّهُمَّ بَارِكْ لَنَا فِي رِحْلَتِنَا
+            </bdi>{' '}
+            sebanyak 3 kali sebelum menaiki bas ke Masjidil Haram.
+          </p>
+          <p className="uh-type-web-body-m" style={{ margin: 0 }}>
+            Ziarah hari ini bermula di{' '}
+            <bdi lang="ar" className="uh-type-arabic-md">
+              مَسْجِد قُبَاء
+            </bdi>
+            , masjid pertama dalam sejarah Islam, pada 08:30.
+          </p>
+          <blockquote
+            lang="ar"
+            dir="rtl"
+            className="uh-type-arabic-title"
+            style={{
+              margin: 0,
+              padding: 'var(--uh-spacing-16)',
+              borderInlineStart: 'var(--uh-border-width-thick) solid var(--uh-color-border-brand)',
+              background: 'var(--uh-color-bg-brand-subtle)',
+              borderRadius: 'var(--uh-radius-md)',
+            }}
+          >
+            رَبَّنَا تَقَبَّلْ مِنَّا إِنَّكَ أَنتَ السَّمِيعُ الْعَلِيمُ
+          </blockquote>
+          <p
+            className="uh-type-web-caption"
+            style={{ margin: 0, color: 'var(--uh-color-text-secondary)' }}
+          >
+            A block-level Arabic quote takes dir="rtl" of its own; inline runs take bdi. Both always
+            carry lang="ar".
+          </p>
+        </div>
+      </Section>
+    </div>
+  ),
+};

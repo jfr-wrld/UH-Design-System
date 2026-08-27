@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Foundations/Content & Localization" />
+
+# Content & Localization
+
+Three languages - English, Malay, Indonesian - with Arabic content flowing
+through all of them. Localization is architecture here, not translation at
+the end.
+
+## The mechanics
+
+- **Every visible string is a prop.** Components ship English defaults and a
+  `labels` object; strings that need values are functions
+  (`seatsLeft: (count) => ...`), because only the translator knows where the
+  number goes in their grammar.
+- **Everything numeric goes through Intl** - dates, durations, distances,
+  file sizes, list joining, relative times. "14 days" becomes "14 hari" with
+  no table of ours; "yesterday" gets its own word per locale via
+  `RelativeTimeFormat`.
+- **`currency` is never derived from `locale`.** An Indonesian price read in
+  English is still `Rp 45.000.000` - symbol from the currency, grouping from
+  the locale. This is the single most defended rule in the money layer.
+- **Week shape follows the locale** (Malay weeks start Monday, English and
+  Indonesian Sunday) unless the product pins `weekStartsOn`.
+
+## Writing for expansion
+
+Malay and Indonesian run 15-30% longer than English. Every component carries
+a three-language text-expansion story at 280-340px, and layouts absorb the
+growth structurally: labels wrap on their own rows, package titles clamp at
+two lines with the copy never shortened, amounts keep a no-wrap right edge
+while labels flex.
+
+## Tone
+
+Terse and confident - say a thing once, clearly. But terse plus a first-time
+buyer plus RM 12,500 is where people abandon, so reassurance goes one tap
+away (an expandable breakdown, a visible support route), never into walls of
+text.
+
+- Errors name the problem **and** the next action: _"passport-scan.pdf is
+  8 MB. Maximum file size: 5 MB. Compress it or scan at a lower quality."_
+- Empty states name the query: _"No packages found for 'Kota Bharu'. Try a
+  different keyword."_ - never a bare "No results".
+- No em dashes in UI text; no invented statistics, testimonials or trust
+  badges, ever.
+
+## Glossary discipline
+
+Domain words stay in the pilgrim's language: ihram, miqat, ziarah, mutawwif,
+Raudhah. The UI never "translates" them into tourist English.

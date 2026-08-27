@@ -4,6 +4,35 @@ import './preview.css';
 
 const preview: Preview = {
   parameters: {
+    options: {
+      storySort: {
+        order: [
+          'Introduction',
+          'Foundations',
+          [
+            'Principles',
+            'Token Architecture',
+            'Colors',
+            'Typography',
+            'Spacing',
+            'Sizing & Touch Targets',
+            'Layout & Breakpoints',
+            'Shape & Borders',
+            'Elevation',
+            'Layering',
+            'Iconography',
+            'Imagery',
+            'Motion',
+            'Interaction States',
+            'Accessibility',
+            'Content & Localization',
+            'RTL & Bidirectional',
+          ],
+          'Components',
+          'Patterns',
+        ],
+      },
+    },
     controls: {
       matchers: {
         color: /(background|color)$/i,

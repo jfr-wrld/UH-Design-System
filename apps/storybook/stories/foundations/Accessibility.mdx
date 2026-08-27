@@ -1,0 +1,46 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Foundations/Accessibility" />
+
+# Accessibility
+
+Not a checklist at the end: the system's accessibility rules are enforced by
+machines wherever a machine can hold them, and documented here where they
+need judgement.
+
+## Enforced automatically
+
+| Rule                                                                                              | Where it is enforced                     |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 154 contrast contracts - text 4.5:1, large text and UI 3:1, both themes, tinted surfaces included | `verify-contrast.mjs`, every token build |
+| No literal visual values that could dodge those contracts                                         | `verify-tokens.mjs`, every ui build      |
+| Zero axe violations, every story, real browser                                                    | `test-storybook` + axe-playwright        |
+| Zero axe violations in jsdom per component state                                                  | `expectNoA11yViolations` in unit tests   |
+| Tabular numerals really in the shipped fonts                                                      | `verify-numerals.mjs` against the woff2  |
+
+## The house rules
+
+- **44px targets**, with three documented 24px exceptions (badge remove,
+  field clear, inline info) - each one commented in place with its reason.
+- **One focus ring**, never removed without that exact replacement.
+- **Words, not colour**: every state that has a colour also has a word, an
+  icon or a mark. Strikethrough prices carry sr-only labels; tracker states
+  append words; discounts say "Discount".
+- **Real semantics**: tables are tables, lists are lists, disclosures are
+  buttons with `aria-expanded`/`aria-controls`, calendars are APG grids with
+  one tab stop.
+- **`aria-disabled` over `disabled`** where a control's reason should stay
+  readable (sold-out cards, the Button contract).
+- **Live regions count, they do not narrate**: uploads announce "2 files
+  uploading", never a percentage stream.
+- **Reduced motion** collapses every transition globally; meaningful
+  animations ship designed static replacements.
+- **Language is marked**: `lang` on every translated column and Arabic run,
+  and portals copy `lang` and `data-theme` across.
+
+## What still needs a human
+
+Axe cannot judge whether the _words_ are right, whether focus order matches
+visual order after a redesign, or whether a keyboard walk of a whole form
+stays coherent - that last one has a dedicated pattern story
+(Patterns/Booking form) built to be walked with Tab alone.

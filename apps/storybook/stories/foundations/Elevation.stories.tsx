@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 import { Page, Section, TokenName, ValueText } from './shared.js';
 import { FLAT } from './tokens.js';
+import { A11ySection, Code, Do, DoDont, Dont } from './docs.js';
 
 const LEVELS = [0, 1, 2, 3, 4, 5] as const;
 
@@ -142,6 +143,55 @@ export const Ladders: Story = {
           ))}
         </div>
       </Section>
+
+      <Section title="Usage">
+        <DoDont>
+          <Do title="state the level once; pair shadow with its surface.">
+            <div
+              style={{
+                padding: 'var(--uh-spacing-12)',
+                borderRadius: 'var(--uh-radius-card)',
+                background: 'var(--uh-color-bg-elevation-2)',
+                boxShadow: 'var(--uh-elevation-2)',
+              }}
+              className="uh-type-web-body-s"
+            >
+              elevation-2, both tokens
+            </div>
+          </Do>
+          <Dont title="raise elevation to attract attention - that is colour and spacing's job.">
+            <div
+              style={{
+                padding: 'var(--uh-spacing-12)',
+                borderRadius: 'var(--uh-radius-card)',
+                background: 'var(--uh-color-bg-elevation-1)',
+                boxShadow: 'var(--uh-elevation-5)',
+              }}
+              className="uh-type-web-body-s"
+            >
+              a resting card shouting at elevation-5
+            </div>
+          </Dont>
+        </DoDont>
+      </Section>
+
+      <Section title="Implementation">
+        <Code>{`
+.uh-picker__panel {
+  background: var(--uh-color-bg-elevation-3);
+  box-shadow: var(--uh-elevation-3);
+}
+/* Light resolves to a shadow ladder; dark to a lighter surface
+   plus a thin edge. The component never knows which. */
+        `}</Code>
+      </Section>
+
+      <A11ySection
+        items={[
+          'Depth is redundant information: every elevated layer is also announced by role (dialog, listbox, tooltip) - nobody needs to see the shadow to know a modal opened.',
+          'The dark surface ladder keeps text contracts on every step (checked against bg-elevation surfaces via the neutral-on-tint contracts).',
+        ]}
+      />
     </Page>
   ),
 };

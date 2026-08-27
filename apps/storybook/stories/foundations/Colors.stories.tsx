@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { Page, Rows, Section, TokenName, ValueText } from './shared.js';
+import { A11ySection, Code, Do, DoDont, Dont } from './docs.js';
 import { tokensByPrefix } from './tokens.js';
 
 /** The ramp families, in the order the palette file defines them. */
@@ -127,6 +128,43 @@ function ColorsPage({ theme }: { theme: 'light' | 'dark' }) {
           </div>
         </div>
       </Section>
+
+      <Section title="Usage">
+        <DoDont>
+          <Do title="consume semantic roles; the theme does the rest.">
+            <p
+              className="uh-type-web-body-s"
+              style={{ margin: 0, color: 'var(--uh-color-text-secondary)' }}
+            >
+              color: var(--uh-color-text-secondary)
+            </p>
+          </Do>
+          <Dont title="reach past the role into the ramp, or reuse a page-checked colour on a tint.">
+            <p className="uh-type-web-body-s" style={{ margin: 0 }}>
+              text.tertiary passes on the surface but fails on feedback.info.bg - the tinted-surface
+              trap the contracts exist to catch.
+            </p>
+          </Dont>
+        </DoDont>
+      </Section>
+
+      <Section title="Implementation">
+        <Code>{`
+.uh-review__date { color: var(--uh-color-text-tertiary); }
+.uh-badge[data-variant='primary'] {
+  background: var(--uh-color-bg-brand-subtle);
+  color: var(--uh-color-text-brand);
+}
+        `}</Code>
+      </Section>
+
+      <A11ySection
+        items={[
+          '154 build-time contracts: every text role against its page, action labels on all three states, feedback text on its own tint, borders at 3:1.',
+          'Colour is never the only signal - each coloured state pairs with a word, icon or mark.',
+          'Disabled text is exempt from contrast but never additionally faded.',
+        ]}
+      />
     </Page>
   );
 }

@@ -1,0 +1,72 @@
+import { Meta } from '@storybook/blocks';
+
+import { Page, Section, TokenName, ValueText } from './shared.js';
+import { tokensByPrefix } from './tokens.js';
+
+<Meta title="Foundations/Layout & Breakpoints" />
+
+# Layout & Breakpoints
+
+## Breakpoints
+
+Three ranges, from the PRD: mobile 320-767, tablet 768-1023, desktop 1024
+and up. The thresholds are tokens because they are read from JavaScript as
+well as CSS - a bottom sheet and a popover are different markup, not one
+markup restyled, so the number must live where both can see it.
+
+<Page>
+  <Section title="Tokens">
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'max-content max-content',
+        columnGap: 'var(--uh-spacing-24)',
+        rowGap: 'var(--uh-spacing-8)',
+      }}
+    >
+      {tokensByPrefix('uh-breakpoint-').map(({ name, value }) => (
+        <div key={name} style={{ display: 'contents' }}>
+          <TokenName>{name}</TokenName>
+          <ValueText>{value}</ValueText>
+        </div>
+      ))}
+    </div>
+  </Section>
+</Page>
+
+```tsx
+import { MOBILE_QUERY, useMediaQuery } from '@umrahhaji/ui';
+
+const mobile = useMediaQuery(MOBILE_QUERY); // '(max-width: 767px)'
+return mobile ? <BottomSheet /> : <Popover />;
+```
+
+A test in the ui package fails if `MOBILE_QUERY` ever disagrees with the
+token.
+
+## How layout is actually built
+
+- **Grids are consumer-side**: a package listing is
+  `repeat(auto-fill, minmax(...))` plus `grid-auto-rows: 1fr`, which is the
+  consumer's half of the equal-height contract (cards are `height: 100%` and
+  pin their price to the bottom).
+- **Wide content scrolls inside its own container** - the page body never
+  scrolls horizontally; 320px is proven overflow-free per component.
+- **Spacing does not change across breakpoints**; a phone gets fewer
+  columns, not tighter gaps.
+- Component splits at the breakpoints are markup decisions made in script:
+  DatePicker popover to sheet, SearchCombobox dropdown to full-screen
+  overlay, PriceBreakdown open to collapsed details.
+
+## Responsive behaviour of the system itself
+
+Every component story proves a 280-340px column; titles clamp rather than
+grow; price rows wrap rather than overflow. Below ~336px, calendar and OTP
+cells trade width for no-horizontal-scroll - the documented exception to the
+44px rule.
+
+## Known gap
+
+There are **no container-width or grid-gutter tokens yet**. Flagged in the
+foundations audit rather than invented here; page templates in the app layer
+currently own their own max-widths.

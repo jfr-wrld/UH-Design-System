@@ -1,0 +1,54 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Foundations/Principles" />
+
+# Principles
+
+The direction behind every token and component decision. The full document is
+`DESIGN.md` in the repository; this page is the working summary a builder
+needs open.
+
+## Who this is for
+
+Pilgrims booking Umrah and Hajj packages - mostly Malaysian, mobile-first,
+many making the largest single transaction of their lives, and many for the
+first time. The audience skews 30-60 and often reads without reading glasses:
+mobile body copy has a hard floor of 15px. Two more audiences share the same
+system through separate portals: agency staff (desktop-leaning, all day in
+the tool) and platform admins. Navigation differs by portal; nothing else
+does.
+
+## Character
+
+**Modern and efficient.** Trust is expressed through competence, not warmth
+or ornament. The answer to "this is a sacred journey" is never religious
+decoration - no gold gradients, no stacked Kaabah photography. The weight is
+carried by restraint and precision: correct Arabic typography, prices that
+never wobble, states that are always honest.
+
+Dial: **ENERGY 2 / RHYTHM 2 / MOTION 2** - alive but controlled, a
+consistent grid with deliberate breaks, transitions on interaction only.
+
+## The five levers
+
+1. **One focal point per screen.** On a package card that is the price; in
+   the booking flow, the next action.
+2. **One accent, spent once.** Teal is structural - brand, links, primary
+   actions. Orange is the accent, reserved for the single most important
+   moment on a surface. Never white text on orange-500 (2.82:1, and a build
+   contract fails if that ever changes).
+3. **Whitespace as structure.** Empty space separates and sets rhythm; it is
+   never leftover.
+4. **Hierarchical contrast on purpose.** Size, weight and colour differ
+   because something is more important, never for variety.
+5. **Craft in the boring places.** Aligned price columns, designed empty and
+   error states, Arabic sitting correctly beside Malay, visible focus rings.
+   If a screen would embarrass us at 2x zoom on a mid-range Android, it is
+   not done.
+
+## What the code enforces
+
+These principles are checks, not aspirations: a literal hex, px or duration
+in a component stylesheet fails the build; 154 contrast contracts run on
+every token build; every story passes axe in a real browser; tabular
+numerals are verified against the shipped font files.

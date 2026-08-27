@@ -1,0 +1,66 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Foundations/Token Architecture" />
+
+# Token Architecture
+
+One source of truth - `packages/tokens/src/tokens.json`, itself generated so
+that every contrast ratio quoted in a description is computed, never typed -
+built by Style Dictionary into CSS custom properties (light and dark),
+a Tailwind theme, and JSON for the mobile apps.
+
+## The three layers
+
+**1. Primitive** - raw material with no opinion about use: `teal-600`,
+`spacing-16`, `radius-lg`, the elevation-surface ramp. Components never
+touch these directly.
+
+```css
+--uh-color-teal-600: #107a71;
+--uh-spacing-16: 16px;
+```
+
+**2. Semantic** - intent, and the layer components consume: `color.text.primary`,
+`color.border.focus`, `elevation-3`. Semantic tokens exist twice internally
+(light and dark) but publish under one name, which is why a theme switch is a
+CSS cascade and not a rewrite:
+
+```css
+:root {
+  --uh-color-text-primary: var(--uh-color-neutral-900);
+}
+[data-theme='dark'] {
+  --uh-color-text-primary: var(--uh-color-neutral-50);
+}
+```
+
+**3. Component contracts** - aliases that pin a decision to a thing:
+`radius.button`, `radius.card`, `border-width.hairline`, the
+`motion-preset-*` timing pairs. Change `--uh-radius-card` once and every
+card follows. Inside a component, scoped custom properties
+(`--uh-field-height`, `--uh-package-title-size`) play the same role at file
+scope.
+
+## Consuming them
+
+```tsx
+// CSS (the normal path)
+.uh-price__amount { color: var(--uh-color-text-primary); }
+
+// Tailwind - the theme maps 1:1, spacing named in pixels
+<div className="p-16 text-fg-primary" />
+
+// JSON, for scripts and native apps
+import tokens from '@umrahhaji/tokens/json/flat';
+```
+
+## The rules
+
+- Components consume **semantic** names; primitives are the palette's
+  business.
+- No literal visual values in component CSS - `verify-tokens.mjs` fails the
+  build on a stray hex, px, rem or duration.
+- These documentation pages read `tokens.flat.json` and `var(--uh-*)`
+  directly, so they cannot drift from the build.
+- A missing token is reported and added to the source, never hardcoded
+  around.
