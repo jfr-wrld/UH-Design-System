@@ -171,11 +171,21 @@ jobs:
             packages/*/node_modules
             apps/*/node_modules
           key: node-modules-${{ github.sha }}
-      # Storybook's own build (inside `pnpm test:a11y`, below) resolves
-      # `@umrahhaji/ui` and `@umrahhaji/tokens` through their built output,
-      # same as `build` above - it never sees these workspace packages'
-      # source directly.
-      - run: pnpm build:packages
+      # `test:a11y` only serves `apps/storybook/storybook-static` and runs
+      # axe against it - it never builds that directory itself. This job
+      # skipped that step entirely for a while (a wrong assumption written
+      # into a since-deleted comment here), so http-server served a folder
+      # that never existed; wait-on's http check still got *a* response
+      # (a 404), so it moved on, and test-storybook then hung forever
+      # waiting for real story content that was never coming - the 50+
+      # minute stuck run this fix responds to. `build` already produced
+      # this exact artifact - download it instead of rebuilding, so this
+      # job tests the very same static output every other job already
+      # verified against, not a fresh independent build of it.
+      - uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: apps/storybook/storybook-static
       # Playwright's own browser binary, not the pnpm store - a11y needs a
       # real Chromium to run axe in, same as it does locally.
       - run: pnpm --filter @umrahhaji/storybook exec playwright install --with-deps chromium
