@@ -99,6 +99,10 @@ jobs:
             packages/*/node_modules
             apps/*/node_modules
           key: node-modules-${{ github.sha }}
+      # `packages/tokens`'s own test step (verify-contrast.mjs /
+      # verify-numerals.mjs, below) reads its *built* CSS/JSON output, not
+      # src/tokens.json directly - same reason `typecheck` builds first.
+      - run: pnpm build:packages
       - run: pnpm test
       # verify-contrast.mjs / verify-numerals.mjs run as part of
       # `packages/tokens`'s own `pnpm test` above; this is the WCAG contract
@@ -155,6 +159,11 @@ jobs:
             packages/*/node_modules
             apps/*/node_modules
           key: node-modules-${{ github.sha }}
+      # Storybook's own build (inside `pnpm test:a11y`, below) resolves
+      # `@umrahhaji/ui` and `@umrahhaji/tokens` through their built output,
+      # same as `build` above - it never sees these workspace packages'
+      # source directly.
+      - run: pnpm build:packages
       # Playwright's own browser binary, not the pnpm store - a11y needs a
       # real Chromium to run axe in, same as it does locally.
       - run: pnpm --filter @umrahhaji/storybook exec playwright install --with-deps chromium
@@ -176,7 +185,10 @@ jobs:
             packages/*/node_modules
             apps/*/node_modules
           key: node-modules-${{ github.sha }}
-      - run: pnpm --filter @umrahhaji/ui build
+      # @umrahhaji/ui's own build:css step resolves @umrahhaji/tokens's
+      # tailwind.css export from its *built* output - `build:packages`
+      # builds tokens first, same as `typecheck`/`build`/`test` above.
+      - run: pnpm build:packages
       - run: node packages/ui/scripts/bundle-size.mjs --json > bundle-size-current.json
       # Baseline lives on main - a PR has nothing to diff against until one
       # exists there. `git show` reads the committed baseline without
