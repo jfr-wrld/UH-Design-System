@@ -41,23 +41,6 @@ jobs:
             apps/*/node_modules
           key: node-modules-${{ github.sha }}
 
-  restore-install: &restore-install
-    needs: install
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - uses: actions/cache/restore@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            apps/*/node_modules
-          key: node-modules-${{ github.sha }}
-
   # -------------------------------------------------------------------- lint
   lint:
     runs-on: ubuntu-latest
