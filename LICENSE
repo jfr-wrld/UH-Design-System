@@ -1,4 +1,4 @@
-Copyright (c) 2026 UmrahHaji. All rights reserved.
+Copyright (c) 2026 Akram Afifi Holding Sdn Bhd. All rights reserved.
 
 This repository and its contents (including source code, design tokens,
 documentation, and assets) are proprietary and confidential. No license,
@@ -10,10 +10,3 @@ copyright holder.
 This repository is publicly visible on GitHub for collaboration and
 reference purposes only. Visibility does not constitute a grant of
 rights under this license.
-
----
-
-NOTE for whoever reviews this before it ships: "UmrahHaji" above is a
-placeholder for whichever legal entity actually owns this codebase (a
-company name, not just the product name) - confirm and correct it
-before treating this file as final.
