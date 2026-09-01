@@ -104,7 +104,13 @@
 
 .uh-command__group-heading {
   padding: var(--uh-spacing-8) var(--uh-spacing-12) var(--uh-spacing-4);
-  color: var(--uh-color-text-tertiary);
+  /*
+   * text-secondary, not -tertiary: tertiary's own contrast is measured
+   * (and only just clears 4.5:1) against bg-surface/bg-canvas specifically -
+   * this heading sits on the command panel's own background instead, and
+   * axe caught the real, lower ratio that results.
+   */
+  color: var(--uh-color-text-secondary);
   font-family: var(--uh-typography-web-caption-font-family);
   font-size: var(--uh-typography-web-caption-font-size);
   line-height: var(--uh-typography-web-caption-line-height);
@@ -170,7 +176,10 @@
   padding: var(--uh-spacing-2) var(--uh-spacing-4);
   border-radius: var(--uh-radius-sm);
   background-color: var(--uh-color-bg-muted);
-  color: var(--uh-color-text-tertiary);
+  /* text-secondary, not -tertiary - same reasoning as .uh-command__group-heading
+     above: tertiary's contrast was only ever verified against bg-surface/
+     bg-canvas, not this pill's own bg-muted fill. */
+  color: var(--uh-color-text-secondary);
   font-variant-numeric: tabular-nums;
   font-family: var(--uh-typography-web-caption-font-family);
   font-size: var(--uh-typography-web-caption-font-size);
