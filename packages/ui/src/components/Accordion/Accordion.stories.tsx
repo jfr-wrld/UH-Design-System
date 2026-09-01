@@ -149,7 +149,12 @@ export const Matrix: Story = {
           </p>
           <Accordion type="multiple" defaultValue={['one', 'two']}>
             <AccordionItem value="one">
-              <AccordionTrigger>First item, open by default</AccordionTrigger>
+              {/* Distinct from the `type="single"` section's own "First item,
+                  open by default" above - both panels are open at once on
+                  this page, and `AccordionContent`'s `role="region"` makes
+                  each one a landmark, so two open regions sharing a name
+                  would fail axe's landmark-unique check. */}
+              <AccordionTrigger>First item, also open by default</AccordionTrigger>
               <AccordionContent>Any number of items can be open together.</AccordionContent>
             </AccordionItem>
             <AccordionItem value="two">
