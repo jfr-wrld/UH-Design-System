@@ -67,6 +67,10 @@ jobs:
           key: node-modules-${{ github.sha }}
       - run: pnpm lint
       - run: pnpm format:check
+      # lint:ds's own contrast-contract check shells out to
+      # packages/tokens/scripts/verify-contrast.mjs, which reads the
+      # *built* CSS - same reason test/bundle-size/a11y build first.
+      - run: pnpm build:packages
       - run: pnpm lint:ds
 
   # --------------------------------------------------------------- typecheck
