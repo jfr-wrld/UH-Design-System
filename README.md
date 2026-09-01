@@ -24,7 +24,8 @@ umrahhaji-ds/
 
 ## Requirements
 
-- Node.js >= 20
+- Node.js >= 22 (jsdom's own test dependencies need a Node webidl API that
+  doesn't exist before 22)
 - pnpm 10 (`corepack enable` or `npm i -g pnpm@10`)
 
 ## Getting started

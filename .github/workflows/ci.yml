@@ -17,6 +17,14 @@ env:
   # a non-interactive CI shell forever on first run.
   STORYBOOK_DISABLE_TELEMETRY: '1'
 
+# Every job's setup-node pins 22, not the 20 `engines.node` used to say.
+# jsdom@30 (a transitive devDependency of packages/ui's test setup, via
+# undici@8's CacheStorage) reaches for a Node webidl API that does not exist
+# before Node 22 - `pnpm test` crashed outright on a real Node 20 run here
+# with `TypeError: webidl.util.markAsUncloneable is not a function`,
+# reproduced locally with nvm before this fix. root package.json's
+# engines.node is bumped to match.
+
 jobs:
   # ------------------------------------------------------------------ setup
   # One install, cached and shared, rather than every job repeating it -
@@ -30,7 +38,7 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - uses: actions/cache/save@v4
@@ -49,7 +57,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -69,7 +77,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -91,7 +99,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -120,7 +128,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -151,7 +159,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |
@@ -177,7 +185,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+        with: { node-version: 22, cache: pnpm }
       - uses: actions/cache/restore@v4
         with:
           path: |

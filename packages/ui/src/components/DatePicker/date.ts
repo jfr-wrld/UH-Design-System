@@ -50,12 +50,22 @@ export const dayCount = (a: Date, b: Date): number =>
  * Which weekday a week begins on in this locale, as 0 for Sunday through 6 for
  * Saturday. Intl reports 1 for Monday through 7 for Sunday, so Sunday folds
  * back to 0 to line up with Date#getDay.
+ *
+ * `weekInfo` is the standardized property; `getWeekInfo()` was the earlier
+ * experimental method it replaced. Checked in that order - a V8/Node release
+ * that has finished the transition drops `getWeekInfo` entirely, which
+ * silently sent every locale through the `return 1` fallback below instead
+ * of ever reading real week data (caught via a CI run on Node 20, where the
+ * method is already gone; this machine's Node still carries it, which is
+ * exactly how it went unnoticed locally).
  */
 export function weekStart(locale: string): number {
   try {
-    const info = (
-      new Intl.Locale(locale) as Intl.Locale & { getWeekInfo?: () => { firstDay: number } }
-    ).getWeekInfo?.();
+    const l = new Intl.Locale(locale) as Intl.Locale & {
+      weekInfo?: { firstDay: number };
+      getWeekInfo?: () => { firstDay: number };
+    };
+    const info = l.weekInfo ?? l.getWeekInfo?.();
     if (info && typeof info.firstDay === 'number') return info.firstDay % 7;
   } catch {
     /* Older engines have no week info; Monday is the safe default here. */
