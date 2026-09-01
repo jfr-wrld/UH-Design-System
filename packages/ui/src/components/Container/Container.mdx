@@ -1,0 +1,21 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ContainerStories from './Container.stories';
+
+<Meta of={ContainerStories} />
+
+# Container
+
+Kolom konten level halaman - yang sebelumnya ditulis ulang sendiri-sendiri sebagai
+lebar level-atas di setiap layar `Patterns/*`. Diposisikan di tengah, dibatasi salah
+satu dari empat lebar (`sm` 640px, `md` 960px, `lg` 1280px default, `xl` 1440px),
+dengan padding tepinya sendiri supaya tidak butuh `<div style={{padding}}>` pembungkus.
+
+## Props
+
+<ArgTypes of={ContainerStories} />
+
+## Contoh penggunaan
+
+<Canvas of={ContainerStories.Large} />
+<Canvas of={ContainerStories.Small} />
+<Canvas of={ContainerStories.NoPadding} />

@@ -275,6 +275,33 @@ export const DarkMode: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Select.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Select ... />` JSX instead of a render function body.
+ */
+
+export const Basic: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Nationality', options: COUNTRIES, required: true },
+};
+
+export const Searchable: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Nationality',
+    options: MANY,
+    searchable: true,
+    clearable: true,
+    helperText: 'Type to filter the list',
+  },
+};
+
+export const WithError: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Nationality', options: COUNTRIES, errorMessage: 'Select your nationality' },
+};
+
 /* -------------------------------------------------------- text expansion */
 
 const LOCALES = [

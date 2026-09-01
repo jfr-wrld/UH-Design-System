@@ -1,0 +1,55 @@
+/*
+ * TimePicker
+ *
+ * Reuses `.uh-picker*` from DatePicker.css untouched for the trigger button
+ * and the portalled layer (popover on desktop, bottom sheet on phone) -
+ * only the three scrollable columns inside that layer are new. A picker
+ * with several independent lists is a genuinely different shape from a
+ * single calendar grid, but the surface it opens onto, and the field row
+ * it sits in, are exactly the same thing DatePicker already built.
+ */
+
+.uh-time-picker__columns {
+  display: flex;
+  gap: var(--uh-spacing-4);
+}
+
+.uh-time-picker__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+  width: var(--uh-size-time-picker-column);
+  max-height: var(--uh-size-time-picker-column-height);
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
+}
+
+.uh-time-picker__option {
+  flex: none;
+  scroll-snap-align: start;
+  border: 0;
+  border-radius: var(--uh-radius-sm);
+  padding-block: var(--uh-spacing-8);
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  text-align: center;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-time-picker__option:hover {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-time-picker__option[aria-selected='true'] {
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-time-picker__option:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}

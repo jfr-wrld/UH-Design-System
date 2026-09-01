@@ -157,6 +157,29 @@ function pseudoClass(pseudo: Record<string, boolean>): string | undefined {
   return classes.length ? classes.join(' ') : undefined;
 }
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Button.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Button ... />` JSX instead of a render function body.
+ * Kept separate from StateMatrix/SizesAndIcons above, which exist to prove
+ * the whole surface works, not to be copied verbatim.
+ */
+
+export const Primary: Story = {
+  parameters: { layout: 'centered' },
+  args: { variant: 'primary', children: 'Continue to Payment' },
+};
+
+export const WithIcon: Story = {
+  parameters: { layout: 'centered' },
+  args: { variant: 'outline', leftIcon: <PlaneIcon />, children: 'Book Now' },
+};
+
+export const Loading: Story = {
+  parameters: { layout: 'centered' },
+  args: { loading: true, loadingLabel: 'Processing', children: 'Book Now' },
+};
+
 export const StateMatrix: Story = {
   render: () => (
     <Page>

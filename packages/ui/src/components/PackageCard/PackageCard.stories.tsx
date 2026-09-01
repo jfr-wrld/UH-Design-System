@@ -237,6 +237,81 @@ export const GridOfSix: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually-Canvas-able examples for PackageCard.mdx's
+ * "Contoh penggunaan" section - `base` is spread directly onto the
+ * component in each render rather than routed through Story['args'],
+ * because PackageCardProps is a discriminated union on `loading` and
+ * Partial<union> collapses to the two branches' common keys, which would
+ * reject `loading`/`soldOut` overrides at the Story['args'] type. Direct
+ * JSX spreading is what the rest of this file already does for the same
+ * reason (see States, GridOfSix, IncompleteData above).
+ */
+
+export const StandardCard: Story = {
+  args: base,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The card at rest, grid variant, with every optional field filled in: rating, ' +
+          'trip dates, hotel distance, a promo badge and a struck-through original price.',
+      },
+    },
+  },
+  render: () => (
+    <Page>
+      <div style={{ width: '282px' }}>
+        <PackageCard {...base} onClick={() => {}} onWishlist={() => {}} />
+      </div>
+    </Page>
+  ),
+};
+
+export const LoadingSkeleton: Story = {
+  args: base,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The `loading: true` branch of the props union. Title, agency and price become ' +
+          'optional the moment `loading` is `true`, so a skeleton-loading grid only ever ' +
+          'has to pass `loading` and `variant` - never invented placeholder strings for ' +
+          'data that has not arrived yet. Two skeleton lines match the two-line title the ' +
+          'loaded card reserves, so the grid does not jump once real data lands.',
+      },
+    },
+  },
+  render: () => (
+    <Page>
+      <div style={{ width: '282px' }}>
+        <PackageCard loading variant="grid" />
+      </div>
+    </Page>
+  ),
+};
+
+export const SoldOutCard: Story = {
+  args: base,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A scrim and label cover the image and the package action gets `aria-disabled` ' +
+          'instead of losing its tab stop; the wishlist control stays live, since a trip ' +
+          'that has sold out is exactly the one worth watching for next season.',
+      },
+    },
+  },
+  render: () => (
+    <Page>
+      <div style={{ width: '282px' }}>
+        <PackageCard {...base} soldOut onWishlist={() => {}} />
+      </div>
+    </Page>
+  ),
+};
+
 /* -------------------------------------------------------- incomplete data */
 
 export const IncompleteData: Story = {

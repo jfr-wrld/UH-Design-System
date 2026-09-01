@@ -1,0 +1,86 @@
+/*
+ * Popover
+ *
+ * A small interactive surface anchored to its trigger: elevation-3 (a popover
+ * is a floating layer, not a modal), radius.tooltip's bigger sibling
+ * radius.md, and an arrow that points at the anchor's centre even after the
+ * panel itself was clamped into the viewport - the hook hands the corrected
+ * position over in --uh-anchor-arrow.
+ */
+
+.uh-popover {
+  position: fixed;
+  max-width: var(--uh-size-tooltip-max-width);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-elevation-3);
+  box-shadow: var(--uh-elevation-3);
+  z-index: var(--uh-z-index-popover);
+  animation: uh-popover-enter var(--uh-motion-preset-state-duration)
+    var(--uh-motion-preset-state-easing) both;
+}
+
+.uh-popover__content {
+  padding: var(--uh-spacing-12);
+}
+
+/* ----------------------------------------------------------------- arrow */
+
+/*
+ * A rotated square sharing the panel's fill and border; the overlap hides the
+ * two inner edges. Positioned along the cross axis by the hook's measurement,
+ * on the edge facing the anchor - which is the opposite of data-placement.
+ */
+.uh-popover__arrow {
+  position: absolute;
+  width: var(--uh-spacing-12);
+  height: var(--uh-spacing-12);
+  background-color: var(--uh-color-bg-elevation-3);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  transform: rotate(45deg);
+}
+
+.uh-popover[data-placement='bottom'] .uh-popover__arrow {
+  inset-block-start: calc(-1 * var(--uh-spacing-12) / 2);
+  left: calc(var(--uh-anchor-arrow) - var(--uh-spacing-12) / 2);
+  border-block-end: 0;
+  border-inline-end: 0;
+}
+
+.uh-popover[data-placement='top'] .uh-popover__arrow {
+  inset-block-end: calc(-1 * var(--uh-spacing-12) / 2);
+  left: calc(var(--uh-anchor-arrow) - var(--uh-spacing-12) / 2);
+  border-block-start: 0;
+  border-inline-start: 0;
+}
+
+.uh-popover[data-placement='right'] .uh-popover__arrow {
+  inset-inline-start: calc(-1 * var(--uh-spacing-12) / 2);
+  top: calc(var(--uh-anchor-arrow) - var(--uh-spacing-12) / 2);
+  border-block-end: 0;
+  border-inline-start: 0;
+}
+
+.uh-popover[data-placement='left'] .uh-popover__arrow {
+  inset-inline-end: calc(-1 * var(--uh-spacing-12) / 2);
+  top: calc(var(--uh-anchor-arrow) - var(--uh-spacing-12) / 2);
+  border-block-start: 0;
+  border-inline-end: 0;
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-popover-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* Exit is an unmount: going away needs no flourish. Only the entrance needs
+   the reduced-motion collapse. */
+@media (prefers-reduced-motion: reduce) {
+  .uh-popover {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

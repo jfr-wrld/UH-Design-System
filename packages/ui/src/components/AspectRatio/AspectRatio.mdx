@@ -1,0 +1,49 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as AspectRatioStories from './AspectRatio.stories';
+
+<Meta of={AspectRatioStories} />
+
+# AspectRatio
+
+Kotak yang mempertahankan rasio lebar:tinggi-nya apa pun isinya - foto
+hotel, embed video - supaya grid kartu tidak "melompat" saat gambar
+dimuat pada ukuran alaminya masing-masing. Murni CSS `aspect-ratio`,
+tidak ada yang perlu dihitung lewat script.
+
+## Props
+
+<ArgTypes of={AspectRatioStories} />
+
+## Contoh penggunaan
+
+<Canvas of={AspectRatioStories.Playground} />
+
+## Preset rasio
+
+<Canvas of={AspectRatioStories.Matrix} />
+
+## Rasio kustom
+
+`customRatio` menerima angka polos (lebar dibagi tinggi) untuk bentuk
+yang tidak dicakup preset mana pun - satu-satunya tempat di komponen ini
+angka literal memang benar, bukan token, karena rasio adalah matematika,
+bukan keputusan desain yang dimiliki lapisan token, sama seperti jumlah
+`columns` milik `Grid` sendiri juga bukan token.
+
+<Canvas of={AspectRatioStories.CustomRatio} />
+
+## Di dalam grid kartu
+
+<Canvas of={AspectRatioStories.InACardGrid} />
+
+<Canvas of={AspectRatioStories.DarkMode} />
+
+## Yang tidak dilakukan komponen ini
+
+`AspectRatio` sengaja tidak menjangkau ke dalam `children` untuk mengatur
+ukuran atau memotongnya - `<img>` atau `<video>` yang diletakkan di
+dalamnya tetap butuh `width: 100%; height: 100%; object-fit: cover` (atau
+`contain`, kalau memotong salah untuk apa yang ditampungnya) miliknya
+sendiri untuk benar-benar mengisi kotak, persis seperti referensi
+TailGrids yang diterjemahkan komponen ini juga menyerahkan itu ke
+pemanggil.

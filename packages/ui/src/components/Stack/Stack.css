@@ -1,0 +1,99 @@
+/*
+ * Stack
+ *
+ * A one-axis flex layout. Every value here resolves to a token - there is no
+ * literal size or colour in this file, same contract as every other
+ * component's stylesheet.
+ */
+
+.uh-stack {
+  display: flex;
+}
+
+/* -------------------------------------------------------------- direction */
+
+.uh-stack[data-direction='row'] {
+  flex-direction: row;
+}
+
+.uh-stack[data-direction='column'] {
+  flex-direction: column;
+}
+
+/* -------------------------------------------------------------------- gap */
+
+.uh-stack[data-gap='2'] {
+  gap: var(--uh-spacing-2);
+}
+.uh-stack[data-gap='4'] {
+  gap: var(--uh-spacing-4);
+}
+.uh-stack[data-gap='8'] {
+  gap: var(--uh-spacing-8);
+}
+.uh-stack[data-gap='12'] {
+  gap: var(--uh-spacing-12);
+}
+.uh-stack[data-gap='16'] {
+  gap: var(--uh-spacing-16);
+}
+.uh-stack[data-gap='20'] {
+  gap: var(--uh-spacing-20);
+}
+.uh-stack[data-gap='24'] {
+  gap: var(--uh-spacing-24);
+}
+.uh-stack[data-gap='32'] {
+  gap: var(--uh-spacing-32);
+}
+.uh-stack[data-gap='40'] {
+  gap: var(--uh-spacing-40);
+}
+.uh-stack[data-gap='48'] {
+  gap: var(--uh-spacing-48);
+}
+.uh-stack[data-gap='64'] {
+  gap: var(--uh-spacing-64);
+}
+
+/* ---------------------------------------------------------------- align */
+
+.uh-stack[data-align='start'] {
+  align-items: flex-start;
+}
+.uh-stack[data-align='center'] {
+  align-items: center;
+}
+.uh-stack[data-align='end'] {
+  align-items: flex-end;
+}
+.uh-stack[data-align='stretch'] {
+  align-items: stretch;
+}
+.uh-stack[data-align='baseline'] {
+  align-items: baseline;
+}
+
+/* -------------------------------------------------------------- justify */
+
+.uh-stack[data-justify='start'] {
+  justify-content: flex-start;
+}
+.uh-stack[data-justify='center'] {
+  justify-content: center;
+}
+.uh-stack[data-justify='end'] {
+  justify-content: flex-end;
+}
+.uh-stack[data-justify='between'] {
+  justify-content: space-between;
+}
+.uh-stack[data-justify='around'] {
+  justify-content: space-around;
+}
+
+/* ----------------------------------------------------------------- wrap */
+
+.uh-stack[data-wrap='true'] {
+  flex-wrap: wrap;
+}

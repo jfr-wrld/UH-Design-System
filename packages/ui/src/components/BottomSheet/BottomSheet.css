@@ -1,0 +1,173 @@
+/*
+ * BottomSheet
+ *
+ * The phone's modal surface: attached to the bottom edge, rounded only at the
+ * top (radius.sheet), capped at sheet-max-height so a strip of page stays
+ * visible above it - that strip is what says the page still exists. Height
+ * rests at snap points and moves between them on the state pairing; enter and
+ * exit are animations so usePresence can wait for animationend.
+ */
+
+.uh-sheet {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  z-index: var(--uh-z-index-sheet);
+}
+
+.uh-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--uh-color-bg-overlay);
+  backdrop-filter: blur(var(--uh-blur-lg));
+  animation: uh-sheet-fade var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-sheet[data-state='closing'] .uh-sheet__backdrop {
+  animation: uh-sheet-fade var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both reverse;
+}
+
+/* ---------------------------------------------------------------- panel */
+
+.uh-sheet__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  border-radius: var(--uh-radius-sheet) var(--uh-radius-sheet) 0 0;
+  background-color: var(--uh-color-bg-elevation-4);
+  box-shadow: var(--uh-elevation-4);
+  animation: uh-sheet-enter var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+  transition: height var(--uh-motion-preset-state-duration) var(--uh-motion-preset-state-easing);
+  /* The sheet owns its gestures; the page underneath is already locked. */
+  touch-action: none;
+}
+
+.uh-sheet[data-state='closing'] .uh-sheet__panel {
+  animation: uh-sheet-exit var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both;
+}
+
+/* A finger is authoritative: while it is down, nothing eases. */
+.uh-sheet__panel[data-dragging='true'] {
+  transition: none;
+}
+
+/* ----------------------------------------------------------- handle row */
+
+.uh-sheet__grab {
+  display: flex;
+  justify-content: center;
+  padding-block: var(--uh-spacing-8) 0;
+  cursor: grab;
+}
+
+.uh-sheet__handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--uh-size-tap-target-min);
+  min-height: var(--uh-spacing-20);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: grab;
+}
+
+.uh-sheet__handle:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+.uh-sheet__handle-bar {
+  width: var(--uh-size-icon-2xl);
+  height: var(--uh-spacing-4);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+}
+
+/* --------------------------------------------------------------- header */
+
+.uh-sheet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-8) var(--uh-spacing-16) var(--uh-spacing-8);
+}
+
+.uh-sheet__title {
+  margin: 0;
+  min-width: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: calc(var(--uh-typography-web-h6-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+/* Sizing/colour/hover/focus come from the shared .uh-close-button (see
+   styles/utilities.css); this only pulls the 44px target into the header's
+   own padding so the visual header stays tight. */
+.uh-sheet__close {
+  margin: calc(-1 * var(--uh-spacing-8));
+  margin-inline-start: 0;
+}
+
+/* ----------------------------------------------------------------- body */
+
+.uh-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--uh-spacing-8) var(--uh-spacing-16) var(--uh-spacing-16);
+}
+
+.uh-sheet__body[data-scrollable='true'] {
+  overflow-y: auto;
+  /* Scrolling content takes its gestures back from the sheet. */
+  touch-action: pan-y;
+}
+
+.uh-sheet__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12) var(--uh-spacing-16);
+  border-block-start: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
+  background-color: var(--uh-color-bg-elevation-4);
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes uh-sheet-enter {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes uh-sheet-exit {
+  to {
+    transform: translateY(100%);
+  }
+}
+
+/* Designed replacement: durations collapse so animationend still fires. */
+@media (prefers-reduced-motion: reduce) {
+  .uh-sheet__backdrop,
+  .uh-sheet__panel {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

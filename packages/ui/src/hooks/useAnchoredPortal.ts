@@ -1,4 +1,11 @@
-import { useEffect, useLayoutEffect, useState, type RefObject } from 'react';
+import { useEffect, useLayoutEffect, type RefObject } from 'react';
+
+import { useInheritedContext, type InheritedContext } from './useInheritedContext.js';
+
+export type { InheritedContext } from './useInheritedContext.js';
+
+export type AnchorPlacement = 'top' | 'bottom' | 'left' | 'right';
+export type AnchorAlign = 'start' | 'center' | 'end';
 
 export interface AnchoredPortalOptions {
   open: boolean;
@@ -7,6 +14,12 @@ export interface AnchoredPortalOptions {
   panelRef: RefObject<HTMLElement | null>;
   /** Off for the mobile forms, where the panel is not anchored to anything. */
   enabled?: boolean;
+  /** Which side of the anchor the panel prefers; it flips when space runs out. */
+  placement?: AnchorPlacement;
+  /** How the panel lines up along the anchor's other axis. */
+  align?: AnchorAlign;
+  /** Gap between anchor and panel, in px. Callers pass a spacing token's value. */
+  offset?: number;
   /** Makes the panel exactly as wide as the anchor, for a listbox under a field. */
   matchWidth?: boolean;
   /**
@@ -17,43 +30,35 @@ export interface AnchoredPortalOptions {
 }
 
 /**
- * Attributes a portal loses by leaving its subtree. Both drive custom
- * properties the panel needs, so they are carried across by hand.
- */
-export interface InheritedContext {
-  theme?: string | undefined;
-  lang?: string | undefined;
-}
-
-/**
  * How close a panel may come to the edge of the viewport. Mirrors `spacing.8`;
  * applied in script rather than CSS because it clamps a computed coordinate.
  */
 const VIEWPORT_INSET = 8;
 
 /**
- * The part every portalled popup shares: measuring the anchor, carrying the
- * inherited attributes across, and closing on an outside pointer.
+ * The one positioning brain for every portalled popup: measuring the anchor,
+ * choosing and flipping a side, clamping into the viewport, carrying the
+ * inherited attributes across, and closing on an outside pointer or focus.
  *
- * Extracted because three components needed the same twenty lines and had
- * begun to disagree about them. What each one renders into the portal is its
- * own business; this only decides where it goes.
- *
- * Position is written straight to the node. A coordinate that changes on every
- * scroll frame has no business going through state.
+ * Position is written straight to the node - a coordinate that changes on
+ * every scroll frame has no business going through state. Two extras land on
+ * the panel for stylesheets to read: `data-placement` (the side actually
+ * used, after any flip) and `--uh-anchor-arrow` (px along the panel's cross
+ * axis where the anchor's centre sits, for an arrow to point from).
  */
 export function useAnchoredPortal(options: AnchoredPortalOptions): InheritedContext {
-  const { open, anchorRef, panelRef, enabled = true, matchWidth = false, onOutside } = options;
-  const [inherited, setInherited] = useState<InheritedContext>({});
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    const node = anchorRef.current;
-    setInherited({
-      theme: node?.closest('[data-theme]')?.getAttribute('data-theme') ?? undefined,
-      lang: node?.closest('[lang]')?.getAttribute('lang') ?? undefined,
-    });
-  }, [open, anchorRef]);
+  const {
+    open,
+    anchorRef,
+    panelRef,
+    enabled = true,
+    placement = 'bottom',
+    align = 'start',
+    offset = 0,
+    matchWidth = false,
+    onOutside,
+  } = options;
+  const inherited = useInheritedContext(open, anchorRef);
 
   useLayoutEffect(() => {
     if (!open || !enabled) return undefined;
@@ -66,18 +71,65 @@ export function useAnchoredPortal(options: AnchoredPortalOptions): InheritedCont
       const rect = anchor.getBoundingClientRect();
       if (matchWidth) panel.style.width = `${rect.width}px`;
 
-      const height = panel.offsetHeight;
       const width = panel.offsetWidth;
-      const roomBelow = window.innerHeight - rect.bottom;
-      /* Flip above only when there is genuinely more room up there. */
-      const flip = roomBelow < height && rect.top > roomBelow;
+      const height = panel.offsetHeight;
+      const viewW = window.innerWidth;
+      const viewH = window.innerHeight;
 
-      panel.style.left = `${Math.max(
-        VIEWPORT_INSET,
-        Math.min(rect.left, window.innerWidth - width - VIEWPORT_INSET),
-      )}px`;
-      panel.style.top = `${flip ? rect.top - height : rect.bottom}px`;
-      panel.dataset.placement = flip ? 'top' : 'bottom';
+      /* Flip only when the preferred side lacks room AND the other has more. */
+      const room = {
+        top: rect.top,
+        bottom: viewH - rect.bottom,
+        left: rect.left,
+        right: viewW - rect.right,
+      };
+      const need = placement === 'top' || placement === 'bottom' ? height + offset : width + offset;
+      const opposite: Record<AnchorPlacement, AnchorPlacement> = {
+        top: 'bottom',
+        bottom: 'top',
+        left: 'right',
+        right: 'left',
+      };
+      const side =
+        room[placement] < need && room[opposite[placement]] > room[placement]
+          ? opposite[placement]
+          : placement;
+
+      const alongCross = (start: number, span: number, panelSpan: number) => {
+        if (align === 'center') return start + span / 2 - panelSpan / 2;
+        if (align === 'end') return start + span - panelSpan;
+        return start;
+      };
+
+      let top: number;
+      let left: number;
+      if (side === 'top' || side === 'bottom') {
+        top = side === 'bottom' ? rect.bottom + offset : rect.top - height - offset;
+        left = alongCross(rect.left, rect.width, width);
+      } else {
+        left = side === 'right' ? rect.right + offset : rect.left - width - offset;
+        top = alongCross(rect.top, rect.height, height);
+      }
+
+      left = Math.max(VIEWPORT_INSET, Math.min(left, viewW - width - VIEWPORT_INSET));
+      top = Math.max(VIEWPORT_INSET, Math.min(top, viewH - height - VIEWPORT_INSET));
+
+      panel.style.left = `${left}px`;
+      panel.style.top = `${top}px`;
+      panel.dataset.placement = side;
+
+      /* Where the anchor's centre sits along the panel's cross axis, clamped
+         inside the panel, so an arrow can point at the anchor even after the
+         panel itself was clamped to the viewport. */
+      const arrow =
+        side === 'top' || side === 'bottom'
+          ? rect.left + rect.width / 2 - left
+          : rect.top + rect.height / 2 - top;
+      const arrowMax = (side === 'top' || side === 'bottom' ? width : height) - VIEWPORT_INSET;
+      panel.style.setProperty(
+        '--uh-anchor-arrow',
+        `${Math.max(VIEWPORT_INSET, Math.min(arrow, arrowMax))}px`,
+      );
     }
 
     place();
@@ -88,7 +140,7 @@ export function useAnchoredPortal(options: AnchoredPortalOptions): InheritedCont
       window.removeEventListener('scroll', place, true);
       window.removeEventListener('resize', place);
     };
-  }, [open, enabled, matchWidth, anchorRef, panelRef]);
+  }, [open, enabled, placement, align, offset, matchWidth, anchorRef, panelRef]);
 
   useEffect(() => {
     if (!open || !onOutside) return undefined;

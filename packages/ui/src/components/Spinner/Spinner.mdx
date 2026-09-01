@@ -1,0 +1,17 @@
+import { Meta, ArgTypes } from '@storybook/blocks';
+import * as SpinnerStories from './Spinner.stories';
+
+<Meta of={SpinnerStories} />
+
+# Spinner
+
+Indikator loading tak tentu untuk proses yang durasinya tidak bisa diprediksi -
+fetch data, submit form, generate laporan. Secara default merender
+`role="status"` dan `aria-live="polite"` dengan `label` yang diumumkan; set
+`decorative` saat spinner dipasang di dalam kontrol yang sudah mengumumkan
+busy state-nya sendiri (mis. `Button loading`), supaya screen reader tidak
+mengucapkannya dua kali.
+
+## Props
+
+<ArgTypes of={SpinnerStories} />

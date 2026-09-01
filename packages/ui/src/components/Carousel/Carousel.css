@@ -1,0 +1,140 @@
+/*
+ * Carousel
+ *
+ * Swipe is CSS, not JS: scroll-snap-type on the track makes it a native
+ * swipeable strip on touch already. The Prev/Next buttons and the dots below
+ * only call scrollTo on that same track - one source of truth for position,
+ * read back by the scroll handler to keep everything else in sync.
+ */
+
+.uh-carousel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-12);
+}
+
+.uh-carousel__viewport {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--uh-radius-card);
+}
+
+.uh-carousel__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+.uh-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.uh-carousel__track:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-carousel__slide {
+  flex: none;
+  width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* ------------------------------------------------------------------- nav */
+
+.uh-carousel__nav {
+  position: absolute;
+  top: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+  box-shadow: var(--uh-elevation-2);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.uh-carousel__nav[data-direction='prev'] {
+  inset-inline-start: var(--uh-spacing-8);
+}
+
+.uh-carousel__nav[data-direction='next'] {
+  inset-inline-end: var(--uh-spacing-8);
+}
+
+.uh-carousel__nav > svg {
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+}
+
+.uh-carousel__nav[data-direction='prev'] > svg {
+  transform: rotate(90deg);
+}
+
+.uh-carousel__nav[data-direction='next'] > svg {
+  transform: rotate(-90deg);
+}
+
+.uh-carousel__nav:hover:not(:disabled) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-carousel__nav:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-carousel__nav:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+  opacity: var(--uh-opacity-disabled);
+}
+
+/* ------------------------------------------------------------------ dots */
+
+.uh-carousel__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-carousel__dot {
+  position: relative;
+  width: var(--uh-spacing-8);
+  height: var(--uh-spacing-8);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+  cursor: pointer;
+}
+
+/* The dot itself stays small and decorative; the tap target around it does
+   not - same overlay trick as the small NumberStepper button. */
+.uh-carousel__dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  transform: translate(-50%, -50%);
+}
+
+.uh-carousel__dot[data-active='true'] {
+  background-color: var(--uh-color-action-primary-default);
+}
+
+.uh-carousel__dot:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}

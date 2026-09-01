@@ -148,4 +148,13 @@ export function PassengerStepper({
   );
 }
 
-PassengerStepper.displayName = 'PassengerStepper';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  PassengerStepper.displayName = 'PassengerStepper';
+}

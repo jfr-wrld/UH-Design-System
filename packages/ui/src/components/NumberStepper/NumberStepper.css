@@ -44,7 +44,19 @@
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  border: var(--uh-border-width-1) solid var(--uh-color-border-strong);
+  /*
+   * outline, not border: Fase 6 verification found this control measuring
+   * 2px taller than every other 44px control (Input, Select, Button,
+   * PhoneInput, DateRangePicker). The buttons inside are correctly, and
+   * non-negotiably, 44px each - two independent tap targets, not one
+   * shared field - so unlike Input, there is no shorter inner content for
+   * a `border` to be absorbed into without either shrinking a button below
+   * the house 44px floor or growing the whole control past it. An outline
+   * draws the same edge without adding to layout size at all, which is
+   * exactly the property needed here.
+   */
+  outline: var(--uh-border-width-1) solid var(--uh-color-border-strong);
+  outline-offset: calc(-1 * var(--uh-border-width-1));
   border-radius: var(--uh-radius-md);
   background-color: var(--uh-color-bg-surface);
 }
@@ -67,10 +79,27 @@
   height: var(--uh-stepper-button);
   padding: 0;
   border: 0;
-  border-radius: var(--uh-radius-md);
+  /* Flat on the side facing the input, rounded only on the outer corner
+     that's actually a visible edge of `.uh-stepper__control` - moved in
+     the TailGrids-character pass: their own reference button rounds only
+     the outer corner the same way (`rounded-l-lg`/`rounded-r-lg`), so its
+     hover/active fill hugs the control's own shape instead of floating as
+     a fully-rounded square with a gap of straight edge on the side that
+     touches its neighbour. */
+  border-radius: 0;
   background: transparent;
   color: var(--uh-color-text-primary);
   cursor: pointer;
+}
+
+.uh-stepper__button:first-child {
+  border-start-start-radius: var(--uh-radius-md);
+  border-end-start-radius: var(--uh-radius-md);
+}
+
+.uh-stepper__button:last-child {
+  border-start-end-radius: var(--uh-radius-md);
+  border-end-end-radius: var(--uh-radius-md);
 }
 
 /*
@@ -119,7 +148,7 @@
   height: var(--uh-stepper-button);
   padding: 0;
   border: 0;
-  border-inline: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-inline: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
   background: transparent;
   color: var(--uh-color-text-primary);
   text-align: center;

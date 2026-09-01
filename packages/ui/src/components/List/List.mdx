@@ -1,0 +1,67 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ListStories from './List.stories';
+
+<Meta of={ListStories} />
+
+# List
+
+Kartu berbingkai berisi baris-baris: baris ringkasan pesanan, entri
+pengaturan, daftar fasilitas yang termasuk/tidak termasuk dalam sebuah
+paket. Sengaja bukan widget interaktif - tidak ada `role="menu"` atau
+roving focus seperti `Dropdown`, tidak ada expand/collapse seperti
+`Accordion`/`Collapsible`. Begitu grup baris ini perlu _berperilaku_
+lebih dari sekadar kumpulan baris yang masing-masing bisa berupa tautan
+atau tombol, pakai salah satu komponen itu sebagai gantinya.
+
+## Props
+
+<ArgTypes of={ListStories} />
+
+## Contoh penggunaan
+
+<Canvas of={ListStories.Playground} />
+
+## Tiga jenis baris
+
+Setiap `ListItem` adalah baris statis (tanpa `href`/`onClick`), baris
+tautan (`href`), atau baris tombol (`onClick`) - tidak pernah lebih dari
+satu, mengikuti pola tiga arah `Card` yang sama untuk alasan yang sama:
+satu baris punya tepat satu cara untuk diaktifkan.
+
+<Canvas of={ListStories.OrderSummary} />
+
+<Canvas of={ListStories.Matrix} />
+
+## Status aktif
+
+`active` menandai baris yang sedang berlaku dalam satu set - tipe kamar
+yang sedang dipilih, filter yang sedang aktif - dengan latar bertinta
+warna brand dan teks warna brand, bukan sinyal warna semata karena label
+baris itu sendiri tetap membawa maknanya.
+
+<Canvas of={ListStories.ActiveState} />
+
+## Arah dan pemisah baris
+
+`direction="horizontal"` menata baris berdampingan, masing-masing
+seukuran isinya sendiri - cocok untuk strip filter yang ringkas alih-alih
+layar pengaturan selebar penuh. Garis pemisah antar baris aktif secara
+default; matikan lewat `hideDividers` untuk baris yang paddingnya sendiri
+sudah cukup memberi jarak.
+
+<Canvas of={ListStories.HorizontalDirection} />
+
+<Canvas of={ListStories.HiddenDividers} />
+
+<Canvas of={ListStories.DarkMode} />
+
+<Canvas of={ListStories.TextExpansion} />
+
+## Aksesibilitas
+
+Baris tautan mempertahankan `href`-nya bahkan saat `disabled` - lewat
+`aria-disabled`, bukan dengan melepas `href` - supaya baris itu tetap
+ada di tab order dan masih bisa ditemukan pembaca layar, sama seperti
+pola `as="a"` milik `Button` sendiri; kliknya diblokir lewat handler,
+bukan lewat menghilangkan navigasinya. Baris tombol memakai atribut
+`disabled` native karena `<button>` sudah mendukungnya langsung.

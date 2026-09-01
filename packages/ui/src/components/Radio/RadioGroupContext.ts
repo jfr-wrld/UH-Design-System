@@ -13,8 +13,15 @@ export interface RadioGroupContextValue {
 /**
  * Split from RadioGroup.tsx so that file exports only components: Fast Refresh
  * cannot hot-reload a module that mixes components with other exports.
+ *
+ * The pure-annotation comment right before the call matters: a bundler
+ * cannot know on its own that `createContext` has no side effects, and
+ * without that mark this one line pins the whole bundled library file
+ * together as one inseparable unit for anyone who imports a single,
+ * unrelated component - see `scripts/bundle-size.mjs`'s own comment for the
+ * full story of how this was found.
  */
-export const RadioGroupContext = createContext<RadioGroupContextValue | null>(null);
+export const RadioGroupContext = /* @__PURE__ */ createContext<RadioGroupContextValue | null>(null);
 
 export function useRadioGroup(): RadioGroupContextValue | null {
   return useContext(RadioGroupContext);

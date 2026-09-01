@@ -7,9 +7,11 @@ import {
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
+import { Eye, EyeDisabled } from '@tailgrids/icons';
 
 import { FieldShell } from '../Field/FieldShell.js';
 import { useControllableState } from '../../hooks/useControllableState.js';
+import { CloseIcon } from '../../lib/icons.js';
 
 /**
  * `tel` is deliberately absent. Every phone number this product collects
@@ -54,34 +56,9 @@ export interface InputProps extends NativeInputProps {
   onClear?: () => void;
 }
 
-function ClearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 function EyeIcon({ off }: { off: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="2.75" stroke="currentColor" strokeWidth="1.75" />
-      {off ? (
-        <path d="M4 20L20 4" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-      ) : null}
-    </svg>
-  );
+  const Glyph = off ? EyeDisabled : Eye;
+  return <Glyph aria-hidden="true" focusable="false" />;
 }
 
 function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
@@ -199,7 +176,7 @@ function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
             onClear?.();
           }}
         >
-          <ClearIcon />
+          <CloseIcon />
         </button>
       ) : null}
 
@@ -227,5 +204,14 @@ function InputImpl(props: InputProps, ref: ForwardedRef<HTMLInputElement>) {
   );
 }
 
-export const Input = forwardRef(InputImpl);
-Input.displayName = 'Input';
+export const Input = /* @__PURE__ */ forwardRef(InputImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Input.displayName = 'Input';
+}

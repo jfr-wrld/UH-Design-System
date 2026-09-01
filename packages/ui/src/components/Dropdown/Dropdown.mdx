@@ -1,0 +1,65 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as DropdownStories from './Dropdown.stories';
+
+<Meta of={DropdownStories} />
+
+# Dropdown
+
+Trigger yang membuka menu aksi mengambang - "..." di sebuah kartu, menu
+akun - bukan pemilih value (`Select`) atau daftar yang bisa dicari
+(`Command`). `role="menu"`/`role="menuitem"` dengan fokus keyboard
+sungguhan yang berpindah (roving), mengikuti WAI-ARIA Menu Button Pattern.
+
+Dibangun langsung di atas `useAnchoredPortal` yang sama yang dipakai
+`Popover`, bukan membungkus `Popover` itu sendiri - karena sebuah menu
+butuh `role="menu"` dan fokus DOM sungguhan yang berpindah antar
+`role="menuitem"`, bentuk yang benar-benar beda dari `role="dialog"`
+non-modal milik `Popover` sendiri yang kontennya bebas apa saja dan bebas
+di-Tab.
+
+## Props
+
+<ArgTypes of={DropdownStories} />
+
+## Contoh penggunaan
+
+<Canvas of={DropdownStories.Playground} />
+
+## Kelompok dan item destruktif
+
+<Canvas of={DropdownStories.WithGroups} />
+
+## Penempatan
+
+Panel membalik ke sisi trigger mana pun yang sungguhan punya ruang -
+logika `useAnchoredPortal` yang sama yang dipakai setiap permukaan
+mengambang lain di paket ini.
+
+<Canvas of={DropdownStories.Placement} />
+
+<Canvas of={DropdownStories.DarkMode} />
+
+<Canvas of={DropdownStories.TextExpansion} />
+
+## Aksesibilitas
+
+`DropdownTrigger` membawa `aria-haspopup="menu"`/`aria-expanded`/
+`aria-controls` di trigger-nya sendiri (elemen anak apa pun, di-clone,
+bukan dibungkus - persis pola yang sudah dipakai `Popover`). Panel-nya
+sendiri `role="menu"`, secara default dinamai dari trigger-nya sendiri
+lewat `aria-labelledby` - hampir selalu sebuah menu memang milik tombol
+yang membukanya, jadi override `aria-label` hanya perlu dipakai saat
+menu-nya benar-benar butuh nama berbeda dari trigger-nya.
+
+Setiap `DropdownItem` adalah `role="menuitem"` dengan `tabIndex={-1}` -
+tidak pernah ada di urutan Tab, persis seperti menu native mana pun; panah
+atas/bawah yang memindahkan fokus DOM sungguhan di antaranya, Home/End
+lompat ke ujung, Enter/Space menjalankan `onSelect` lalu menutup menu dan
+mengembalikan fokus ke trigger. Item yang `disabled` dilewati navigasi
+panah dan tidak pernah menjalankan `onSelect`-nya.
+
+`DropdownSeparator` memakai `role="presentation"`, bukan `role="separator"`,
+karena separator asli bukan child `role="menu"` yang valid - alasan yang
+sama persis yang sudah didokumentasikan `CommandSeparator` untuk
+constraint listbox yang identik. `DropdownGroup` menamai dirinya lewat
+`aria-labelledby` yang menunjuk ke elemen heading-nya sendiri.

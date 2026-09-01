@@ -1,0 +1,78 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as DateFieldStories from './DateField.stories';
+
+<Meta of={DateFieldStories} />
+
+# DateField
+
+Input tanggal berbasis segmen - Day, Month, Year, masing-masing bisa
+difokus dan diedit sendiri dengan keyboard, tanpa popup kalender.
+Saudara sendiri milik `TimeField`: pola yang persis sama, hanya untuk
+tanggal, bukan waktu.
+
+Untuk tanggal lahir jamaah atau tanggal berlaku paspor, klik mundur
+puluhan tahun lewat `DatePicker` adalah friksi sungguhan yang tidak
+dimiliki mengetik tiga angka pendek langsung.
+
+## Props
+
+<ArgTypes of={DateFieldStories} />
+
+## Contoh penggunaan
+
+<Canvas of={DateFieldStories.Playground} />
+
+<Canvas of={DateFieldStories.StateMatrix} />
+
+## `minYear`/`maxYear`
+
+Rentang tahun yang valid disempitkan sesuai kebutuhan field-nya sendiri -
+tanggal berlaku paspor tidak ada urusan menerima 1850, sama seperti field
+tanggal lahir tidak ada urusan menerima tahun setelah hari ini.
+
+<Canvas of={DateFieldStories.PassportExpiry} />
+
+## Mengetik empat digit tahun
+
+Segmen `year` memakai logika buffer digit yang sama persis dengan segmen
+jam `TimeField` - hanya digeneralisasi dari dua digit ke `maxDigits`
+berapa pun. Mengetik "1" lalu "9" untuk tahun 1987 tetap menunggu
+(1900-1999 semuanya masih bisa dicapai), persis seperti mengetik "1"
+untuk jam 12-jam menunggu kemungkinan "10"/"11"/"12" - hanya satu digit
+lebih panjang.
+
+## Hari menyesuaikan bulan
+
+`day` dibatasi oleh bulan/tahun yang sedang terisi di field yang sama -
+31 Januari yang dipindah ke Februari otomatis menetap di 28 (atau 29 di
+tahun kabisat), sama seperti input tanggal native menyelesaikan konflik
+itu alih-alih membiarkan tanggal mustahil duduk di field.
+
+<Canvas of={DateFieldStories.LeapYearClamping} />
+
+<Canvas of={DateFieldStories.DarkMode} />
+
+<Canvas of={DateFieldStories.TextExpansion} />
+
+## Nilai lengkap atau `null`
+
+`value`/`defaultValue`/`onChange` selalu membawa tanggal yang _lengkap_
+atau `null` - tidak ada nilai sebagian di API publik, aturan yang sama
+yang dipegang `TimeField` untuk dirinya sendiri.
+
+## Urutan segmen tetap
+
+Day-Month-Year, bukan bisa diatur - `en`/`ms`/`id`, setiap locale yang
+dipakai produk ini, membaca tanggal dengan urutan itu; `TimeField`
+membuat keputusan yang sama untuk tidak mengekspos urutan segmennya
+sendiri sebagai prop.
+
+## Aksesibilitas
+
+`label` selalu menjadi nama aksesibel lewat `FieldShell` (`labelAsText`,
+karena ini kontrol komposit, bukan satu elemen tunggal yang bisa dituju
+`<label for>`). Setiap segmen adalah `role="spinbutton"` dengan
+`aria-valuemin`/`aria-valuemax`/`aria-valuenow`/`aria-valuetext`
+sendiri, dan bisa dinavigasi dengan panah kiri/kanan antar segmen, panah
+atas/bawah untuk menambah/mengurangi nilai segmen yang sedang fokus, dan
+Backspace untuk mengosongkannya kembali.

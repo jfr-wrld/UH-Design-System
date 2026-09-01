@@ -1,13 +1,14 @@
 /*
  * Rating
  *
- * Monochrome stars, not gold ones.
- *
- * A package listing shows thirty cards at a time, which is a hundred and fifty
- * stars. In the accent colour that is the "orange everywhere" the direction
- * warns about: the accent is meant for the one thing on a surface that should
- * be noticed, and a rating is information rather than a call to action. The
- * score sits beside the stars in words, so nothing here depends on the colour.
+ * Gold stars, by request - color.rating.filled (orange-600), a token of its
+ * own rather than a reuse of text.accent: a star glyph is checked against
+ * the 3:1 icon/non-text floor, not the stricter 4.5:1 text bar, so it stays
+ * free to be exactly this shade in both themes without weakening what
+ * text.accent guarantees everywhere else it is used. Capped at max stars
+ * (five, almost always) rather than a slide into "orange everywhere", and
+ * the score still sits beside them in words, so nothing here depends on the
+ * colour reading correctly.
  */
 
 .uh-rating {
@@ -34,7 +35,7 @@
   inset-block: 0;
   inset-inline-start: 0;
   overflow: hidden;
-  color: var(--uh-color-text-primary);
+  color: var(--uh-color-rating-filled);
 }
 
 .uh-rating__layer > svg {
@@ -69,4 +70,56 @@
   font-weight: var(--uh-typography-numeric-table-font-weight);
   font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
   font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+}
+
+/* -------------------------------------------------------------- input mode */
+
+/*
+ * A star picker, not a score: gap becomes 0 because each star already carries
+ * its own 44px tap target via the label, and a 4px gap on top of that would
+ * make adjacent stars feel loosely related instead of one control.
+ */
+.uh-rating--input {
+  gap: 0;
+}
+
+.uh-rating__input-star {
+  display: inline-flex;
+}
+
+.uh-rating__input-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-border-strong);
+  cursor: pointer;
+}
+
+.uh-rating__input-label > svg {
+  width: var(--uh-rating-star);
+  height: var(--uh-rating-star);
+}
+
+.uh-rating__input-label[data-filled='true'] {
+  color: var(--uh-color-rating-filled);
+}
+
+/* :has, not a class the JS would need to toggle: the browser already knows
+   which radio is checked, so the state that matters most - what is actually
+   selected once the pointer leaves - reads straight from the input itself. */
+.uh-rating__input-star:has(input:checked) .uh-rating__input-label:not([data-filled='true']) {
+  color: var(--uh-color-rating-filled);
+}
+
+.uh-rating__input-star:has(input:disabled) .uh-rating__input-label {
+  color: var(--uh-color-border-default);
+  cursor: not-allowed;
+}
+
+.uh-rating__input-star:has(input:focus-visible) .uh-rating__input-label {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
 }

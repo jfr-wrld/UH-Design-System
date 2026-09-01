@@ -6,6 +6,7 @@ import {
   type ForwardedRef,
   type InputHTMLAttributes,
 } from 'react';
+import { Check, Minus } from '@tailgrids/icons';
 
 import { ChoiceField } from '../Choice/ChoiceField.js';
 
@@ -25,37 +26,11 @@ export interface CheckboxProps extends NativeProps {
 }
 
 function CheckGlyph() {
-  return (
-    <svg
-      className="uh-choice__glyph"
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M5.5 10.5l3 3 6-6.5"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Check className="uh-choice__glyph" aria-hidden="true" focusable="false" />;
 }
 
 function DashGlyph() {
-  return (
-    <svg
-      className="uh-choice__glyph"
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path d="M5.5 10h9" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" />
-    </svg>
-  );
+  return <Minus className="uh-choice__glyph" aria-hidden="true" focusable="false" />;
 }
 
 function CheckboxImpl(props: CheckboxProps, forwarded: ForwardedRef<HTMLInputElement>) {
@@ -129,5 +104,14 @@ function CheckboxImpl(props: CheckboxProps, forwarded: ForwardedRef<HTMLInputEle
   );
 }
 
-export const Checkbox = forwardRef(CheckboxImpl);
-Checkbox.displayName = 'Checkbox';
+export const Checkbox = /* @__PURE__ */ forwardRef(CheckboxImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Checkbox.displayName = 'Checkbox';
+}

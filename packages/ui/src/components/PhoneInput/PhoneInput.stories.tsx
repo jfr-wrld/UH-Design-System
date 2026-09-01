@@ -305,3 +305,26 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for PhoneInput.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<PhoneInput ... />` JSX instead of a render function
+ * body. Kept separate from Normalisation/Countries above, which exist to
+ * prove the whole surface works, not to be copied verbatim.
+ */
+
+export const Default: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Mobile number', defaultValue: '+60123456789' },
+};
+
+export const IndonesianNumber: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Nomor telepon', defaultCountry: 'ID', defaultValue: '+6281234567890' },
+};
+
+export const WithErrorMessage: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Mobile number', defaultValue: '+601', errorMessage: 'Number is too short' },
+};

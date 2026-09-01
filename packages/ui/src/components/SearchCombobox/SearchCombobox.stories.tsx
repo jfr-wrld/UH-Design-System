@@ -485,6 +485,107 @@ const ID: Partial<SearchComboboxLabels> = {
   resultCount: (count) => `${count} hasil`,
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for SearchCombobox.mdx's
+ * "Contoh Penggunaan" section - kept separate from the matrix/state stories
+ * above, which exist to prove the whole surface works, not to be copied
+ * verbatim.
+ */
+
+const AIRPORTS: SearchOption[] = [
+  { id: 'jed', label: 'Jeddah (JED)', description: 'King Abdulaziz International' },
+  { id: 'med', label: 'Madinah (MED)', description: 'Prince Mohammad bin Abdulaziz' },
+  { id: 'ruh', label: 'Riyadh (RUH)', description: 'King Khalid International' },
+];
+
+export const AirportSearch: Story = {
+  args: { label: 'Search departure airport' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'A flat list with no groups - the common case when there is only one kind of thing ' +
+          'to find. The matched run inside each label is highlighted as the pilgrim types.',
+      },
+    },
+  },
+  render: (args) => (
+    <Page>
+      <AutoOpen>
+        <div style={field}>
+          <SearchCombobox {...args} defaultValue="jed" options={AIRPORTS} debounce={0} />
+        </div>
+      </AutoOpen>
+    </Page>
+  ),
+};
+
+export const NoResultsFound: Story = {
+  args: { label: 'Search agencies and destinations' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Nothing matched the query. The status message names what was searched for and ' +
+          'what to do next - the caller only has to pass `options={[]}`, the empty-state ' +
+          'copy is a sensible default.',
+      },
+    },
+  },
+  render: (args) => (
+    <Page>
+      <AutoOpen>
+        <div style={field}>
+          <SearchCombobox {...args} defaultValue="Kota Bharu" options={[]} debounce={0} />
+        </div>
+      </AutoOpen>
+    </Page>
+  ),
+};
+
+export const LiveSearchWithLoading: Story = {
+  args: { label: 'Search agencies and destinations' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'The realistic wiring: `value`/`onChange` held by the consumer, `onSearch` firing ' +
+          'once typing settles, and `loading` flipped on for the round trip. Type "mad" and ' +
+          'watch the state move from typing to loading to results.',
+      },
+    },
+  },
+  render: function Live(args) {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<SearchOption[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    function search(next: string) {
+      setLoading(true);
+      setTimeout(() => {
+        const needle = next.trim().toLowerCase();
+        setResults(ALL.filter((option) => option.label.toLowerCase().includes(needle)));
+        setLoading(false);
+      }, 600);
+    }
+
+    return (
+      <Page>
+        <div style={field}>
+          <SearchCombobox
+            {...args}
+            value={query}
+            onChange={setQuery}
+            onSearch={search}
+            options={results}
+            loading={loading}
+          />
+        </div>
+      </Page>
+    );
+  },
+};
+
 export const TextExpansion: Story = {
   args: { label: 'Search agencies and destinations' },
   parameters: {

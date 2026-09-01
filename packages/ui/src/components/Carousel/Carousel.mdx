@@ -1,0 +1,149 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CarouselStories from './Carousel.stories';
+
+<Meta of={CarouselStories} />
+
+# Carousel
+
+Galeri foto yang bisa digeser satu per satu, dengan tombol Prev/Next dan
+titik navigasi di bawahnya. Dibangun untuk mengisi celah nyata:
+`PackageDetail` butuh galeri foto hotel/paket, dan sebelumnya berhenti di
+satu frame statis tunggal karena belum ada komponen carousel di sistem ini.
+Swipe-nya berasal dari CSS `scroll-snap` pada trek geser, bukan library
+gesture terpisah - kontainer yang di-scroll horizontal dengan snap sudah
+menjadi carousel yang bisa di-swipe di perangkat sentuh, lengkap dengan
+momentum, secara gratis. Tombol Prev/Next dan titik navigasi hanya
+memanggil `scrollTo` pada trek yang sama, jadi ketiga cara berpindah selalu
+sinkron lewat satu sumber kebenaran (posisi scroll trek itu sendiri).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Ada lebih dari satu gambar yang sama-sama layak dilihat - beberapa foto hotel, beberapa foto
+        paket
+      </td>
+      <td>
+        Hanya ada satu gambar - pakai elemen gambar statis biasa; <code>Carousel</code> dengan satu
+        slide tidak menampilkan Prev/Next atau titik navigasi sama sekali, jadi tidak ada gunanya
+        membungkusnya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Urutan foto tetap dan terbatas (galeri hotel, galeri paket) - bukan aliran konten yang terus
+        bertambah
+      </td>
+      <td>
+        Konten yang terus bertambah/live seperti feed - itu bukan galeri tetap, jangan dipaksa ke
+        pola "geser lalu berhenti"
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Setiap slide layak diberi label singkat yang bisa diumumkan ke screen reader (mis. "Room",
+        "Pool")
+      </td>
+      <td>
+        Slide berisi konten kompleks/interaktif dengan elemen fokusnya sendiri (form, video dengan
+        kontrol) - <code>Carousel</code> ini dirancang untuk galeri gambar, bukan kontainer konten
+        arbitrer
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={CarouselStories} />
+
+## Contoh penggunaan
+
+### Galeri foto hotel
+
+Kasus paling umum: beberapa foto, mulai dari yang pertama, dengan Prev/Next dan titik navigasi aktif.
+
+<Canvas of={CarouselStories.GalleryDefault} />
+
+### Satu foto saja
+
+Dengan satu slide, Prev/Next dan titik navigasi tidak dirender sama sekali - tidak ada yang perlu digeser.
+
+<Canvas of={CarouselStories.SinglePhoto} />
+
+### Dibuka langsung ke foto tertentu
+
+`defaultIndex` membuka carousel langsung pada slide tertentu, misalnya saat pengguna mengklik thumbnail foto ketiga dari luar.
+
+<Canvas of={CarouselStories.DeepLinkedPhoto} />
+
+## Aksesibilitas
+
+**Peran ARIA:** kontainer luar membawa `role="region"` dengan
+`aria-roledescription="carousel"` dan `aria-label` dari prop `label`. Setiap
+slide membawa `role="group"` dengan `aria-roledescription="slide"` dan
+`aria-label` berisi posisinya ("2 / 4 - Room"). Baris titik navigasi memakai
+`role="tablist"` dengan setiap titik sebagai `role="tab"` dan
+`aria-selected` pada titik yang aktif - pola yang sama dipakai beberapa
+implementasi carousel populer untuk memberi titik navigasi semantik yang
+jelas sebagai satu grup pilihan.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke trek slide (jika lebih dari satu slide), lalu ke tombol Previous, lalu
+        Next, lalu tiap titik navigasi, mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>Swipe / drag sentuh</td>
+      <td>Menggeser trek lewat scroll-snap native browser - bukan ditangani oleh JavaScript</td>
+    </tr>
+    <tr>
+      <td>Klik tombol Previous/Next</td>
+      <td>
+        Pindah satu slide; nonaktif (<code>disabled</code>) di ujung pertama/terakhir - carousel ini
+        tidak melingkar
+      </td>
+    </tr>
+    <tr>
+      <td>Klik titik navigasi</td>
+      <td>Lompat langsung ke slide itu</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Setiap perpindahan slide (lewat tombol maupun titik navigasi) mengumumkan
+  status baru lewat live region - "Room, slide 2 of 4" - jadi pengguna
+  screen reader tahu posisi barunya tanpa harus meraba ulang tab order.
+- Tombol Previous/Next nonaktif di ujung tetap dapat dibaca screen reader
+  (bukan dihapus dari DOM), memberi tahu bahwa itu memang ujung galeri, bukan
+  kontrol yang hilang.
+
+**Wajib disediakan konsumen:**
+
+- `label` - nama aksesibel untuk region carousel secara keseluruhan, juga
+  dipakai ulang sebagai label baris titik navigasi.
+- `slide.label` (opsional per slide, tapi disarankan) - dibaca sebagai
+  bagian dari pengumuman "N of M", menjelaskan apa yang ditampilkan gambar
+  itu, bukan sekadar nomor urutnya.

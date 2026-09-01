@@ -257,3 +257,49 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Radio.mdx's
+ * "Contoh Penggunaan" section. Radio has no useful meaning on its own - it
+ * always needs at least one sibling and a name to be part of an exclusive
+ * choice - so these render a minimal RadioGroup rather than using args-only
+ * stories, matching Vertical/Horizontal/States above. Kept separate from
+ * those, which exist to prove the whole surface works, not to be copied
+ * verbatim.
+ */
+
+export const SingleSelection: Story = {
+  parameters: { layout: 'centered' },
+  render: () => (
+    <div style={{ width: '20rem' }}>
+      <RadioGroup label="Payment plan" defaultValue="deposit">
+        <Plans />
+      </RadioGroup>
+    </div>
+  ),
+};
+
+export const WithError: Story = {
+  parameters: { layout: 'centered' },
+  render: () => (
+    <div style={{ width: '20rem' }}>
+      <RadioGroup label="Payment plan" required errorMessage="Choose how you want to pay">
+        <Radio value="full" label="Full Payment" />
+        <Radio value="deposit" label="Deposit" />
+      </RadioGroup>
+    </div>
+  ),
+};
+
+export const OptionDisabled: Story = {
+  parameters: { layout: 'centered' },
+  render: () => (
+    <div style={{ width: '20rem' }}>
+      <RadioGroup label="Room sharing" defaultValue="double">
+        <Radio value="double" label="Double" />
+        <Radio value="triple" label="Triple" />
+        <Radio value="quad" label="Quad" disabled />
+      </RadioGroup>
+    </div>
+  ),
+};

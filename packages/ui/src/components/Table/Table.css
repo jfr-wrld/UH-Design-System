@@ -1,0 +1,76 @@
+/*
+ * Table
+ *
+ * `overflow: clip` on the table itself, paired with `border-collapse:
+ * separate` + zero `border-spacing`, is what keeps every inner row's
+ * bottom border from poking past the table's own rounded corners - without
+ * it, `border-collapse: collapse` would erase the radius entirely (a
+ * collapsed border box has no room left for the parent's clip), and a
+ * plain overflow: hidden container around the table would clip the
+ * scrollbar along with the corners.
+ */
+
+.uh-table__wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.uh-table__wrapper:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: clip;
+  text-align: start;
+  border-radius: var(--uh-radius-card);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-table[data-full-bleed='true'] {
+  border-radius: var(--uh-radius-none);
+  border-inline-width: 0;
+  border-block-width: var(--uh-border-width-hairline);
+}
+
+.uh-table__head {
+  padding: var(--uh-spacing-12) var(--uh-spacing-20);
+  border-block-end: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  color: var(--uh-color-text-secondary);
+  text-align: inherit;
+  white-space: nowrap;
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  letter-spacing: var(--uh-typography-web-caption-letter-spacing);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+/* No white-space: nowrap here, unlike the header cell above - a header
+   label is short and controlled by us, but a body cell holds real data
+   (a package name, a pilgrim's name), and Malay/Indonesian text runs 15-30%
+   longer than English. Forcing it onto one line would just widen the
+   table's horizontal scroll for no benefit; wrapping keeps a long value
+   inside its own column instead. */
+.uh-table__cell {
+  padding: var(--uh-spacing-12) var(--uh-spacing-20);
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+/* Every body row but the last gets a bottom rule - the table's own outer
+   border already closes off the final row, so repeating it there would
+   double it up against that edge. Header cells always get theirs (set
+   above, unconditionally): the header row is never the table's last row
+   in practice, and it separates the header from the body regardless of
+   how many body rows there turn out to be. */
+.uh-table__row:not(:last-child) > .uh-table__cell {
+  border-block-end: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}

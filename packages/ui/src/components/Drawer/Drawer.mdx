@@ -1,0 +1,168 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as DrawerStories from './Drawer.stories';
+
+<Meta of={DrawerStories} />
+
+# Drawer
+
+Panel yang menempel ke satu sisi layar dan meluncur masuk dari sana - rail
+desktop untuk konten yang terkait dengan sesuatu yang sudah terlihat di
+layar, seperti ringkasan booking dari ikon keranjang, atau filter dari
+tombol filter. Seluruh kontrak modal-nya - portal ke `document.body`, focus
+trap, scroll lock, Escape, backdrop, pengembalian fokus, prop penolakan -
+datang dari tiga hook yang sama dipakai Modal dan BottomSheet; Drawer sendiri
+hanya menambahkan sisi (`side`) dan lebar (`size`).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Konten yang terkait dengan area layar tertentu di desktop/tablet - ringkasan dari ikon
+        keranjang, filter dari tombol filter
+      </td>
+      <td>
+        Konfirmasi atau aksi kritis yang harus jadi pusat perhatian - pakai <code>Modal</code>, yang
+        mengunci perhatian ke tengah layar, bukan menempel ke tepi
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Layar lebar dengan ruang untuk panel tetap (<code>sm</code>/<code>md</code>/<code>lg</code>)
+      </td>
+      <td>
+        Layar sempit di mobile - pertimbangkan <code>BottomSheet</code>, yang muncul dari bawah dan
+        lebih natural untuk jangkauan ibu jari
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>side="right"</code> untuk aksi lanjutan (ringkasan, checkout);{' '}
+        <code>side="left"</code> untuk navigasi atau filter
+      </td>
+      <td>
+        Mengandalkan <code>side</code> untuk berbalik otomatis di RTL - nilainya memang fisik, bukan
+        logis (lihat komentar pada tipe <code>DrawerSide</code>); layout RTL yang perlu sisi cermin
+        harus mengisinya eksplisit
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Mematikan <code>closeOnOverlayClick</code> dan <code>closeOnEsc</code> untuk langkah yang
+        tidak boleh hilang tak sengaja (pembayaran berjalan)
+      </td>
+      <td>
+        Mematikan keduanya sebagai kebiasaan - drawer yang tidak bisa ditutup lewat Escape atau klik
+        luar terasa terkunci bagi kebanyakan alur
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={DrawerStories} />
+
+## Contoh penggunaan
+
+### Ringkasan itinerary
+
+Drawer sisi kanan yang dibuka dari sebuah tombol - kasus paling umum, sebuah panel yang menampilkan detail terkait apa yang baru diklik.
+
+<Canvas of={DrawerStories.PackageDetails} />
+
+### Panel filter
+
+Sisi kiri, ukuran `sm`, berisi kontrol filter dengan tombol aksi di footer.
+
+<Canvas of={DrawerStories.FilterDrawer} />
+
+### Langkah yang tidak boleh tertutup tak sengaja
+
+`closeOnOverlayClick` dan `closeOnEsc` sama-sama `false` - tombol tutup di header tetap berfungsi, hanya dua jalan keluar implisit yang ditolak.
+
+<Canvas of={DrawerStories.NonDismissiblePayment} />
+
+## Aksesibilitas
+
+**Peran ARIA:** panel membawa `role="dialog"` dan `aria-modal="true"`.
+Namanya berasal dari `title` lewat `aria-labelledby` bila ada; kalau tidak,
+`aria-label` menggantikannya - salah satu wajib ada karena dialog tanpa nama
+tidak bisa diumumkan dengan berguna.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berpindah ke elemen fokusabel berikutnya di dalam panel; dari elemen terakhir, melompat
+        kembali ke yang pertama - fokus tidak pernah lolos ke halaman di belakangnya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Shift+Tab</code>
+      </td>
+      <td>Kebalikan arah - dari elemen pertama, melompat ke elemen terakhir di dalam panel</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>
+        Menutup drawer bila <code>closeOnEsc</code> (default <code>true</code>); fokus kembali ke
+        elemen yang memicunya sebelum panel terbuka, atau ke <code>initialFocus</code> bila diisi
+      </td>
+    </tr>
+    <tr>
+      <td>Klik pada backdrop</td>
+      <td>
+        Menutup drawer bila <code>closeOnOverlayClick</code> (default <code>true</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>Klik tombol tutup di header</td>
+      <td>
+        Selalu menutup drawer, terlepas dari <code>closeOnOverlayClick</code>/
+        <code>closeOnEsc</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Body halaman dikunci dari scroll (`useScrollLock`) selama panel tampil,
+  termasuk sepanjang animasi keluar - dan baru dilepas setelah animasi itu
+  selesai, sehingga tidak ada momen di mana halaman di belakang ikut
+  ter-scroll sebelum panel benar-benar hilang. Kuncian ini re-entrant: kalau
+  ada overlay lain yang terbuka di atasnya, body baru dilepas setelah overlay
+  terakhir menutup.
+- Fokus yang lolos dari trap - lewat portal lain di dalam panel, atau
+  pemindahan fokus terprogram - ditarik kembali ke tepi trap yang
+  ditinggalkannya, bukan dibiarkan lepas ke halaman di belakang.
+
+**Wajib disediakan konsumen:**
+
+- `title` atau `aria-label` - salah satu wajib ada, tidak ada default yang
+  bermakna untuk dialog tanpa nama.
+- `onClose` yang benar-benar mengubah `open` menjadi `false` di pemanggil -
+  Drawer sendiri tidak menyimpan state terbukanya.
+- `initialFocus` saat elemen pertama yang seharusnya difokus bukan elemen
+  fokusabel pertama di DOM (mis. tombol utama di footer, bukan tombol tutup
+  di header).

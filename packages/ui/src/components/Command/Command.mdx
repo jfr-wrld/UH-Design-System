@@ -1,0 +1,69 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CommandStories from './Command.stories';
+
+<Meta of={CommandStories} />
+
+# Command
+
+Menu command: kotak pencarian yang menyaring daftar berkelompok yang bisa
+dinavigasi keyboard. Tidak ada dependency di baliknya - penyaringan, active
+descendant, dan Up/Down/Enter semuanya adalah state biasa dan pasangan
+`role="combobox"` `aria-activedescendant`, pola aksesibel yang sama yang sudah
+dipakai `SearchCombobox` di tempat lain di paket ini, hanya dengan item
+berkelompok dan bertindak-saat-dipilih, bukan yang mengisi query.
+
+`CommandDialog` membungkus tree yang sama di dalam `Overlay` dengan shortcut
+global Cmd/Ctrl+K, untuk command palette alih-alih menu inline.
+
+## Props
+
+<ArgTypes of={CommandStories} />
+
+## Contoh penggunaan
+
+<Canvas of={CommandStories.Playground} />
+<Canvas of={CommandStories.Dialog} />
+
+## Nilai lengkap atau `null`
+
+Setiap `CommandItem` mendaftarkan `(value, keywords, disabled, onSelect)`-nya
+sendiri ke root saat mount, bukan root yang menginspeksi children-nya - itulah
+yang memungkinkan sebuah item hidup di dalam `CommandGroup` tanpa group perlu
+tahu bentuk children-nya sendiri. Sebuah `CommandGroup` menyembunyikan dirinya
+sendiri (lewat atribut `hidden`, bukan `return null`) begitu tidak ada satu pun
+child-nya yang cocok dengan query - anak-anaknya tetap ter-mount supaya bisa
+mendaftar, tapi tidak tercat dan hilang dari accessibility tree.
+
+## Query terkontrol
+
+`value`/`defaultValue`/`onValueChange` pada `Command` opsional - kasus paling
+umum adalah membiarkan `Command` memiliki query-nya sendiri. Pakai ini hanya
+untuk menyemai atau mengendalikan query dari luar, misalnya menyinkronkannya
+dengan parameter URL.
+
+## Aksesibilitas
+
+`CommandInput` adalah `role="combobox"` dengan `aria-activedescendant`
+menunjuk ke opsi yang sedang disorot, dan nama aksesibelnya sendiri - lewat
+`aria-label` (`Command`'s own `label`) kalau tidak diberi `aria-label`/
+`aria-labelledby` sendiri, bukan sekadar mengandalkan `placeholder`, yang
+hanya cadangan HTML-AAM dan bisa hilang kapan saja. `CommandList` hanya
+memakai `role="listbox"` saat benar-benar ada opsi di dalamnya - ARIA
+mewajibkan children listbox berupa option (atau group berisi option), dan
+status kosong sungguhan memang secara sah tidak punya satu pun; pesan
+`CommandEmpty` tetap tampil di tempat yang sama baik listbox aktif atau
+tidak. `CommandGroup` menamai dirinya lewat `aria-labelledby` yang menunjuk
+ke elemen heading-nya sendiri, jadi tetap punya nama aksesibel walau
+`heading` bukan string polos (ikon plus teks, misalnya). `CommandSeparator`
+memakai `role="presentation"`, bukan `role="separator"`, karena separator asli
+bukan child listbox yang valid - navigasi panah tidak pernah "mendarat" di
+pemisah, jadi tidak ada yang hilang bagi pengguna pembaca layar.
+
+Pintasan global `CommandDialog` (`shortcutKey`, default Cmd/Ctrl+K) hanya
+bereaksi pada kombinasi modifier polos - menahan Shift atau Alt sekaligus
+tidak memicunya, supaya tidak membajak pintasan lain milik browser atau
+halaman (Ctrl+Shift+K konsol DevTools, misalnya). Selama palet tertutup,
+pintasan juga tidak mencuri keystroke dari input teks lain di halaman;
+setelah terbuka, fokus sudah terperangkap di dalam palet sendiri lewat
+`Overlay`, jadi pintasan tetap bisa menutupnya lagi walau fokus sedang ada
+di `CommandInput`.

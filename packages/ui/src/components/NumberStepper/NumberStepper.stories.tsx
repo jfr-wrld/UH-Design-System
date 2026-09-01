@@ -293,3 +293,33 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for NumberStepper.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<NumberStepper ... />` JSX instead of a render function
+ * body. Kept separate from StateMatrix/Passengers above, which exist to prove
+ * the whole surface works, not to be copied verbatim.
+ */
+
+export const Default: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Adults', defaultValue: 2, min: 1, max: 9 },
+};
+
+export const DisabledState: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Rooms', defaultValue: 1, min: 1, max: 5, disabled: true },
+};
+
+export const WithErrorMessage: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Adults',
+    defaultValue: 9,
+    min: 1,
+    max: 9,
+    error: true,
+    errorMessage: 'This package seats eight',
+  },
+};

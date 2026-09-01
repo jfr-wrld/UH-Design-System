@@ -1,0 +1,55 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CollapsibleStories from './Collapsible.stories';
+
+<Meta of={CollapsibleStories} />
+
+# Collapsible
+
+`Accordion`'s saudara sendiri, disederhanakan jadi tepat satu section
+expand/collapse alih-alih sebuah grup - "Lihat selengkapnya", deskripsi
+yang dipotong, satu entri FAQ yang dibaca sendirian. Begitu ada lebih
+dari satu yang duduk bersebelahan, pakai `Accordion` sebagai gantinya -
+`Collapsible` sengaja tidak punya konsep grup sama sekali, supaya
+`Collapsible` kedua di sebelahnya tidak diam-diam butuh satu.
+
+## Props
+
+<ArgTypes of={CollapsibleStories} />
+
+## Contoh penggunaan
+
+<Canvas of={CollapsibleStories.Playground} />
+
+<Canvas of={CollapsibleStories.Matrix} />
+
+## Tanpa heading secara default
+
+Beda dari setiap trigger `Accordion` yang selalu dibungkus heading,
+`Collapsible` sengaja membiarkan trigger-nya sebagai `<button>` polos
+kecuali `headingLevel` diisi eksplisit. Heading milik `Accordion` layak
+karena pengguna pembaca layar sungguhan diuntungkan bisa lompat antar
+beberapa section yang bersaudara; satu toggle "Lihat selengkapnya" yang
+berdiri sendiri jarang jadi section halaman yang layak entri navigasi
+heading yang sama, dan menyisipkan `<h3>` yang tidak diminta ke dalam
+outline dokumen milik pemanggil justru jadi kejutan, bukan bantuan.
+
+<Canvas of={CollapsibleStories.AsAPageSection} />
+
+<Canvas of={CollapsibleStories.DarkMode} />
+
+<Canvas of={CollapsibleStories.TextExpansion} />
+
+## Tanpa animasi buka/tutup
+
+Panel sendiri tidak punya animasi buka/tutup - `hidden` berpindah instan,
+persis karakter `Accordion` juga. Yang berputar hanya chevron-nya.
+
+## Aksesibilitas
+
+Trigger adalah `<button>` dengan `aria-expanded`/`aria-controls` menunjuk
+ke panel yang dibukanya; panelnya sendiri `aria-labelledby` menunjuk
+balik ke trigger. Konten selalu ter-mount, terbuka atau tidak - atribut
+native `hidden` sudah cukup menyembunyikannya dari tampilan maupun
+accessibility tree tanpa perlu unmount, jadi state di dalam `children`
+(draf yang sedang diisi di dalam panel, misalnya) tidak hilang setiap
+kali ditutup.

@@ -1,0 +1,150 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Getting Started" />
+
+# Getting Started
+
+From an empty project to a rendered `Button` in five steps. No build-tool
+configuration beyond a bundler that already understands CSS imports (Vite,
+webpack, Next.js, Parcel all do) - the design system ships pre-compiled CSS,
+not a Tailwind config for your app to merge with your own.
+
+## 1. Install
+
+```bash
+npm install @umrahhaji/ui @umrahhaji/tokens @tailgrids/icons
+```
+
+`@umrahhaji/tokens` is a peer you install directly rather than a transitive
+dependency you never see: `@umrahhaji/ui` depends on it internally, but
+you'll also want it directly if you ever reach for a raw token value outside
+a component (see "Using tokens directly" below).
+
+`react` and `react-dom` (18 or 19) are peer dependencies - install them
+yourself if your project doesn't already have them; `@umrahhaji/ui` never
+bundles its own copy of React.
+
+`@tailgrids/icons` is a peer dependency too, for the same reason: every
+generic UI icon this library draws (chevrons, close buttons, calendar,
+search, upload, and so on) comes from it, and bundling it into
+`@umrahhaji/ui` itself would mean shipping all of it, unable to tree-shake
+down to just the handful of icons a given screen actually uses (see
+Troubleshooting → "Import gagal / tree-shaking tidak jalan" for what breaks
+if this install step is skipped). Icons with real domain or brand meaning -
+the verified seal, the star rating, hotel amenities, the Umrah-specific
+itinerary activity glyphs - stay as close a fit as this pack has, or fully
+hand-drawn where nothing fits at all (the prayer-room glyph, most notably);
+see the Iconography foundation page for exactly which is which.
+
+## 2. Import the stylesheet, once
+
+```ts
+// your app's entry point - main.tsx, _app.tsx, layout.tsx, wherever your
+// app's own global CSS already gets imported once
+import '@umrahhaji/ui/styles.css';
+```
+
+This one file is the whole visual system: design tokens as CSS custom
+properties, the three self-hosted typeface families (Plus Jakarta Sans,
+DM Sans, Noto Naskh Arabic - see "Self-hosted fonts" below), typography
+utility classes, and every component's own styles. There is no separate
+Tailwind setup on your side - the library's own Tailwind build already ran
+at publish time, and what you're importing is the compiled output.
+
+## 3. There is no provider to wrap your app in
+
+Most component libraries this size ship a top-level context provider
+(theme, locale, portal root). This one deliberately does not need one for
+ordinary use - every component is self-contained and reads its styling
+straight from the CSS custom properties `styles.css` set up in step 2, with
+no React context in between.
+
+Two narrow exceptions:
+
+- **`ToastProvider`**, if you use `Toast` - wrap the part of your tree that
+  should be able to show toasts (usually the whole app) once:
+
+  ```tsx
+  import { ToastProvider } from '@umrahhaji/ui';
+
+  function App() {
+    return (
+      <ToastProvider>
+        <YourApp />
+      </ToastProvider>
+    );
+  }
+  ```
+
+- **Dark mode is an attribute you own, not a provider.** Put
+  `data-theme="dark"` or `data-theme="light"` on `<html>` (or any ancestor
+  element) yourself - a theme toggle in your own app is what flips it. Leave
+  the attribute off entirely and the system follows the OS's own
+  `prefers-color-scheme` instead.
+
+  ```html
+  <html data-theme="dark">
+    <!-- everything inside now reads the dark token values -->
+  </html>
+  ```
+
+## 4. Self-hosted fonts
+
+Plus Jakarta Sans (headings, display text, prices, and tabular data - DM
+Sans has no tabular-figures feature to keep price and breakdown columns
+aligned, so both stay on Plus Jakarta Sans) and DM Sans (body copy, labels,
+buttons, form controls) load automatically as part of `styles.css` - no
+`<link>` tag, no Google Fonts CDN, nothing else to set up.
+Noto Naskh Arabic loads the same way for the small amount of Arabic UI text
+(du'a, surah names) the `arabic` typography scale uses.
+
+The font files themselves ship inside the `@umrahhaji/ui` package
+(`dist/fonts/`), referenced by relative URL from `styles.css`. Any bundler
+that processes CSS `@font-face` rules (which is all of them) picks these up
+and copies them into your own build output automatically - there is nothing
+to configure, but see Troubleshooting if a font renders as a system
+fallback instead of the real face.
+
+## 5. Your first component
+
+```tsx
+import { Button } from '@umrahhaji/ui';
+
+function BookingPage() {
+  return (
+    <Button variant="primary" onClick={() => console.log('booked')}>
+      Continue to Payment
+    </Button>
+  );
+}
+```
+
+That's a complete, correctly-styled, accessible button - no other setup
+required. Every component in the sidebar under **Components** has its own
+page with a "Contoh penggunaan" section of small, copy-pasteable examples
+exactly like this one.
+
+## Using tokens directly
+
+Reaching for a component is almost always the right move over a raw token,
+but for the rare case a layout needs a token with no component attached to
+it (a wrapper's own padding, say), import the CSS variables directly rather
+than writing a literal:
+
+```css
+.your-own-wrapper {
+  padding: var(--uh-spacing-24);
+  border-radius: var(--uh-radius-card);
+  color: var(--uh-color-text-secondary);
+}
+```
+
+Every token is already on the page the moment `@umrahhaji/ui/styles.css` is
+imported - `@umrahhaji/tokens` itself only needs a direct import if you want
+its Tailwind preset (`@umrahhaji/tokens/tailwind`) or its raw JSON
+(`@umrahhaji/tokens/json`) for some tooling outside the browser (a Figma
+sync script, a design-linting tool). `pnpm lint:ds` (see **Contributing**)
+is what actually enforces "never a literal" in code review - read that page
+before writing a raw hex or pixel value anywhere near this design system.
+
+{/* doc-agent note: Session 2's brief for this page asked for a DesignSystemProvider setup example - no such component exists in packages/ui/src, grep confirms it. Rather than invent one, this page documents the setup that is actually true today (no provider needed for ordinary use, ToastProvider only for Toast, data-theme as a plain HTML attribute) and flags the gap here for whoever reviews this against the original brief. */}

@@ -1,4 +1,5 @@
 import { useState, type ImgHTMLAttributes, type ReactNode } from 'react';
+import { User2 } from '@tailgrids/icons';
 
 import { initialsFrom } from './initials.js';
 
@@ -17,17 +18,7 @@ export interface AvatarProps extends Omit<ImgHTMLAttributes<HTMLImageElement>, '
 }
 
 function PersonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="8.5" r="3.75" stroke="currentColor" strokeWidth="1.75" />
-      <path
-        d="M4.5 20a7.5 7.5 0 0115 0"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <User2 aria-hidden="true" focusable="false" />;
 }
 
 export function Avatar({
@@ -86,7 +77,16 @@ export function Avatar({
   );
 }
 
-Avatar.displayName = 'Avatar';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Avatar.displayName = 'Avatar';
+}
 
 export interface AvatarGroupProps {
   children: ReactNode;
@@ -131,4 +131,13 @@ export function AvatarGroup({
   );
 }
 
-AvatarGroup.displayName = 'AvatarGroup';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  AvatarGroup.displayName = 'AvatarGroup';
+}

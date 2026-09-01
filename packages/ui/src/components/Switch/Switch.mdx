@@ -1,0 +1,129 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SwitchStories from './Switch.stories';
+
+<Meta of={SwitchStories} />
+
+# Switch
+
+A boolean setting that takes effect immediately when clicked - no submit
+button, no form around it. It is a `<input type="checkbox">` under the hood
+with `role="switch"` layered on, so the platform maps the native `checked`
+state onto `aria-checked` on its own. The off track is a mid grey rather
+than a pale one so the white thumb keeps 4.76:1 contrast against it, and the
+thumb travels over 200ms from the motion token.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Setting yang berlaku seketika begitu diklik, tanpa langkah submit terpisah (mis. terima
+        notifikasi email, aktifkan WhatsApp updates)
+      </td>
+      <td>
+        Value yang baru berarti setelah form disubmit (mis. "Saya setuju dengan syarat tempahan") -
+        pakai <code>Checkbox</code>, karena Switch menyiratkan perubahan sudah berlaku sekarang, dan
+        itu bisa membingungkan kalau ternyata baru aktif setelah submit
+      </td>
+    </tr>
+    <tr>
+      <td>State on/off murni biner, tanpa makna ketiga seperti "sebagian aktif"</td>
+      <td>
+        Pilihan dengan lebih dari dua state, atau daftar opsi - Switch tidak punya{' '}
+        <code>indeterminate</code> seperti <code>Checkbox</code>; untuk 3+ pilihan pakai{' '}
+        <code>RadioGroup</code> atau <code>Select</code>
+      </td>
+    </tr>
+    <tr>
+      <td>Satu setting berdiri sendiri di halaman preferensi/pengaturan akun</td>
+      <td>
+        Beberapa opsi yang saling eksklusif (mis. pilih satu tipe kamar) - itu domain{' '}
+        <code>Radio</code>, di mana hanya satu boleh aktif dalam satu grup
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={SwitchStories} />
+
+## Contoh penggunaan
+
+### Nonaktif (off)
+
+State awal yang paling umum untuk setting opt-in.
+
+<Canvas of={SwitchStories.Off} />
+
+### Aktif (on)
+
+`defaultChecked` untuk uncontrolled, atau `checked` + `onChange` untuk controlled.
+
+<Canvas of={SwitchStories.On} />
+
+### Nonaktif dan terkunci
+
+`disabled` dengan `description` yang menjelaskan kenapa opsi ini tidak tersedia saat ini.
+
+<Canvas of={SwitchStories.Disabled} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `role="switch"` ditulis eksplisit di atas
+`<input type="checkbox">` native. Kombinasi ini membuat platform memetakan
+properti `checked` bawaan langsung ke `aria-checked` - `aria-checked` tidak
+pernah ditulis tangan, supaya statenya tidak punya dua sumber kebenaran yang
+bisa saling bertentangan.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus ke/dari switch, mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Membalik state checked (perilaku native <code>&lt;input type="checkbox"&gt;</code>, tidak
+        ada handler custom)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Label diklik lewat elemen `<label>` yang di-`htmlFor` ke id input, jadi
+  mengklik teks label sama efeknya dengan mengklik thumb.
+- `description` (jika ada) ditautkan lewat `aria-describedby`, terbaca
+  screen reader setelah nama switch.
+- Track dan thumb (`.uh-switch__track`, `.uh-switch__thumb`) murni visual -
+  keduanya `aria-hidden`, karena statenya sudah diumumkan lewat
+  `aria-checked` pada input.
+
+**Wajib disediakan konsumen:**
+
+- `label` - wajib secara tipe TypeScript, karena nama switch tidak punya
+  default yang masuk akal.
+- `description` yang menjelaskan kenapa sebuah switch `disabled`, kalau
+  alasannya tidak jelas dari label saja (lihat contoh WhatsApp updates di
+  atas) - switch yang mati tanpa penjelasan terasa seperti bug, bukan batasan
+  yang disengaja.

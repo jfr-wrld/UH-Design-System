@@ -17,11 +17,17 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "lint:ds": "node ./scripts/lint-ds.mjs",
     "test": "pnpm -r test",
     "test:a11y": "pnpm --filter @umrahhaji/storybook test:a11y:ci",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "bundle-size": "pnpm --filter @umrahhaji/ui build && node ./packages/ui/scripts/bundle-size.mjs",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "pnpm build:packages && changeset publish"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.1",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",

@@ -1,0 +1,22 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as GridStories from './Grid.stories';
+
+<Meta of={GridStories} />
+
+# Grid
+
+Layout dua sumbu - saudara `Stack` untuk saat baris dan kolom harus sejajar bersamaan
+(grid kartu, form dengan pasangan field), bukan sekadar mengalir di satu sumbu.
+`columns` adalah angka biasa, bukan objek responsif - komponen ini tidak memutuskan
+breakpoint untuk aplikasi yang memakainya (lihat Troubleshooting → "Komponen tidak
+responsif"); kirim angka berbeda dari `useMediaQuery` milik konsumen sendiri kalau
+jumlah kolom perlu berubah per breakpoint.
+
+## Props
+
+<ArgTypes of={GridStories} />
+
+## Contoh penggunaan
+
+<Canvas of={GridStories.ThreeColumns} />
+<Canvas of={GridStories.SplitRowColumnGap} />

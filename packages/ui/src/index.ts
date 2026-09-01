@@ -3,6 +3,9 @@
 export { Button } from './components/Button/index.js';
 export type { ButtonProps, ButtonSize, ButtonVariant } from './components/Button/index.js';
 
+export { SocialButton } from './components/SocialButton/index.js';
+export type { SocialButtonProps, SocialProvider } from './components/SocialButton/index.js';
+
 export { Input } from './components/Input/index.js';
 export type { InputProps, InputSize, InputType } from './components/Input/index.js';
 
@@ -212,3 +215,238 @@ export type {
   ItineraryCity,
   ActivityKind,
 } from './components/ItineraryTimeline/index.js';
+
+export { Modal } from './components/Modal/index.js';
+export type { ModalProps, ModalSize, ModalVariant } from './components/Modal/index.js';
+export { useFocusTrap, useScrollLock, FOCUSABLE } from './hooks/index.js';
+export type { FocusTrapOptions } from './hooks/index.js';
+
+export { Overlay } from './components/Overlay/index.js';
+export type { OverlayProps, OverlayRole } from './components/Overlay/index.js';
+
+export {
+  Command,
+  CommandInput,
+  CommandList,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+  CommandSeparator,
+  CommandShortcut,
+  CommandDialog,
+} from './components/Command/index.js';
+export type {
+  CommandProps,
+  CommandFilter,
+  CommandInputProps,
+  CommandListProps,
+  CommandEmptyProps,
+  CommandGroupProps,
+  CommandItemProps,
+  CommandSeparatorProps,
+  CommandShortcutProps,
+  CommandDialogProps,
+} from './components/Command/index.js';
+
+export { BottomSheet } from './components/BottomSheet/index.js';
+export type { BottomSheetProps, BottomSheetLabels } from './components/BottomSheet/index.js';
+
+export { Drawer } from './components/Drawer/index.js';
+export type { DrawerProps, DrawerSide, DrawerSize } from './components/Drawer/index.js';
+
+export { Popover } from './components/Popover/index.js';
+export type { PopoverProps } from './components/Popover/index.js';
+
+export { ToastProvider, useToast } from './components/Toast/index.js';
+export type {
+  ToastAction,
+  ToastContextValue,
+  ToastHandle,
+  ToastOptions,
+  ToastPosition,
+  ToastProviderProps,
+  ToastVariant,
+} from './components/Toast/index.js';
+
+export { Alert } from './components/Alert/index.js';
+export type {
+  AlertAction,
+  AlertLayout,
+  AlertProps,
+  AlertVariant,
+} from './components/Alert/index.js';
+
+export { ProgressBar } from './components/ProgressBar/index.js';
+export type { ProgressBarProps, ProgressBarVariant } from './components/ProgressBar/index.js';
+
+export { EmptyState } from './components/EmptyState/index.js';
+export type {
+  EmptyStateAction,
+  EmptyStateProps,
+  EmptyStateSize,
+} from './components/EmptyState/index.js';
+
+export { ErrorState } from './components/ErrorState/index.js';
+export type {
+  ErrorStateAction,
+  ErrorStateProps,
+  ErrorStateSize,
+} from './components/ErrorState/index.js';
+
+export { Card } from './components/Card/index.js';
+export type { CardPadding, CardProps, CardVariant } from './components/Card/index.js';
+
+export { Chip } from './components/Chip/index.js';
+export type { ChipProps } from './components/Chip/index.js';
+
+export { Tabs } from './components/Tabs/index.js';
+export type { TabsProps, TabItem } from './components/Tabs/index.js';
+
+export { Carousel } from './components/Carousel/index.js';
+export type { CarouselProps, CarouselSlide, CarouselLabels } from './components/Carousel/index.js';
+
+export { Pagination } from './components/Pagination/index.js';
+export type { PaginationProps, PaginationLabels } from './components/Pagination/index.js';
+
+export { Stack } from './components/Stack/index.js';
+export type {
+  StackProps,
+  StackDirection,
+  StackGap,
+  StackAlign,
+  StackJustify,
+} from './components/Stack/index.js';
+
+export { Grid } from './components/Grid/index.js';
+export type { GridProps, GridGap } from './components/Grid/index.js';
+
+export { Container } from './components/Container/index.js';
+export type { ContainerProps, ContainerSize } from './components/Container/index.js';
+
+export { FilterPanel } from './components/FilterPanel/index.js';
+export type {
+  FilterPanelProps,
+  FilterPanelLabels,
+  FilterOption,
+} from './components/FilterPanel/index.js';
+
+export { Chart } from './components/Chart/index.js';
+export type {
+  ChartProps,
+  ChartType,
+  ChartSeries,
+  ChartSeriesColor,
+} from './components/Chart/index.js';
+
+export { ScrollArea } from './components/ScrollArea/index.js';
+export type { ScrollAreaProps, ScrollAreaOrientation } from './components/ScrollArea/index.js';
+
+export { Slider } from './components/Slider/index.js';
+export type { SliderProps, SliderValueDisplay } from './components/Slider/index.js';
+
+export { TextArea } from './components/TextArea/index.js';
+export type { TextAreaProps } from './components/TextArea/index.js';
+
+export { TimeField } from './components/TimeField/index.js';
+export type {
+  TimeFieldProps,
+  TimeFieldGranularity,
+  TimeFieldHourCycle,
+  TimeFieldLabels,
+  TimeValue,
+} from './components/TimeField/index.js';
+
+export { TimePicker } from './components/TimePicker/index.js';
+// TimeValue is the same type TimeField already exports; not re-exported a
+// second time here to avoid a duplicate-export name clash.
+export type { TimePickerProps, TimePickerHourCycle } from './components/TimePicker/index.js';
+
+export {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from './components/Table/index.js';
+export type {
+  TableProps,
+  TableHeaderProps,
+  TableBodyProps,
+  TableRowProps,
+  TableHeadProps,
+  TableCellProps,
+} from './components/Table/index.js';
+
+export {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from './components/Accordion/index.js';
+export type {
+  AccordionProps,
+  AccordionSingleProps,
+  AccordionMultipleProps,
+  AccordionItemProps,
+  AccordionTriggerProps,
+  AccordionContentProps,
+} from './components/Accordion/index.js';
+
+export { Breadcrumbs } from './components/Breadcrumbs/index.js';
+export type {
+  BreadcrumbsProps,
+  BreadcrumbItem,
+  BreadcrumbDivider,
+} from './components/Breadcrumbs/index.js';
+
+export { ButtonGroup } from './components/ButtonGroup/index.js';
+export type { ButtonGroupProps, ButtonGroupOrientation } from './components/ButtonGroup/index.js';
+
+export { Separator } from './components/Separator/index.js';
+export type { SeparatorProps, SeparatorOrientation } from './components/Separator/index.js';
+
+export {
+  Dropdown,
+  DropdownTrigger,
+  DropdownContent,
+  DropdownItem,
+  DropdownGroup,
+  DropdownSeparator,
+} from './components/Dropdown/index.js';
+export type {
+  DropdownProps,
+  DropdownTriggerProps,
+  DropdownContentProps,
+  DropdownItemProps,
+  DropdownGroupProps,
+  DropdownSeparatorProps,
+} from './components/Dropdown/index.js';
+
+export {
+  DateField,
+  daysInMonth,
+  formatDateValue,
+  toNativeDateString,
+} from './components/DateField/index.js';
+export type { DateFieldProps, DateFieldLabels, DateValue } from './components/DateField/index.js';
+
+export { AspectRatio } from './components/AspectRatio/index.js';
+export type { AspectRatioProps, AspectRatioPreset } from './components/AspectRatio/index.js';
+
+export {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from './components/Collapsible/index.js';
+export type {
+  CollapsibleProps,
+  CollapsibleTriggerProps,
+  CollapsibleContentProps,
+} from './components/Collapsible/index.js';
+
+export { List, ListItem } from './components/List/index.js';
+export type { ListProps, ListDirection, ListItemProps } from './components/List/index.js';
+
+export { NativeSelect } from './components/NativeSelect/index.js';
+export type { NativeSelectProps } from './components/NativeSelect/index.js';

@@ -1,0 +1,24 @@
+/*
+ * Separator
+ *
+ * A thin line, nothing else - the TailGrids reference is this bare too
+ * (`shrink-0` plus a single background colour, horizontal or vertical).
+ * `flex: none` so it never gets squeezed by a sibling in a flex row the way
+ * an ordinary block element would.
+ */
+
+.uh-separator {
+  flex: none;
+  background-color: var(--uh-color-border-default);
+}
+
+.uh-separator[data-orientation='horizontal'] {
+  width: 100%;
+  height: var(--uh-border-width-hairline);
+}
+
+.uh-separator[data-orientation='vertical'] {
+  width: var(--uh-border-width-hairline);
+  height: 100%;
+  align-self: stretch;
+}

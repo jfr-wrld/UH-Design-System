@@ -6,8 +6,11 @@ import { A11ySection, Code, Do, DoDont, Dont } from './docs.js';
 
 /**
  * Doc-only sample glyphs. They restate the drawing contract every component
- * icon in the package follows (24 viewBox, 1.75 stroke, round caps,
- * currentColor); the real glyphs live beside their components.
+ * icon in the package follows (24 viewBox, ~1.5 stroke, round caps,
+ * currentColor); the real glyphs live beside their components. The stroke
+ * width is fixed on the hand-drawn ones only - a generic-pack icon renders
+ * at whatever weight it ships with; there is no strokeWidth prop to match
+ * it to these samples exactly.
  */
 const stroke = { stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' } as const;
 
@@ -55,7 +58,7 @@ export const Icons: Story = {
     <Page>
       <Section
         title="Purpose and the drawing contract"
-        hint="There is no icon font and no icon package: icons are inline SVGs drawn beside the component that needs them. Every one follows the same contract - 24x24 viewBox, 1.75 stroke (1.5 for fine double-strokes), round caps and joins, currentColor for fill and stroke, aria-hidden with focusable=false. That contract is why forty-plus icons by different hands read as one set."
+        hint="Two sources, one contract. A generic interface glyph - chevron, close, calendar, search, plus/minus - comes from @tailgrids/icons (a peer dependency, never bundled into this package's own dist - see Contributing); anything with real domain or brand meaning - hotel amenities, Umrah-specific itinerary activities, a verified seal - either reaches for the closest available shape in that same pack (the two amenity/activity sets do, with a comment on each explaining the substitution) or, where nothing in it comes close at all, stays an inline SVG drawn beside the component that needs it - the prayer-room glyph is the one case with no generic equivalent whatsoever. Both sources follow the same contract - 24x24 viewBox, round caps and joins, currentColor for fill and stroke, aria-hidden with focusable=false - which is why icons from either one, by different hands, still read as one set. Stroke weight is the one thing this contract can no longer pin exactly: the hand-drawn glyphs use 1.5-1.75, but @tailgrids/icons hardcodes its own weight per icon with no prop to override it."
       >
         <div
           style={{
@@ -169,14 +172,26 @@ export const Icons: Story = {
 
       <Section title="Implementation">
         <Code>{`
+// Generic UI chrome: import from @tailgrids/icons, wrap so every call
+// site keeps a stable, project-owned name (lib/icons.tsx). No
+// strokeWidth prop - the pack's own icons render at a fixed weight.
+import { Calendar } from '@tailgrids/icons';
+
 function CalendarIcon() {
+  return <Calendar aria-hidden="true" focusable="false" />;
+}
+
+// Domain or brand glyph: still hand-drawn, same contract.
+function VerifiedIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="…" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="…" fill="currentColor" />
     </svg>
   );
 }
 
+// Either source is sized and coloured the same way - the wrapper
+// class controls both, not the icon component itself.
 .uh-picker__icon > svg {
   width: var(--uh-size-icon-md);
   height: var(--uh-size-icon-md);

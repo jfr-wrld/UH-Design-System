@@ -4,16 +4,15 @@
  * The hierarchy is deliberately upside-down from a booking site's habit: the
  * distance to the mosque outranks the hotel's own name, because it is the
  * number pilgrims choose on. Name at label size, distance a full step above it
- * in tabular figures.
+ * in tabular figures. The surface itself - border, radius, background -
+ * comes from the shared .uh-card shell (see components/Card); this file
+ * only adds the layout.
  */
 
 .uh-hotel {
   display: flex;
   min-width: 0;
   overflow: hidden;
-  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
-  border-radius: var(--uh-radius-lg);
-  background-color: var(--uh-color-bg-surface);
 }
 
 .uh-hotel[data-variant='compact'] {

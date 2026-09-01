@@ -1,0 +1,82 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as AccordionStories from './Accordion.stories';
+
+<Meta of={AccordionStories} />
+
+# Accordion
+
+Daftar panel expand/collapse - satu terbuka pada satu waktu secara default
+(`type="single"`), atau berapa pun sekaligus (`type="multiple"`). Tidak ada
+dependency di baliknya: status terbuka adalah context biasa yang dipakai
+bersama `AccordionItem`/`AccordionTrigger`/`AccordionContent`, cara yang sama
+`Command` membagikan status daftar berkelompoknya sendiri tanpa satupun.
+
+`type` sengaja tidak punya default: `single` dan `multiple` benar-benar
+berbeda soal apa itu `value` - sebuah string versus array string - jadi
+membiarkannya tanpa nilai akan diam-diam memilih salah satu, atau memaksa
+tipe `value` berbohong soal yang lain. Setiap `AccordionItem` tetap hanya
+butuh `value`-nya sendiri di kedua mode; `Accordion` yang menentukan berapa
+banyak yang boleh terbuka bersamaan.
+
+## Props
+
+<ArgTypes of={AccordionStories} />
+
+## Contoh penggunaan
+
+<Canvas of={AccordionStories.Playground} />
+
+## Satu treatment, bukan lima varian
+
+Referensi TailGrids mengirim lima varian gaya bernomor (`style_one` sampai
+`style_five`): kartu berbingkai, daftar rata dengan pembatas, dan tiga
+permukaan lembut lainnya. Sistem ini tidak membawa prop `variant` untuk itu -
+alasan yang sama kenapa `Tabs` tidak membawanya untuk varian tab-nya sendiri:
+satu pembacaan pola yang disengaja, bukan lima. Treatment yang dipilih di
+sini adalah `style_one` milik referensi sendiri (default mereka juga): kartu
+berbingkai bulat bertumpuk, masing-masing terbuka independen.
+
+<Canvas of={AccordionStories.Matrix} />
+
+## Mode terkontrol atau tidak
+
+Seperti komponen lain di paket ini, `value`/`defaultValue`/`onValueChange`
+mengikuti aturan yang sama: kirim `value` dan komponen jadi terkontrol penuh
+oleh pemanggil (tampilan hanya mengikuti prop, tidak pernah state internal);
+biarkan tanpa `value` dan `Accordion` memegang state-nya sendiri, diseed dari
+`defaultValue`.
+
+Untuk `type="single"`, `collapsible` (default `true`) menentukan apakah
+mengklik item yang sedang terbuka menutupnya lagi. Set `false` untuk
+menyematkan satu item tetap terbuka begitu dipilih - berguna untuk alur
+"langkah" di mana kembali bukan pilihan.
+
+## Tanpa animasi buka/tutup
+
+Panel sendiri tidak punya animasi buka/tutup - `hidden` berpindah instan,
+persis karakter referensi TailGrids-nya sendiri di sana juga: tidak ada
+transisi tinggi apa pun pada elemen kontennya. Yang berputar hanya chevron-
+nya, memakai pasangan `transform`/token yang sama yang sudah dipakai chevron
+`Select`.
+
+<Canvas of={AccordionStories.DarkMode} />
+
+<Canvas of={AccordionStories.TextExpansion} />
+
+## Aksesibilitas
+
+Setiap `AccordionTrigger` merender di dalam elemen heading (`<h3>` secara
+default, diatur lewat `headingLevel` pada `Accordion`) - mengikuti WAI-ARIA
+Accordion Pattern, supaya pengguna pembaca layar bisa melompat antar item
+persis seperti melompat antar heading section lain di halaman. Trigger-nya
+sendiri adalah `<button>` biasa dengan `aria-expanded`/`aria-controls`
+menunjuk ke panel yang dibukanya; panelnya sendiri `role="region"` dengan
+`aria-labelledby` menunjuk balik ke trigger-nya.
+
+Konten setiap panel selalu ter-mount, terbuka atau tidak - atribut native
+`hidden` sudah cukup menyembunyikannya dari tampilan maupun accessibility
+tree tanpa perlu unmount, jadi state di dalam `children` (draf formulir di
+dalam sebuah accordion pengaturan, misalnya) tidak hilang setiap kali item-
+nya ditutup. Ini beda dari referensi TailGrids-nya sendiri, yang unmount
+konten saat tertutup - pilihan yang disengaja, bukan penyimpangan yang
+terlewat.

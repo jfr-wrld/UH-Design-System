@@ -21,6 +21,10 @@
     "react-dom": "^19.2.8"
   },
   "devDependencies": {
+    "@fontsource/dongle": "^5.3.0",
+    "@fontsource/geist": "^5.3.0",
+    "@fontsource/hanken-grotesk": "^5.3.0",
+    "@fontsource/manrope": "^5.3.0",
     "@storybook/addon-a11y": "^8.6.18",
     "@storybook/addon-essentials": "^8.6.18",
     "@storybook/addon-links": "^8.6.18",

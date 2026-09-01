@@ -165,7 +165,23 @@ async function main() {
      * pairings are load-bearing and must be contracted rather than assumed.
      * bg.muted carries disabled surfaces the same way.
      */
-    for (const surface of ['bg-brand-subtle', 'bg-accent-subtle', 'bg-muted', 'bg-highlight']) {
+    /*
+     * The elevation ladder is a set of real text surfaces now that Modal and
+     * the overlays sit on bg-elevation-4: in dark mode each level is lighter
+     * than the canvas the text roles were tuned against, so the ratios only
+     * shrink from there. Contracted per level rather than assumed.
+     */
+    for (const surface of [
+      'bg-brand-subtle',
+      'bg-accent-subtle',
+      'bg-muted',
+      'bg-highlight',
+      'bg-elevation-1',
+      'bg-elevation-2',
+      'bg-elevation-3',
+      'bg-elevation-4',
+      'bg-elevation-5',
+    ]) {
       for (const text of ['primary', 'secondary']) {
         check(
           `--uh-color-text-${text}`,

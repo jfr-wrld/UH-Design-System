@@ -1,0 +1,40 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as TextAreaStories from './TextArea.stories';
+
+<Meta of={TextAreaStories} />
+
+# TextArea
+
+Saudara multi-baris dari `Input` - memakai chrome `FieldShell` yang sama (label,
+kotak kontrol berbingkai, footer pesan/counter) dan wiring controlled/uncontrolled
+yang sama, jadi form yang mencampur keduanya tidak pernah menyimpang pada ring
+fokus, warna error, atau styling field wajib.
+
+Label selalu di atas field, seperti `Input` - alasan yang sama: label yang
+mengambang hilang begitu pengguna mulai mengetik, dan audiens ini sering mengetik
+sambil membaca teks panjang dari dokumen lain.
+
+## Props
+
+<ArgTypes of={TextAreaStories} />
+
+## Contoh penggunaan
+
+<Canvas of={TextAreaStories.Basic} />
+<Canvas of={TextAreaStories.WithCounter} />
+<Canvas of={TextAreaStories.WithError} />
+
+## Tinggi dan resize
+
+`rows` mengatur tinggi yang terlihat (default 4) - untuk textarea, tinggi adalah
+bagian dari memberitahu orang berapa banyak ruang yang tersedia untuk menulis, jadi
+ini bukan sekadar detail visual. Pegangan resize bawaan browser membiarkan orang
+memperbesarnya secara vertikal kalau perlu; resize horizontal dimatikan supaya
+field tidak bisa melebar melewati wadahnya.
+
+## Aksesibilitas
+
+Sama seperti `Input`: `label` selalu menjadi nama aksesibel lewat elemen
+`<label>` sungguhan, `aria-invalid` terpasang otomatis saat `errorMessage` ada,
+dan counter karakter (`maxLength`) diumumkan sekali lewat `aria-describedby`,
+bukan pada setiap ketikan.

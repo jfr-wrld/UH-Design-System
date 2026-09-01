@@ -1,0 +1,55 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SocialButtonStories from './SocialButton.stories';
+
+<Meta of={SocialButtonStories} />
+
+# SocialButton
+
+Trigger auth/share bermerek - "Continue with Google", "Sign in with GitHub" - dan
+tidak lebih dari itu: komponen ini hanya merender tombolnya, tidak menangani logika
+autentikasi apa pun. Ini adalah `Button` itu sendiri di baliknya
+(`variant="outline"`, ikon provider sebagai `leftIcon`), jadi treatment disabled,
+focus ring, dan pertukaran loading semuanya milik Button sendiri, bukan salinan
+kedua dari logika itu.
+
+## Props
+
+<ArgTypes of={SocialButtonStories} />
+
+## Contoh penggunaan
+
+<Canvas of={SocialButtonStories.ContinueWithGoogle} />
+<Canvas of={SocialButtonStories.SignInWithGitHub} />
+
+## Provider yang tersedia
+
+`apple`, `facebook`, `linkedin`, `discord`, `whatsapp`, `twitter` memakai mark
+asli dari `@tailgrids/icons`. `github`, `x`, dan `google` digambar tangan -
+`github`/`x` karena mark itu tidak ada di `@tailgrids/icons` (paket generik
+yang kecil, ~245 ikon), dan mark merek adalah persis jenis glyph yang salah
+kalau dipaksa memakai bentuk yang mendekati; `google` karena mark resminya
+sendiri empat warna, sesuatu yang tidak bisa diwakili satu fill `currentColor`
+seperti yang dipakai ikon `@tailgrids/icons` yang lain. Jalur SVG-nya digambar
+sesuai mark resmi masing-masing merek (Octicon "mark-github" milik GitHub,
+wordmark 2023 milik X, logo "G" empat warna milik Google), bentuk yang sama
+yang dipakai hampir setiap tombol "Continue with X" / "Sign in with GitHub" /
+"Continue with Google" di web.
+
+## Warna merek
+
+`facebook`, `twitter`, `linkedin`, `discord`, `whatsapp`, dan `google`
+tampil dalam warna merek asli masing-masing (biru Facebook, biru Twitter,
+biru LinkedIn, ungu Discord, hijau WhatsApp, empat warna Google) - bukan
+`currentColor` seperti bawaan `@tailgrids/icons`. `apple`, `github`, dan `x`
+sengaja dibiarkan `currentColor`: panduan merek resmi ketiganya sama-sama
+menetapkan mark hitam/putih yang mengikuti latar tempatnya berada, bukan
+warna tetap. Saat tombol `disabled`, keenam ikon berwarna itu ikut meluruh ke
+warna disabled Button sendiri (lewat `currentColor`), bukan tetap tampil
+seolah masih aktif.
+
+## Aksesibilitas
+
+Mewarisi semua yang sudah dipunya `Button`: `aria-disabled` (bukan atribut
+`disabled` native, supaya tetap bisa difokus lewat keyboard), focus ring yang
+sama, dan `loading` yang menukar label dengan spinner tanpa mengubah lebar
+tombol.

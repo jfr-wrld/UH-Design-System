@@ -10,13 +10,14 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
@@ -24,7 +25,7 @@
   "scripts": {
     "build": "pnpm run build:types && pnpm run build:js && pnpm run build:css && pnpm run build:fonts",
     "build:css": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
-    "build:fonts": "cp -R ../tokens/build/css/fonts ./dist/fonts",
+    "build:fonts": "rm -rf ./dist/fonts && cp -R ../tokens/build/css/fonts ./dist/fonts",
     "build:js": "vite build",
     "build:types": "tsc -p tsconfig.build.json",
     "clean": "rm -rf dist .tsbuildinfo",
@@ -35,15 +36,22 @@
     "verify:tokens": "node ./scripts/verify-tokens.mjs"
   },
   "peerDependencies": {
+    "@base-ui/react": "^1.0.0",
+    "@tailgrids/icons": "^2.0.1",
     "react": "^18.2.0 || ^19.0.0",
-    "react-dom": "^18.2.0 || ^19.0.0"
+    "react-dom": "^18.2.0 || ^19.0.0",
+    "recharts": "^3.0.0"
   },
   "dependencies": {
     "@umrahhaji/tokens": "workspace:*",
     "country-flag-icons": "^1.6.20"
   },
   "devDependencies": {
+    "@base-ui/react": "^1.7.0",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@storybook/react": "^8.6.18",
+    "@tailgrids/icons": "^2.0.1",
     "@tailwindcss/cli": "^4.3.3",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/react": "^16.3.2",
@@ -53,9 +61,13 @@
     "@types/react-dom": "^19.2.4",
     "@vitejs/plugin-react": "^4.7.0",
     "axe-core": "^4.13.0",
+    "class-variance-authority": "^0.7.1",
+    "esbuild": "^0.28.2",
     "jsdom": "^30.0.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
+    "recharts": "^3.10.1",
+    "rollup": "^4.63.0",
     "storybook": "^8.6.18",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.9.3",

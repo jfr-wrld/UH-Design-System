@@ -1,0 +1,49 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as NativeSelectStories from './NativeSelect.stories';
+
+<Meta of={NativeSelectStories} />
+
+# NativeSelect
+
+`<select>` milik browser sendiri, ditata agar sepadan dengan field lain di
+sistem ini. `Select` (listbox kustom yang bisa dicari) tetap jadi pilihan
+default untuk sebagian besar form; pakai `NativeSelect` justru ketika
+daftarnya panjang dan cukup tak terstruktur sehingga picker milik platform
+sungguh melayani pengguna lebih baik - daftar negara atau kota mendapat
+wheel layar penuh milik OS di ponsel alih-alih panel dalam halaman, dan
+kontrolnya tetap berfungsi bahkan sebelum JavaScript halaman selesai
+dimuat.
+
+## Props
+
+<ArgTypes of={NativeSelectStories} />
+
+## Contoh penggunaan
+
+<Canvas of={NativeSelectStories.Playground} />
+
+## Anak elemen native, bukan data prop
+
+`NativeSelect` merender `<select>` sungguhan, jadi anaknya persis apa yang
+sudah diterima `<select>` - `<option>` dan `<optgroup>` polos, tidak ada
+yang perlu diterjemahkan ke prop data tersendiri.
+
+<Canvas of={NativeSelectStories.WithOptgroups} />
+
+<Canvas of={NativeSelectStories.StateMatrix} />
+
+<Canvas of={NativeSelectStories.DarkMode} />
+
+<Canvas of={NativeSelectStories.TextExpansion} />
+
+## Aksesibilitas
+
+Chrome field (label, kotak berbingkai, baris pesan) datang dari
+`FieldShell` yang sama dipakai `Input`/`Select` - `<label htmlFor>` yang
+sungguhan menunjuk ke id `<select>`, `aria-required`/`aria-invalid`
+mengikuti state, dan pesan error dibaca lewat `role="alert"`. Panah
+dropdown native platform dilepas (`appearance: none`) dan digambar ulang
+dengan ikon milik sistem ini sendiri supaya konsisten lintas OS - tapi
+`<select>`-nya sendiri tetap elemen form native sepenuhnya: bisa dioperasikan
+lewat keyboard, dan tetap berfungsi bahkan sebelum JavaScript halaman
+selesai dimuat.

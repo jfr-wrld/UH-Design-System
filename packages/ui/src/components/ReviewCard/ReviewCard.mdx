@@ -1,0 +1,148 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ReviewCardStories from './ReviewCard.stories';
+
+<Meta of={ReviewCardStories} />
+
+# ReviewCard
+
+Sebuah ulasan dari pilgrim, apa adanya - identitas penulis, rating, tanggal,
+teks yang diklem empat baris (diukur lewat `scrollHeight`, bukan ditebak
+lewat jumlah karakter), foto opsional, dan hitungan "helpful". "Verified
+purchase" hanya muncul saat platform benar-benar bisa membuktikan reviewer
+memesan paket tersebut. Untuk ringkasan agregat rating suatu paket (bukan
+satu ulasan), lihat `RatingBreakdown` - komponen terpisah yang diekspor dari
+folder yang sama, menghitung rata-rata tertimbang dari distribusi bintang.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Menampilkan satu ulasan otentik dengan teks panjang - clamp-nya diukur, jadi tombol "Read
+        more" hanya muncul kalau teksnya benar-benar melebihi empat baris
+      </td>
+      <td>
+        Menulis kartu ulasan sendiri dengan <code>&lt;p&gt;</code> manual - kehilangan pengukuran
+        overflow yang jujur lintas bahasa dan lebar layar
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ulasan dengan foto bukti dan lightbox terpisah lewat <code>onPhotoClick</code>
+      </td>
+      <td>
+        Menampilkan galeri foto tanpa konteks ulasan - itu kasus <code>ImageGallery</code>/komponen
+        media lain, bukan ReviewCard
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ringkasan agregat rating paket ("4.6 dari 128 ulasan") - pakai <code>RatingBreakdown</code>,
+        bukan menjumlahkan sendiri
+      </td>
+      <td>
+        Menaruh rata-rata rating di dalam <code>ReviewCard</code> - kartu ini mewakili satu suara,
+        bukan agregat
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onHelpful</code> saat pengguna lain memang bisa menandai ulasan berguna
+      </td>
+      <td>
+        Memakai hitungan "Helpful" sebagai tombol tanpa handler - tanpa <code>onHelpful</code>{' '}
+        komponen sudah otomatis merendernya sebagai teks statis, bukan tombol mati
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ReviewCardStories} />
+
+## Contoh penggunaan
+
+### Ulasan dasar
+
+Rating, tanggal relatif, dan lencana verified sekaligus - kasus paling umum.
+
+<Canvas of={ReviewCardStories.Basic} />
+
+### Dengan aksi "Helpful"
+
+Begitu `onHelpful` diisi, hitungannya jadi tombol yang bisa ditekan; tanpanya ia tetap pernyataan biasa.
+
+<Canvas of={ReviewCardStories.WithHelpfulVote} />
+
+### Dengan galeri foto
+
+`onPhotoClick` mengubah tiap thumbnail jadi tombol beraksesibilitas nama otomatis ("Photo 2 of 3") kalau `alt` tidak diisi.
+
+<Canvas of={ReviewCardStories.PhotoGallery} />
+
+## Aksesibilitas
+
+**Peran ARIA:** root-nya elemen native `<article>`, tanpa peran eksplisit
+tambahan. Rating dirender lewat komponen `Rating` sebagai `role="img"`
+dengan nama yang mengucapkan nilainya ("5.0 out of 5"). Toggle "Read
+more"/"Show less" adalah `<button>` native dengan `aria-expanded`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus antar tombol yang ada - toggle klem, hitungan "Helpful" (bila interaktif),
+        dan tombol foto (bila <code>onPhotoClick</code> diisi) - mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol yang sedang fokus (perilaku native <code>&lt;button&gt;</code>);
+        komponen tidak menambah key handler kustom apa pun
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- "Verified purchase" hanya dirender saat `author.verified` benar - dalam
+  kata-kata, bukan ikon centang tanpa label.
+- `<time dateTime={...}>` selalu membawa instan ISO yang bisa dibaca mesin,
+  terlepas dari apakah teks yang tampil relatif ("2 weeks ago") atau
+  absolut.
+- Foto tanpa `alt` memakai label posisi otomatis ("Photo 2 of 3") sebagai
+  `aria-label` tombolnya; foto dengan `alt` memakai teks itu apa adanya.
+- Ikon dekoratif di dalam `Rating` disembunyikan dari pembaca layar; makna
+  numeriknya disampaikan lewat nama aksesibel `role="img"`.
+
+**Wajib disediakan konsumen:**
+
+- `author.name` dan `content` - satu-satunya data yang benar-benar wajib;
+  semua bagian lain (rating, tanggal, foto, paket, helpful) lenyap rapi
+  ketika tidak diisi.
+- `alt` per foto untuk deskripsi yang bermakna - tanpanya thumbnail hanya
+  bernama posisinya di antara sekian foto.
+- `onPhotoClick` untuk membuka lightbox - lightbox itu sendiri adalah modal
+  dialog milik konsumen; tidak ada primitive `Modal` di sistem ini, jadi
+  membangunnya bukan tanggung jawab ReviewCard.

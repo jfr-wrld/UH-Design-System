@@ -1,0 +1,181 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as BottomSheetStories from './BottomSheet.stories';
+
+<Meta of={BottomSheetStories} />
+
+# BottomSheet
+
+Permukaan modal untuk layar telepon: menempel di tepi bawah, membulat hanya
+di sisi atas, dan berhenti di `sheet-max-height` (88vh) supaya selalu ada
+sisa strip halaman yang terlihat di atasnya - strip itulah yang bilang
+halaman aslinya masih ada. Kontrak modalnya sama persis dengan `Modal`
+(portal, focus trap, scroll lock, Escape, backdrop, focus kembali ke
+trigger), lewat hook-hook yang sama; yang membedakan hanya milik sheet
+sendiri - tinggi yang beristirahat di snap points sebagai pecahan viewport,
+gestur drag yang mengikuti jari, flick yang melompat antar snap, dan drag
+yang melewati snap terendah yang berarti menutup.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Aksi kontekstual di layar mobile - filter, sort, quick action - yang wajar ditutup dengan
+        swipe ke bawah
+      </td>
+      <td>
+        Flow desktop-first - <code>Modal</code> sudah cukup; tidak perlu mensimulasikan bottom sheet
+        di layar lebar
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>snapPoints</code> untuk konten yang tingginya bervariasi (Sort satu baris vs Filter
+        satu layar penuh) tanpa mendesain ulang komponennya
+      </td>
+      <td>
+        Satu <code>snapPoint</code> tunggal untuk konten yang sebenarnya butuh resize - pengguna
+        kehilangan kontrol atas seberapa banyak sheet menutupi halaman
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>scrollable</code> + <code>footer</code> untuk pola FilterPanel: daftar checkbox
+        panjang dengan tombol Apply yang tetap terlihat di bawah
+      </td>
+      <td>
+        <code>footer</code> untuk satu aksi tunggal yang seharusnya cukup di dalam{' '}
+        <code>children</code> - footer sengaja lengket, jangan dipakai untuk konten yang wajar ikut
+        scroll
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>dragHandle</code> diset ke <code>false</code> untuk konten fixed-height yang tidak
+        pernah butuh resize (konfirmasi singkat, syarat & ketentuan)
+      </td>
+      <td>
+        Mengandalkan drag sebagai satu-satunya jalan menutup - Escape, backdrop, dan tombol close
+        harus selalu berfungsi juga, drag adalah tambahan bukan pengganti
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya diportalkan ke `document.body` dan dibungkus `<div className="uh-sheet">` yang membawa `data-state` (open/closing/closed via `usePresence`).
+
+- **`.uh-sheet__backdrop`** - lapisan gelap di belakang panel, `aria-hidden`, menutup sheet saat diklik.
+- **`.uh-sheet__panel`** - `role="dialog"`, `aria-modal="true"`; tingginya di-set inline dari snap fraction yang aktif, dan `touch-action: none` karena sheet sendiri yang memegang gestur (halaman di bawahnya sudah dikunci `useScrollLock`).
+- **`.uh-sheet__grab`** - baris pembungkus handle; hanya render saat `dragHandle` (default `true`).
+- **`.uh-sheet__handle`** - `<button role="slider">` sesungguhnya, bukan sekadar dekorasi - Arrow/Home/End meresize lewat keyboard.
+- **`.uh-sheet__handle-bar`** - garis abu-abu di dalam handle, murni visual, `aria-hidden` lewat parent-nya.
+- **`.uh-sheet__header`** - baris judul + tombol close; ikut jadi area drag (`onPointerDown`) di luar handle.
+- **`.uh-sheet__title`** - `<h2>`, hanya render saat `title` diisi; tanpa `title`, `aria-label` dipakai lewat `<span className="uh-sr-only">` di posisi yang sama.
+- **`.uh-sheet__close`** - berbagi styling dengan `.uh-close-button` bersama.
+- **`.uh-sheet__body`** - kontainer `children`; `data-scrollable="true"` mengaktifkan `overflow-y: auto` dan `touch-action: pan-y` saat `scrollable`.
+- **`.uh-sheet__footer`** - baris aksi lengket di bawah, hanya render saat `footer` diisi.
+
+## Props
+
+<ArgTypes of={BottomSheetStories} />
+
+## Contoh penggunaan
+
+### Sheet sederhana
+
+Satu snap point, handle default, tanpa footer - cukup untuk catatan singkat yang tidak butuh aksinya sendiri.
+
+<Canvas of={BottomSheetStories.Basic} />
+
+### Dengan footer aksi
+
+Kontrak FilterPanel: dua snap points, konten `scrollable`, dan footer lengket berisi Reset + Apply yang tetap terlihat sementara daftar checkbox di atasnya scroll.
+
+<Canvas of={BottomSheetStories.WithFooterActions} />
+
+### Tanpa drag handle
+
+`dragHandle` diset ke `false` menghilangkan grabber - dan gestur resize yang menyertainya. Escape, backdrop, dan tombol close tetap jalan; ini bentuk yang tepat untuk konten yang tidak pernah butuh diresize.
+
+<Canvas of={BottomSheetStories.NoDragHandle} />
+
+Untuk melihat kombinasi single-snap, multi-snap, no-handle dan non-scrollable sekaligus, lihat story `Matrix`.
+
+## Aksesibilitas
+
+**Peran ARIA:** `role="dialog"` dengan `aria-modal="true"` di `.uh-sheet__panel`. Nama aksesibelnya berasal dari `aria-labelledby` yang menunjuk ke `.uh-sheet__title` saat `title` diisi, atau `aria-label` langsung saat tidak.
+
+Handle-nya sendiri `role="slider"` dengan `aria-orientation="vertical"`, `aria-valuemin`/`aria-valuemax` mengikuti jumlah snap points, dan `aria-valuenow` sinkron dengan index snap yang aktif - `aria-valuetext` mengumumkan nilainya sebagai persentase ("60% of the screen" lewat `labels.snapValue`), bukan sekadar index yang tidak berarti apa-apa bagi pendengar.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>Menutup sheet dari mana pun fokus berada</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code> / <code>Shift+Tab</code>
+      </td>
+      <td>Berputar di dalam panel - fokus tidak pernah lolos ke halaman di belakangnya</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowUp</code> (di handle)
+      </td>
+      <td>Pindah ke snap point berikutnya yang lebih besar</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowDown</code> (di handle)
+      </td>
+      <td>Pindah ke snap point yang lebih kecil; di snap terendah, menutup sheet</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code> (di handle)
+      </td>
+      <td>Lompat ke snap point terkecil</td>
+    </tr>
+    <tr>
+      <td>
+        <code>End</code> (di handle)
+      </td>
+      <td>Lompat ke snap point terbesar</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Fokus dipindah ke elemen fokusabel pertama di dalam panel saat sheet terbuka (`useFocusTrap`), dan dikembalikan ke elemen yang memicunya begitu sheet tertutup - dites langsung di `BottomSheet.test.tsx` ("returns focus to the trigger on close").
+- `useScrollLock` mengunci `document.body` selama sheet terbuka dan melepasnya begitu animasi keluar selesai, jadi konten di belakang sheet tidak ikut scroll diam-diam.
+- Drag dengan jari bukan satu-satunya jalan meresize atau menutup - handle sebagai slider dan tombol close selalu tersedia untuk keyboard dan screen reader, sesuai kontrak "dragging is never the only way" di deskripsi komponennya.
+
+**Wajib disediakan konsumen:**
+
+- `onClose` - setiap jalan keluar (Escape, backdrop, tombol close, drag melewati snap terendah) memanggilnya; komponen tidak mengelola state `open` miliknya sendiri.
+- `title` atau `aria-label` - salah satunya wajib diisi supaya dialog punya accessible name; tipe TypeScript-nya tidak memaksa pasangan ini (keduanya `?:`), jadi ini konvensi yang harus dijaga pemanggil sendiri, bukan sesuatu yang dicek `tsc`.
+
+## Catatan i18n
+
+Footer-lah yang menanggung sebagian besar pertumbuhan teks - "Terapkan filter" jauh lebih panjang dari "Apply filters" - dan tombol-tombolnya bungkus (`flex-wrap`) alih-alih menyusut di bawah 44px. Pengumuman resize handle-nya sendiri lewat `labels.snapValue`, jadi setiap terjemahan harus menyediakan fungsi ini, bukan cuma string statis. Story `TextExpansion` membuka satu sheet per bahasa secara bergiliran (sheet adalah singleton yang diportalkan, jadi tidak bisa dibuka tiga sekaligus untuk dibandingkan):
+
+<Canvas of={BottomSheetStories.TextExpansion} />

@@ -1,0 +1,113 @@
+/*
+ * Card
+ *
+ * The shell PackageCard, AgencyCard, HotelCard and ReviewCard are meant to
+ * sit on. Three surface treatments (outlined/elevated/flat) and a padding
+ * scale; when interactive, an invisible whole-card link or button fills it,
+ * named by `label`, with everything else in `children` free to opt back
+ * into its own hit area via `.uh-card__action` (see the note in Card.tsx on
+ * why `position: relative` is what makes that work).
+ */
+
+.uh-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--uh-radius-card);
+  background-color: var(--uh-color-bg-surface);
+  transition:
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    box-shadow var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+/* --------------------------------------------------------------- variant */
+
+/*
+ * Outlined and elevated both moved a step more defined in the
+ * TailGrids-character pass: `border-subtle` (1.23:1, barely-there) read as
+ * too quiet for a card holding a real listing - `border-default` is still
+ * decorative-only, just not invisible. `elevated`'s resting shadow moved
+ * elevation-1 -> elevation-2 for the same reason; the hover/focus step below
+ * moves out to elevation-3 to keep its "more prominent on interaction"
+ * relationship to the new resting state.
+ */
+.uh-card[data-card-variant='outlined'] {
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}
+
+.uh-card[data-card-variant='elevated'] {
+  border: var(--uh-border-width-hairline) solid transparent;
+  box-shadow: var(--uh-elevation-2);
+}
+
+.uh-card[data-card-variant='flat'] {
+  border: var(--uh-border-width-hairline) solid transparent;
+}
+
+/* :focus-within, not the narrower :has(hit-area:focus-visible) it started
+   as: PackageCard, HotelCard and ReviewCard all carry this same class now
+   (see their own stylesheets) and elevate on any focused descendant, not
+   only their own hit-area button - tabbing to a wishlist heart inside the
+   card is still "here", and it would be strange for the card not to say so. */
+.uh-card[data-hoverable='true']:hover,
+.uh-card[data-hoverable='true']:focus-within {
+  border-color: var(--uh-color-border-strong);
+  box-shadow: var(--uh-elevation-3);
+}
+
+/* --------------------------------------------------------------- padding */
+
+.uh-card[data-padding='none'] .uh-card__content {
+  padding: 0;
+}
+
+.uh-card[data-padding='sm'] .uh-card__content {
+  padding: var(--uh-spacing-12);
+}
+
+.uh-card[data-padding='md'] .uh-card__content {
+  padding: var(--uh-spacing-16);
+}
+
+.uh-card[data-padding='lg'] .uh-card__content {
+  padding: var(--uh-spacing-24);
+}
+
+/* ------------------------------------------------------------- hit area */
+
+.uh-card__hit-area {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border: 0;
+  border-radius: inherit;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  /* No visible focus ring of its own - see-through by design, so the ring
+     is drawn on the card that visibly contains it instead. */
+  outline: none;
+}
+
+.uh-card[data-interactive='true']:has(.uh-card__hit-area:focus-visible) {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-card__hit-area:disabled {
+  cursor: not-allowed;
+}
+
+.uh-card__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Apply to any nested control (a wishlist heart, a share icon) that must
+   stay independently clickable over the card's own hit area. */
+.uh-card__action {
+  position: relative;
+  z-index: 1;
+}

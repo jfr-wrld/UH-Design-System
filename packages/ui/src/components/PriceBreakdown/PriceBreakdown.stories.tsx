@@ -284,6 +284,81 @@ export const DarkMode: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for PriceBreakdown.mdx's
+ * "Contoh Penggunaan" section. Every one of them still needs the `column`
+ * wrapper the rest of this file uses - an un-constrained table stretches to
+ * the full canvas width, which is not the card a real checkout gives it -
+ * so `render` stays, and only the wrapper markup sits outside `args`.
+ */
+
+export const SimpleBreakdown: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    items: [
+      { label: 'Base Price', amount: 9800, type: 'base' },
+      { label: 'Visa Processing', amount: 450, type: 'fee' },
+      { label: 'Total', amount: 10250, type: 'total' },
+    ],
+    currency: 'MYR',
+    locale: 'en',
+  },
+  render: (args) => (
+    <div style={column}>
+      <PriceBreakdown {...args} />
+    </div>
+  ),
+};
+
+export const FullBookingWithDiscount: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    items: [
+      { label: 'Base Price', amount: 19600, type: 'base', quantity: 2 },
+      { label: 'Visa Processing', amount: 900, type: 'fee', note: 'Handled by the agency.' },
+      { label: 'Travel Insurance', amount: 500, type: 'addon' },
+      {
+        label: 'Early bird discount',
+        amount: 1500,
+        type: 'discount',
+        note: 'For bookings made 90 days before departure.',
+      },
+      { label: 'Total', amount: 19500, type: 'total' },
+    ],
+    currency: 'MYR',
+    locale: 'en',
+    passengers: { adults: 2, children: 0, infants: 0 },
+  },
+  render: (args) => (
+    <div style={column}>
+      <PriceBreakdown {...args} />
+    </div>
+  ),
+};
+
+/**
+ * `currency` and `locale` disagree on purpose: an Indonesian invoice, read in
+ * English. The symbol stays "Rp" and the total groups with commas rather than
+ * dots - `currency` never bends to match `locale`, in either direction.
+ */
+export const IdrBreakdownInEnglish: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    items: [
+      { label: 'Base Price', amount: 38500000, type: 'base' },
+      { label: 'Visa Processing', amount: 1750000, type: 'fee' },
+      { label: 'Total', amount: 40250000, type: 'total' },
+    ],
+    currency: 'IDR',
+    locale: 'en',
+  },
+  render: (args) => (
+    <div style={column}>
+      <PriceBreakdown {...args} />
+    </div>
+  ),
+};
+
 const MS: Partial<PriceBreakdownLabels> = {
   breakdown: 'Pecahan harga',
   showDetails: 'Tunjukkan butiran',

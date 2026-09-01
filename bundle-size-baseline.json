@@ -1,0 +1,337 @@
+[
+  {
+    "name": "DateRangePicker",
+    "minified": 16803,
+    "gzipped": 6415
+  },
+  {
+    "name": "DatePicker",
+    "minified": 15533,
+    "gzipped": 5886
+  },
+  {
+    "name": "PhoneInput",
+    "minified": 13922,
+    "gzipped": 5409
+  },
+  {
+    "name": "SearchCombobox",
+    "minified": 13785,
+    "gzipped": 5243
+  },
+  {
+    "name": "TimePicker",
+    "minified": 12929,
+    "gzipped": 5082
+  },
+  {
+    "name": "PackageCard",
+    "minified": 13337,
+    "gzipped": 4814
+  },
+  {
+    "name": "Select",
+    "minified": 10257,
+    "gzipped": 4124
+  },
+  {
+    "name": "FileUpload",
+    "minified": 10694,
+    "gzipped": 4096
+  },
+  {
+    "name": "HotelCard",
+    "minified": 9775,
+    "gzipped": 3987
+  },
+  {
+    "name": "ReviewCard",
+    "minified": 9477,
+    "gzipped": 3774
+  },
+  {
+    "name": "PriceBreakdown",
+    "minified": 8615,
+    "gzipped": 3613
+  },
+  {
+    "name": "TimeField",
+    "minified": 8937,
+    "gzipped": 3448
+  },
+  {
+    "name": "BottomSheet",
+    "minified": 8285,
+    "gzipped": 3427
+  },
+  {
+    "name": "AgencyCard",
+    "minified": 8864,
+    "gzipped": 3378
+  },
+  {
+    "name": "SocialButton",
+    "minified": 7871,
+    "gzipped": 3313
+  },
+  {
+    "name": "DateField",
+    "minified": 7904,
+    "gzipped": 3230
+  },
+  {
+    "name": "ToastProvider",
+    "minified": 7264,
+    "gzipped": 3097
+  },
+  {
+    "name": "Popover",
+    "minified": 6480,
+    "gzipped": 2878
+  },
+  {
+    "name": "FilterPanel",
+    "minified": 7394,
+    "gzipped": 2875
+  },
+  {
+    "name": "CurrencyInput",
+    "minified": 6701,
+    "gzipped": 2852
+  },
+  {
+    "name": "Modal",
+    "minified": 6602,
+    "gzipped": 2722
+  },
+  {
+    "name": "CommandDialog",
+    "minified": 6432,
+    "gzipped": 2719
+  },
+  {
+    "name": "OTPInput",
+    "minified": 5889,
+    "gzipped": 2617
+  },
+  {
+    "name": "Drawer",
+    "minified": 6263,
+    "gzipped": 2605
+  },
+  {
+    "name": "Input",
+    "minified": 6299,
+    "gzipped": 2546
+  },
+  {
+    "name": "Carousel",
+    "minified": 5885,
+    "gzipped": 2532
+  },
+  {
+    "name": "NumberStepper",
+    "minified": 5807,
+    "gzipped": 2482
+  },
+  {
+    "name": "Tooltip",
+    "minified": 5545,
+    "gzipped": 2463
+  },
+  {
+    "name": "Chart",
+    "minified": 6101,
+    "gzipped": 2454
+  },
+  {
+    "name": "ItineraryTimeline",
+    "minified": 6127,
+    "gzipped": 2414
+  },
+  {
+    "name": "Overlay",
+    "minified": 5633,
+    "gzipped": 2382
+  },
+  {
+    "name": "TextArea",
+    "minified": 5495,
+    "gzipped": 2302
+  },
+  {
+    "name": "Rating",
+    "minified": 5287,
+    "gzipped": 2275
+  },
+  {
+    "name": "ErrorState",
+    "minified": 5670,
+    "gzipped": 2239
+  },
+  {
+    "name": "EmptyState",
+    "minified": 5659,
+    "gzipped": 2233
+  },
+  {
+    "name": "NativeSelect",
+    "minified": 5174,
+    "gzipped": 2117
+  },
+  {
+    "name": "BookingStatusTracker",
+    "minified": 4895,
+    "gzipped": 2111
+  },
+  {
+    "name": "Command",
+    "minified": 4370,
+    "gzipped": 2055
+  },
+  {
+    "name": "Tabs",
+    "minified": 4511,
+    "gzipped": 2025
+  },
+  {
+    "name": "Pagination",
+    "minified": 4816,
+    "gzipped": 2015
+  },
+  {
+    "name": "Alert",
+    "minified": 4681,
+    "gzipped": 2006
+  },
+  {
+    "name": "PriceDisplay",
+    "minified": 4616,
+    "gzipped": 1999
+  },
+  {
+    "name": "Button",
+    "minified": 4749,
+    "gzipped": 1961
+  },
+  {
+    "name": "Radio",
+    "minified": 4615,
+    "gzipped": 1910
+  },
+  {
+    "name": "Checkbox",
+    "minified": 4586,
+    "gzipped": 1865
+  },
+  {
+    "name": "Slider",
+    "minified": 4119,
+    "gzipped": 1786
+  },
+  {
+    "name": "ProgressBar",
+    "minified": 3958,
+    "gzipped": 1749
+  },
+  {
+    "name": "Avatar",
+    "minified": 3920,
+    "gzipped": 1734
+  },
+  {
+    "name": "Accordion",
+    "minified": 3860,
+    "gzipped": 1721
+  },
+  {
+    "name": "Collapsible",
+    "minified": 3717,
+    "gzipped": 1671
+  },
+  {
+    "name": "Switch",
+    "minified": 3922,
+    "gzipped": 1664
+  },
+  {
+    "name": "Chip",
+    "minified": 3945,
+    "gzipped": 1660
+  },
+  {
+    "name": "Breadcrumbs",
+    "minified": 3989,
+    "gzipped": 1645
+  },
+  {
+    "name": "Skeleton",
+    "minified": 3656,
+    "gzipped": 1631
+  },
+  {
+    "name": "Card",
+    "minified": 3697,
+    "gzipped": 1611
+  },
+  {
+    "name": "Badge",
+    "minified": 3721,
+    "gzipped": 1584
+  },
+  {
+    "name": "ScrollArea",
+    "minified": 3783,
+    "gzipped": 1579
+  },
+  {
+    "name": "Dropdown",
+    "minified": 3508,
+    "gzipped": 1573
+  },
+  {
+    "name": "Spinner",
+    "minified": 3620,
+    "gzipped": 1556
+  },
+  {
+    "name": "Table",
+    "minified": 3436,
+    "gzipped": 1508
+  },
+  {
+    "name": "Stack",
+    "minified": 3368,
+    "gzipped": 1492
+  },
+  {
+    "name": "AspectRatio",
+    "minified": 3357,
+    "gzipped": 1482
+  },
+  {
+    "name": "Grid",
+    "minified": 3345,
+    "gzipped": 1480
+  },
+  {
+    "name": "ButtonGroup",
+    "minified": 3322,
+    "gzipped": 1466
+  },
+  {
+    "name": "Separator",
+    "minified": 3332,
+    "gzipped": 1466
+  },
+  {
+    "name": "List",
+    "minified": 3313,
+    "gzipped": 1461
+  },
+  {
+    "name": "Container",
+    "minified": 3295,
+    "gzipped": 1446
+  }
+]

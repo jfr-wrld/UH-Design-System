@@ -11,10 +11,12 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { Check } from '@tailgrids/icons';
 
 import { FieldShell, type FieldSize } from '../Field/FieldShell.js';
 import { Spinner } from '../Spinner/Spinner.js';
 import { useControllableState } from '../../hooks/useControllableState.js';
+import { ChevronDownIcon, CloseIcon } from '../../lib/icons.js';
 
 export interface SelectOption {
   value: string;
@@ -38,10 +40,13 @@ export interface SelectProps {
   loading?: boolean;
   size?: FieldSize;
   fullWidth?: boolean;
+  /** Selected option's value, or `null` for none. Pass together with `onValueChange` to control it. */
   value?: string | null;
   defaultValue?: string;
   onValueChange?: (value: string | null, option: SelectOption | null) => void;
+  /** Shown in the listbox when `searchable` filters everything out. */
   emptyMessage?: string;
+  /** Shown beside the spinner while `loading` is true. */
   loadingMessage?: string;
   clearLabel?: string;
   /*
@@ -53,38 +58,8 @@ export interface SelectProps {
   className?: string | undefined;
 }
 
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M5 12.5l4.5 4.5L19 7.5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ClearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Check aria-hidden="true" focusable="false" />;
 }
 
 /** Where the portalled listbox should sit, in viewport coordinates. */
@@ -445,12 +420,12 @@ function SelectImpl(props: SelectProps, ref: ForwardedRef<HTMLDivElement>) {
               aria-label={clearLabel}
               onClick={() => commit(null)}
             >
-              <ClearIcon />
+              <CloseIcon />
             </button>
           ) : null}
 
           <span className="uh-select__chevron" aria-hidden="true" data-open={open || undefined}>
-            <ChevronIcon />
+            <ChevronDownIcon />
           </span>
         </div>
       </FieldShell>
@@ -459,5 +434,14 @@ function SelectImpl(props: SelectProps, ref: ForwardedRef<HTMLDivElement>) {
   );
 }
 
-export const Select = forwardRef(SelectImpl);
-Select.displayName = 'Select';
+export const Select = /* @__PURE__ */ forwardRef(SelectImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Select.displayName = 'Select';
+}

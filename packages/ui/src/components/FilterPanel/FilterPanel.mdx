@@ -1,0 +1,160 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as FilterPanelStories from './FilterPanel.stories';
+
+<Meta of={FilterPanelStories} />
+
+# FilterPanel
+
+Grup checkbox filter dengan aksi Apply/Clear all - bentuk yang sebelumnya dirakit
+ulang secara manual dari `Checkbox` + `Button` di setiap layar daftar (`Patterns/SearchResults`
+adalah contoh nyatanya). FilterPanel tidak memutuskan penempatannya sendiri: taruh di
+dalam `Card` untuk rail desktop (lihat token ukuran `rail` yang jadi acuan lebar
+sidebar-nya), di dalam `BottomSheet` untuk mobile, atau di manapun tata letak layar
+membutuhkannya.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Daftar hasil dengan beberapa filter boolean independen - "penerbangan langsung", "5
+        bintang", "dekat Haram" - yang semuanya bisa aktif bersamaan
+      </td>
+      <td>
+        Satu pilihan eksklusif dari beberapa opsi (urutkan berdasarkan harga/rating) - itu peran{' '}
+        <code>Select</code>, bukan sekelompok checkbox
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Filter yang perlu ditinjau dulu sebelum diterapkan (<code>onApply</code>) - pengguna boleh
+        ubah beberapa pilihan lalu menekan satu tombol
+      </td>
+      <td>
+        Filter yang harus langsung berefek begitu diklik tanpa tombol Apply - kalau begitu, cukup
+        render <code>Checkbox</code> lepas satu-satu dan panggil pencarian ulang langsung dari{' '}
+        <code>onChange</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Butuh cara terkontrol untuk mengosongkan semua pilihan sekaligus (<code>onClear</code>)
+        dengan tombol yang otomatis nonaktif saat tidak ada yang dipilih
+      </td>
+      <td>
+        Kelompok checkbox yang sebenarnya satu form field bernilai tunggal (radio semantik) - pakai{' '}
+        <code>RadioGroup</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+- **`.uh-filter-panel`** - pembungkus; tidak membawa lebar, border, atau
+  background sendiri - itu keputusan kontainer yang memuatnya (`Card`/`BottomSheet`).
+- **`.uh-filter-panel__title`** - judul opsional (`showTitle`), heading level 2.
+- **`.uh-filter-panel__options`** - `role="group"`, `aria-labelledby` ke judul kalau
+  ada, atau `aria-label` langsung kalau `showTitle={false}`.
+- Setiap baris di dalamnya adalah `Checkbox` biasa dari `packages/ui` - tidak ada
+  markup checkbox baru yang ditulis di sini.
+- **`.uh-filter-panel__actions`** - Clear all (`variant="outline"`) dan Apply
+  (`variant="primary"`), masing-masing hanya muncul kalau handler-nya diberikan.
+
+## Props
+
+<ArgTypes of={FilterPanelStories} />
+
+## Contoh penggunaan
+
+### Di dalam Card, rail desktop
+
+Komposisi yang sama persis dipakai `Patterns/SearchResults` - lebar rail dari token
+`--uh-size-rail-sm`.
+
+<Canvas of={FilterPanelStories.InRailCard} />
+
+### Tanpa Clear all
+
+<code>onApply</code> saja, tanpa <code>onClear</code> - dipakai saat panel belum punya apa pun untuk
+dibersihkan.
+
+<Canvas of={FilterPanelStories.ApplyOnly} />
+
+### Tanpa judul sendiri
+
+<code>showTitle={'{false}'}</code> - untuk ditaruh di dalam <code>BottomSheet</code> yang
+<code>title</code>-nya sendiri sudah bilang "Filters", supaya tidak diulang dua kali.
+
+<Canvas of={FilterPanelStories.WithoutOwnTitle} />
+
+## Aksesibilitas
+
+**Peran ARIA:** kelompok checkbox membawa `role="group"` dengan nama aksesibel dari
+judul panel (`aria-labelledby`) atau `aria-label` langsung kalau judul disembunyikan -
+supaya screen reader mengumumkan bahwa checkbox-checkbox ini terkait satu sama lain,
+bukan daftar pilihan lepas yang tidak berhubungan.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Berpindah antar checkbox lalu ke Clear all/Apply, mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>Mencentang/melepas checkbox yang sedang fokus (perilaku native)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>Mengaktifkan Clear all atau Apply yang sedang fokus</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Clear all otomatis `disabled` saat tidak ada pilihan yang aktif - state ini
+  terdengar lewat pengumuman disabled native pada tombol, tidak butuh live region
+  terpisah.
+- FilterPanel sendiri tidak mengumumkan apa pun saat filter diterapkan - efek dari
+  Apply (memuat ulang daftar, menutup sheet) adalah tanggung jawab konsumen, termasuk
+  mengumumkan hasilnya (mis. `EmptyState`/jumlah hasil baru) lewat live region
+  konsumen sendiri.
+
+**Wajib disediakan konsumen:**
+
+- `options` dengan `label` yang sudah diterjemahkan - `FilterPanel` tidak
+  menerjemahkan apa pun sendiri.
+- `onApply`/`onClear` kalau salah satu aksi itu memang dibutuhkan layar - keduanya
+  opsional dan tombolnya baru muncul kalau handler-nya ada.
+- Penempatan (`Card`, `BottomSheet`, atau lainnya) - lihat "Kapan pakai/kapan
+  jangan" di atas.
+
+## Catatan i18n
+
+Label Melayu dan Indonesia berjalan lebih panjang dari Inggris untuk arti yang
+sama; setiap baris checkbox membungkus teks ke baris berikutnya alih-alih memotong,
+dan lebar panel tetap mengikuti kontainer yang memuatnya (`--uh-size-rail-sm`),
+bukan lebar teks terpanjang.
+
+<Canvas of={FilterPanelStories.TextExpansion} />

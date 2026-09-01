@@ -1,0 +1,21 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as StackStories from './Stack.stories';
+
+<Meta of={StackStories} />
+
+# Stack
+
+Layout satu sumbu (flexbox) - primitif yang sebelumnya ditulis ulang sendiri-sendiri
+di setiap layar `Patterns/*` sebagai `display: flex; gap: ...px`. `gap` langsung
+memetakan ke skala spacing yang sudah ada, bukan enum baru untuk angka yang sama.
+Untuk layout dua sumbu (baris dan kolom sekaligus), lihat `Grid`.
+
+## Props
+
+<ArgTypes of={StackStories} />
+
+## Contoh penggunaan
+
+<Canvas of={StackStories.Row} />
+<Canvas of={StackStories.SpaceBetween} />
+<Canvas of={StackStories.Column} />

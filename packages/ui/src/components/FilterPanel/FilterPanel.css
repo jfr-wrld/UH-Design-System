@@ -1,0 +1,37 @@
+/*
+ * FilterPanel
+ *
+ * Every value here resolves to a token - no literal size, colour or duration
+ * in this file, same contract as every other component's stylesheet.
+ * Deliberately unopinionated about its own container: no width, no border,
+ * no background - it sits inside whatever the consumer wraps it in (a
+ * `Card` on desktop, a `BottomSheet` on mobile), which is the one decision
+ * this component does not make for the app that uses it.
+ */
+
+.uh-filter-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-16);
+}
+
+.uh-filter-panel__title {
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: var(--uh-typography-web-h6-line-height);
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+.uh-filter-panel__options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-16);
+}
+
+.uh-filter-panel__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}

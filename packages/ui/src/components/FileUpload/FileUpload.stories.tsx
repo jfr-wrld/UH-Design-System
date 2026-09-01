@@ -463,6 +463,74 @@ const ID: Partial<FileUploadLabels> = {
   uploadedStatus: (count) => `${count} berkas diunggah.`,
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually-Canvas-able examples for FileUpload.mdx's
+ * "Contoh Penggunaan" section - args carry every prop worth showing in the
+ * Controls panel, with a minimal render wrapper for the Page/stack surface
+ * every other story in this file already uses. Kept separate from the
+ * states above, which exist to prove the whole surface works, not to be
+ * copied verbatim.
+ */
+
+export const BookingDocument: Story = {
+  args: {
+    label: 'Passport photo page',
+    accept: ACCEPT,
+    maxSize: 5 * MB,
+    helperText: 'A clear photo of the details page. All four corners must be visible.',
+  },
+  render: (args) => (
+    <Page>
+      <div style={stack}>
+        <FileUpload {...args} />
+      </div>
+    </Page>
+  ),
+};
+
+export const MultipleDocuments: Story = {
+  args: {
+    label: 'Passport and travel documents',
+    accept: ACCEPT,
+    multiple: true,
+    maxFiles: 4,
+    value: [passport, visa],
+  },
+  render: (args) => (
+    <Page>
+      <div style={stack}>
+        <FileUpload {...args} />
+      </div>
+    </Page>
+  ),
+};
+
+export const RejectedFile: Story = {
+  args: {
+    label: 'Passport and travel documents',
+    accept: ACCEPT,
+    maxSize: 5 * MB,
+    value: [
+      {
+        id: 'rejected',
+        name: 'passport-scan-600dpi.pdf',
+        size: 8 * MB,
+        type: 'application/pdf',
+        status: 'error',
+        error:
+          'passport-scan-600dpi.pdf is 8 MB. Maximum file size: 5 MB. Compress it or scan at a lower quality.',
+      },
+    ],
+  },
+  render: (args) => (
+    <Page>
+      <div style={stack}>
+        <FileUpload {...args} />
+      </div>
+    </Page>
+  ),
+};
+
 export const TextExpansion: Story = {
   args: { label: 'Passport and travel documents' },
   parameters: {

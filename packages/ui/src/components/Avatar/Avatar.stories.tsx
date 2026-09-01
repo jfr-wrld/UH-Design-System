@@ -279,3 +279,34 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Avatar.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Avatar ... />` JSX instead of a render function body.
+ * Kept separate from Sizes/FallbackChain/Group above, which exist to prove
+ * the whole surface works, not to be copied verbatim.
+ */
+
+export const WithImage: Story = {
+  parameters: { layout: 'centered' },
+  args: { src: SWATCH, alt: 'Ahmad bin Abdullah', name: 'Ahmad bin Abdullah' },
+};
+
+export const InitialsFallback: Story = {
+  parameters: { layout: 'centered' },
+  args: { name: 'Siti Nurhaliza binti Tarudin', size: 'lg' },
+};
+
+export const OverflowGroup: Story = {
+  parameters: { layout: 'centered' },
+  render: () => (
+    <AvatarGroup max={3}>
+      <Avatar name="Ahmad bin Abdullah" />
+      <Avatar name="Siti Nurhaliza" />
+      <Avatar name="Farid Rahman" />
+      <Avatar name="Nurul Aina" />
+      <Avatar name="Zulkifli Hassan" />
+    </AvatarGroup>
+  ),
+};

@@ -1,0 +1,90 @@
+/*
+ * Tabs
+ *
+ * A pill switcher, not an underline - adopted from the TailGrids-character
+ * pass (confirmed with the user: this replaces the underline pattern
+ * deliberately, not by default drift). The list scrolls horizontally rather
+ * than wrapping - four section names in Indonesian do not reliably fit one
+ * line at 360px, and a wrapped tablist reads as a second row of unrelated
+ * buttons rather than one control. That reasoning did not change; only how
+ * the active tab is marked did - a filled pill instead of a line underneath.
+ */
+
+.uh-tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.uh-tabs__list {
+  display: flex;
+  gap: var(--uh-spacing-4);
+  overflow-x: auto;
+  padding: var(--uh-spacing-12) var(--uh-spacing-16);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  /* No visible scrollbar chrome to design for: this is a native scroll
+     affordance, not styled content. */
+  scrollbar-width: none;
+}
+
+.uh-tabs__list::-webkit-scrollbar {
+  display: none;
+}
+
+.uh-tabs__tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--uh-size-tap-target-min);
+  padding-inline: var(--uh-spacing-16);
+  padding-block: var(--uh-spacing-12);
+  border: 0;
+  border-radius: var(--uh-radius-sm);
+  background-color: transparent;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  letter-spacing: var(--uh-typography-web-label-letter-spacing);
+  font-weight: var(--uh-typography-web-label-font-weight);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+/* A visible-but-distinct hover: a full primary fill on hover would read
+   identically to the actually-selected tab, so hover gets a quiet tint
+   instead - close enough to confirm the tab is interactive, far enough
+   from the selected tab's solid fill to never be mistaken for it. */
+.uh-tabs__tab:hover:not([aria-selected='true']):not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-surface-sunken);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-tabs__tab[aria-selected='true'] {
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-tabs__tab[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-tabs__tab:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-tabs__panel {
+  padding-block-start: var(--uh-spacing-16);
+}
+
+.uh-tabs__panel:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+  border-radius: var(--uh-radius-sm);
+}

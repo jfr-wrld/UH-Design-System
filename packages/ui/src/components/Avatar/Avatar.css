@@ -19,14 +19,14 @@
   width: var(--uh-avatar-size);
   height: var(--uh-avatar-size);
   overflow: hidden;
-  border-radius: var(--uh-radius-full);
+  border-radius: var(--uh-radius-avatar);
   background-color: var(--uh-color-bg-muted);
   color: var(--uh-color-text-secondary);
   user-select: none;
 }
 
 .uh-avatar[data-shape='square'] {
-  border-radius: var(--uh-radius-md);
+  border-radius: var(--uh-radius-image);
 }
 
 .uh-avatar[data-size='xs'] {

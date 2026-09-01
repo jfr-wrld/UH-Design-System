@@ -84,7 +84,7 @@
   display: flex;
   flex-direction: column;
   border: var(--uh-border-width-1) solid var(--uh-color-border-default);
-  border-radius: var(--uh-radius-lg);
+  border-radius: var(--uh-radius-card);
   background-color: var(--uh-color-bg-surface-raised);
   box-shadow: var(--uh-elevation-3);
   z-index: var(--uh-z-index-popover);
@@ -104,7 +104,7 @@
 
 .uh-picker__footer {
   padding: var(--uh-spacing-12);
-  border-block-start: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
+  border-block-start: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
 }
 
 .uh-picker__status {
@@ -161,34 +161,10 @@
   font-weight: var(--uh-typography-web-h6-font-weight);
 }
 
-.uh-picker__close {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--uh-size-tap-target-min);
-  height: var(--uh-size-tap-target-min);
-  padding: 0;
-  border: 0;
-  border-radius: var(--uh-radius-md);
-  background: transparent;
-  color: var(--uh-color-text-secondary);
-  cursor: pointer;
-}
-
-.uh-picker__close > svg {
-  width: var(--uh-size-icon-md);
-  height: var(--uh-size-icon-md);
-}
-
-.uh-picker__close:hover {
-  background-color: var(--uh-color-bg-muted);
-}
-
-.uh-picker__close:focus-visible {
-  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
-  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
-}
+/* Fully the shared .uh-close-button default (radius-md/icon-md/text-
+   secondary, hover to text-primary) - see styles/utilities.css. Its own
+   header has no tight padding to pull the target into, so no margin
+   override is needed either. */
 
 /* -------------------------------------------------------------- calendar */
 

@@ -1,0 +1,100 @@
+/*
+ * Pagination
+ *
+ * Page-number buttons are drawn at 36px so a longer run of them (with
+ * siblings and an ellipsis on each side) still fits a 360px screen, but each
+ * one carries a 44px invisible tap target through ::after - the same trick
+ * as the small NumberStepper button and the Carousel dots - so the visual
+ * size never drops the control below the house tap-target floor.
+ */
+
+.uh-pagination__list {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-pagination__nav,
+.uh-pagination__page {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--uh-size-control-sm);
+  height: var(--uh-size-control-sm);
+  padding-inline: var(--uh-spacing-8);
+  border: 0;
+  border-radius: var(--uh-radius-md);
+  background: none;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-feature-settings: var(--uh-typography-numeric-table-font-feature-settings);
+  font-variant-numeric: var(--uh-typography-numeric-table-font-variant-numeric);
+  cursor: pointer;
+}
+
+.uh-pagination__nav::after,
+.uh-pagination__page::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  transform: translate(-50%, -50%);
+}
+
+.uh-pagination__nav:hover:not(:disabled),
+.uh-pagination__page:hover:not([data-active='true']) {
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-pagination__page[data-active='true'] {
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+  font-weight: var(--uh-font-weight-semibold);
+}
+
+.uh-pagination__nav:disabled {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-pagination__nav:focus-visible,
+.uh-pagination__page:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-pagination__chevron {
+  display: inline-flex;
+}
+
+.uh-pagination__chevron > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-pagination__chevron[data-direction='prev'] {
+  transform: rotate(90deg);
+}
+
+.uh-pagination__chevron[data-direction='next'] {
+  transform: rotate(-90deg);
+}
+
+.uh-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--uh-size-control-sm);
+  height: var(--uh-size-control-sm);
+  color: var(--uh-color-text-tertiary);
+}

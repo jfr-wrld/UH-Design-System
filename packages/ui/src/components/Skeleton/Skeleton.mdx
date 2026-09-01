@@ -1,0 +1,16 @@
+import { Meta, ArgTypes } from '@storybook/blocks';
+import * as SkeletonStories from './Skeleton.stories';
+
+<Meta of={SkeletonStories} />
+
+# Skeleton
+
+Placeholder bentuk konten yang menunjukkan tata letak sebelum data selesai
+dimuat, supaya layar tidak kosong lalu melompat begitu konten datang. Bar
+individual disembunyikan dari assistive tech (`aria-hidden`) - pengumuman
+"loading" dibawa oleh preset pembungkusnya (`SkeletonCard`, `SkeletonList`,
+`SkeletonTable`), bukan oleh tiap kotak abu-abu.
+
+## Props
+
+<ArgTypes of={SkeletonStories} />

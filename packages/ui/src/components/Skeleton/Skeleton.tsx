@@ -69,7 +69,16 @@ export function Skeleton({
   return <div {...rest} {...shared} style={box} />;
 }
 
-Skeleton.displayName = 'Skeleton';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Skeleton.displayName = 'Skeleton';
+}
 
 /* ---------------------------------------------------------------- presets */
 
@@ -115,7 +124,16 @@ export function SkeletonCard({
   );
 }
 
-SkeletonCard.displayName = 'SkeletonCard';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  SkeletonCard.displayName = 'SkeletonCard';
+}
 
 export interface SkeletonListProps extends PresetProps {
   rows?: number;
@@ -142,7 +160,16 @@ export function SkeletonList({
   );
 }
 
-SkeletonList.displayName = 'SkeletonList';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  SkeletonList.displayName = 'SkeletonList';
+}
 
 export interface SkeletonTableProps extends PresetProps {
   rows?: number;
@@ -177,4 +204,13 @@ export function SkeletonTable({
   );
 }
 
-SkeletonTable.displayName = 'SkeletonTable';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  SkeletonTable.displayName = 'SkeletonTable';
+}

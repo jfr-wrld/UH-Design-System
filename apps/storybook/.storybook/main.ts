@@ -7,6 +7,8 @@ const config: StorybookConfig = {
     // Relative to this directory (.storybook), not to the app root - which is
     // why reaching packages/ui takes three levels, not two.
     '../../../packages/ui/src/**/*.stories.@(ts|tsx)',
+    // Component doc pages (Fase 7), co-located with their .stories.tsx.
+    '../../../packages/ui/src/**/*.mdx',
   ],
   addons: [
     '@storybook/addon-essentials',

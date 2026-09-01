@@ -4,6 +4,7 @@ import { FieldShell } from '../Field/FieldShell.js';
 import { useControllableState } from '../../hooks/useControllableState.js';
 import { Calendar, type DayState } from './Calendar.js';
 import { PickerLayer, type CloseReason } from './PickerLayer.js';
+import { CalendarIcon } from './icons.js';
 import {
   formatDate,
   isSameDay,
@@ -36,28 +37,6 @@ export interface DatePickerProps {
   nextMonthLabel?: string | undefined;
   closeLabel?: string | undefined;
   className?: string | undefined;
-}
-
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <rect
-        x="3.75"
-        y="5.75"
-        width="16.5"
-        height="14.5"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M3.75 10h16.5M8 3.75v4M16 3.75v4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
 }
 
 function DatePickerImpl(props: DatePickerProps, ref: ForwardedRef<HTMLButtonElement>) {
@@ -196,5 +175,14 @@ function DatePickerImpl(props: DatePickerProps, ref: ForwardedRef<HTMLButtonElem
   );
 }
 
-export const DatePicker = forwardRef(DatePickerImpl);
-DatePicker.displayName = 'DatePicker';
+export const DatePicker = /* @__PURE__ */ forwardRef(DatePickerImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  DatePicker.displayName = 'DatePicker';
+}

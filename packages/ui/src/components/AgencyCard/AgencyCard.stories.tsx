@@ -322,3 +322,58 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for AgencyCard.mdx's
+ * "Contoh Penggunaan" section - args-only so the Docs Source panel
+ * reconstructs clean `<AgencyCard ... />` JSX, wrapped only in the width a
+ * card of this shape actually gets in the two surfaces it appears on.
+ */
+
+export const CompactRow: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    name: 'Madinah Travel & Tours',
+    licenseNumber: 'KPK/LN 8821',
+    licenseType: 'TOB',
+    rating: 4.8,
+    reviewCount: 1284,
+    verified: true,
+    variant: 'compact',
+  },
+  render: (args) => (
+    <div style={{ width: '320px' }}>
+      <AgencyCard {...args} />
+    </div>
+  ),
+};
+
+export const ClickableProfile: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    ...base,
+    variant: 'full',
+    onClick: () => {},
+  },
+  render: (args) => (
+    <div style={{ width: '420px' }}>
+      <AgencyCard {...args} />
+    </div>
+  ),
+};
+
+export const NewAgencyMinimalRecord: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    name: 'Al Amanah Travel',
+    licenseNumber: 'U.512/2026',
+    licenseType: 'PPIU',
+    verified: false,
+    variant: 'full',
+  },
+  render: (args) => (
+    <div style={{ width: '420px' }}>
+      <AgencyCard {...args} />
+    </div>
+  ),
+};

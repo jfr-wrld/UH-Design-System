@@ -16,8 +16,8 @@
 
 .uh-breakdown[data-variant='card'] {
   padding: var(--uh-spacing-16);
-  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
-  border-radius: var(--uh-radius-lg);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-card);
   background-color: var(--uh-color-bg-surface);
 }
 
@@ -181,7 +181,7 @@
 .uh-breakdown__row[data-type='total'] > th,
 .uh-breakdown__row[data-type='total'] > td {
   padding-block-start: var(--uh-spacing-8);
-  border-block-start: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border-block-start: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
 }
 
 .uh-breakdown__row[data-type='total'] > .uh-breakdown__label {

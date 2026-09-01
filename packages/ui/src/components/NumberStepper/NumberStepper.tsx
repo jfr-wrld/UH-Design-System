@@ -1,4 +1,5 @@
 import { forwardRef, useId, useState, type ForwardedRef, type KeyboardEvent } from 'react';
+import { Minus, Plus } from '@tailgrids/icons';
 
 import { useControllableState } from '../../hooks/useControllableState.js';
 
@@ -26,19 +27,11 @@ export interface NumberStepperProps {
 }
 
 function MinusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M6 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
+  return <Minus aria-hidden="true" focusable="false" />;
 }
 
 function PlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M12 6v12M6 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  );
+  return <Plus aria-hidden="true" focusable="false" />;
 }
 
 const clamp = (n: number, min: number, max: number) => Math.min(Math.max(n, min), max);
@@ -252,5 +245,14 @@ function NumberStepperImpl(props: NumberStepperProps, ref: ForwardedRef<HTMLInpu
   );
 }
 
-export const NumberStepper = forwardRef(NumberStepperImpl);
-NumberStepper.displayName = 'NumberStepper';
+export const NumberStepper = /* @__PURE__ */ forwardRef(NumberStepperImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  NumberStepper.displayName = 'NumberStepper';
+}

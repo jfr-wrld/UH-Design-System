@@ -1,0 +1,261 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SearchComboboxStories from './SearchCombobox.stories';
+
+<Meta of={SearchComboboxStories} />
+
+# SearchCombobox
+
+Kotak pencarian dengan popup listbox yang di-portal ke `document.body`, jadi
+tidak ada ancestor `overflow: hidden` yang bisa memotongnya. Fokus tidak
+pernah pindah dari field teks - opsi yang aktif ditandai lewat
+`aria-activedescendant`, sehingga panah atas/bawah bisa menyusuri daftar
+sementara caret tetap di tempat pilgrim sedang mengetik. Ini komponen untuk
+mencari lewat teks bebas terhadap sumber data yang berubah-ubah (agensi,
+destinasi, bandara) - bukan untuk memilih dari daftar tetap yang pendek.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Mencari lewat teks bebas terhadap data yang terlalu banyak untuk ditampilkan sekaligus -
+        agensi, destinasi, bandara
+      </td>
+      <td>
+        Memilih dari daftar pendek dan tetap (mis. jumlah jemaah, jenis kamar) - pakai{' '}
+        <code>Select</code>, yang tidak butuh logika pencarian atau debounce
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Saat hasil datang dari server dan butuh <code>onSearch</code> yang di-debounce supaya tidak
+        membanjiri API di setiap ketukan tombol
+      </td>
+      <td>
+        Input teks bebas tanpa daftar hasil untuk dipilih (mis. nama lengkap, catatan) - pakai{' '}
+        <code>Input</code> biasa
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Saat riwayat pencarian ("recent searches") bernilai bagi pengguna yang kembali mencari hal
+        serupa
+      </td>
+      <td>
+        Saat pilihan sudah diketahui semuanya di awal dan tidak butuh query server -{' '}
+        <code>Select</code> lebih ringan dan tidak butuh portal
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Saat hasil butuh baris kedua (deskripsi) atau pengelompokan (mis. "Agencies" vs
+        "Destinations") di satu daftar
+      </td>
+      <td>
+        Saat hanya butuh satu nilai dari domain yang sangat terbatas (mis. ya/tidak) - komponen
+        boolean atau radio lebih jelas
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya adalah `<div className="uh-search">` yang membungkus field inline
+dan sebuah popup yang di-portal terpisah ke `document.body` saat terbuka.
+
+- **`.uh-search`** - root. Membawa `data-state` (`idle` / `focused` /
+  `typing` / `loading` / `results` / `empty` / `error` / `disabled`).
+- **`.uh-search__label`** - label teks yang selalu terlihat, menjadi
+  `aria-labelledby` untuk field dan `aria-label` untuk listbox.
+- **`.uh-search__control`** - pembungkus field pada desktop: ikon kaca
+  pembesar, `<input role="combobox">`, dan tombol clear.
+- **`.uh-search__trigger`** - pengganti `.uh-search__control` di mobile;
+  sebuah `<button>` yang membuka overlay penuh layar, bukan input langsung.
+- **`.uh-search__input`** - elemen `<input>` sesungguhnya yang menerima
+  ketikan; satu-satunya elemen yang pernah menerima fokus.
+- **`.uh-search__clear`** - tombol "x" untuk mengosongkan query, hanya ada
+  saat query tidak kosong.
+- **`.uh-search__message`** - `helperText` atau `errorMessage` di bawah
+  field.
+- **`.uh-search__layer`** - lapisan portal di `document.body`; membawa
+  `data-mobile` dan tema/`lang` yang diwariskan dari elemen tempat komponen
+  dipasang.
+- **`.uh-search__panel`** - kotak popup itu sendiri (dropdown di desktop,
+  dialog penuh layar di mobile).
+- **`.uh-search__header`** - baris judul "Recent searches" plus tombol
+  clear-nya, hanya muncul saat riwayat sedang ditampilkan.
+- **`.uh-search__list`** - `role="listbox"`; selalu ada di DOM (disembunyikan
+  lewat CSS saat kosong) karena `role="combobox"` wajib menunjuk
+  `aria-controls` ke sesuatu yang benar-benar ada.
+- **`.uh-search__group`** - `role="group"` pembungkus opsi yang berbagi
+  `SearchOption.group` yang sama.
+- **`.uh-search__option`** - satu baris `role="option"`; `data-active`
+  menandai opsi yang sedang disorot keyboard, terpisah dari `aria-selected`.
+- **`.uh-search__match`** - bagian teks label yang cocok dengan query,
+  ditandai warna teal, bukan aksen oranye yang dipakai untuk momen paling
+  penting di layar.
+- **`.uh-search__status`** - region `status`/`alert` yang mengumumkan
+  loading, kosong, atau error ke screen reader.
+
+## Props
+
+<ArgTypes of={SearchComboboxStories} />
+
+## Contoh penggunaan
+
+### Mencari daftar bandara
+
+Daftar datar tanpa pengelompokan - kasus paling umum ketika hanya ada satu
+jenis data untuk dicari.
+
+<Canvas of={SearchComboboxStories.AirportSearch} />
+
+### Hasil kosong
+
+Ketika query tidak menemukan apa pun, `options={[]}` sudah cukup - pesan
+default menyebut kata kunci yang dicari dan mengarahkan langkah berikutnya.
+
+<Canvas of={SearchComboboxStories.NoResultsFound} />
+
+### Pencarian langsung dengan indikator loading
+
+Pemasangan realistis: `value`/`onChange` dipegang konsumen, `onSearch`
+menyala setelah ketikan berhenti, dan `loading` dinyalakan selama roundtrip
+berlangsung.
+
+<Canvas of={SearchComboboxStories.LiveSearchWithLoading} />
+
+## Aksesibilitas
+
+**Peran ARIA:** field inline membawa `role="combobox"` dengan
+`aria-expanded`, `aria-autocomplete="list"`, dan `aria-controls` yang
+menunjuk ke listbox - tapi hanya saat popup benar-benar ada di DOM
+(menunjuk id yang tidak ada mengarahkan assistive technology ke tempat
+kosong). Popup itu sendiri adalah `role="listbox"` dengan `aria-label`
+diisi dari prop `label`; setiap baris adalah `role="option"` dengan
+`aria-selected`. Opsi yang sedang aktif ditunjuk lewat
+`aria-activedescendant` pada input, bukan lewat memindahkan fokus DOM ke
+opsi - fokus selalu tinggal di input. Grup memakai `role="group"` dengan
+`aria-label` dari `SearchOption.group`. Di mobile, elemen inline berganti
+jadi `<button aria-haspopup="dialog">` dan popup menjadi
+`role="dialog" aria-modal="true"`.
+
+**Navigasi keyboard nyata** (bukan pola ARIA 1.2 generik - lihat
+`SearchCombobox.test.tsx` untuk perilaku yang benar-benar diuji):
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ArrowDown</code> / <code>ArrowUp</code> (popup tertutup)
+      </td>
+      <td>Membuka popup tanpa memindahkan opsi aktif</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowDown</code> / <code>ArrowUp</code> (popup terbuka)
+      </td>
+      <td>
+        Memindahkan <code>aria-activedescendant</code> satu opsi; membungkus dari akhir ke awal dan
+        sebaliknya. Fokus DOM tidak pernah pindah dari input
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code> / <code>End</code>
+      </td>
+      <td>
+        Melompat ke opsi pertama/terakhir dalam daftar flat (melewati batas grup tanpa
+        memedulikannya)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>Memilih opsi yang sedang aktif; tidak melakukan apa pun jika belum ada opsi aktif</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code> (popup terbuka)
+      </td>
+      <td>
+        Menutup popup, mempertahankan teks yang sudah diketik, fokus tetap di input (atau kembali ke
+        trigger di mobile)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code> (popup sudah tertutup)
+      </td>
+      <td>Mengosongkan field - escape kedua berfungsi seperti tombol clear</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code> (riwayat pencarian sedang tampil, desktop)
+      </td>
+      <td>
+        Melompat langsung ke tombol "Clear recent searches" di popup yang di-portal, bukan mengikuti
+        urutan DOM biasa; <code>Tab</code> sekali lagi menutup popup dan kembali ke field
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Shift+Tab</code> keluar dari tombol clear-recent
+      </td>
+      <td>Fokus kembali ke field; popup tetap terbuka</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code> (tidak ada yang perlu dituju di popup)
+      </td>
+      <td>Menutup popup dan melanjutkan urutan tab seperti biasa</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Region `.uh-search__status` bertipe `role="alert"` saat `errorMessage`
+  terisi (interupsi), dan `role="status"` untuk loading/empty (tidak
+  menginterupsi).
+- Jumlah hasil diumumkan lewat `resultCount` tapi tidak ditampilkan secara
+  visual dua kali - daftar itu sendiri sudah menunjukkannya.
+- Spinner loading bersifat dekoratif (`<Spinner decorative>`); teks
+  `labels.loading` yang mengumumkannya ke screen reader.
+- Ikon-ikon (kaca pembesar, riwayat, alert) semuanya `aria-hidden`.
+
+**Wajib disediakan konsumen:**
+
+- `label` - tidak ada default yang masuk akal; ini menjadi accessible name
+  field, listbox, dan (di mobile) dialog sekaligus.
+- `onSearch` untuk memicu pencarian sungguhan; tanpanya field hanya
+  menyimpan teks tanpa pernah memanggil apa pun.
+- `options` yang sudah difilter oleh konsumen sendiri - komponen ini tidak
+  pernah memfilter `options` yang diterimanya.
+- `onSelect` untuk menerima `SearchOption` yang dipilih pilgrim.
+
+## Catatan i18n
+
+Malay dan Indonesian berjalan lebih panjang dari English untuk label,
+placeholder dan helper text yang sama. Tekanan terbesar ada di baris header
+popup, tempat "Clear recent searches" berjalan setengah lebih panjang dalam
+Bahasa Melayu dan duduk berdampingan dengan judul "Recent searches" - baris
+itu membungkus ke barisnya sendiri alih-alih mendesak judul keluar. Lihat
+story `TextExpansion` untuk perbandingan ketiga bahasa berdampingan:
+
+<Canvas of={SearchComboboxStories.TextExpansion} />

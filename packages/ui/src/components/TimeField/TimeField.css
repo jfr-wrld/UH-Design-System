@@ -1,0 +1,87 @@
+/*
+ * TimeField
+ *
+ * Reuses `.uh-field*` from Input.css untouched for the label row, border,
+ * focus ring, and state colours - only the segments themselves are new.
+ * Each segment is `role="spinbutton"`, not a real `<input>`: a spinbutton
+ * has no native text-selection or caret to fight, which is exactly what a
+ * segment editing one small numeric range needs and an `<input>` would
+ * otherwise fight (Backspace deleting a character instead of clearing the
+ * whole segment, a caret landing mid-digit).
+ */
+
+.uh-time-field__segments {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.uh-time-field__group {
+  display: flex;
+  align-items: center;
+}
+
+.uh-time-field__separator {
+  color: var(--uh-color-text-tertiary);
+  padding-inline: var(--uh-spacing-2);
+}
+
+.uh-time-field__segment {
+  border-radius: var(--uh-radius-sm);
+  padding-inline: var(--uh-spacing-2);
+  color: var(--uh-color-text-primary);
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  user-select: none;
+}
+
+/* The AM/PM segment reads as a word, not a zero-padded number, so it needs
+   its own inline gap from the last digit segment rather than the tight
+   colon-adjacent spacing the numeric segments share. */
+.uh-time-field__segment:last-child {
+  margin-inline-start: var(--uh-spacing-4);
+}
+
+.uh-time-field__segment[data-empty='true'] {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-time-field__segment:focus {
+  outline: none;
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-time-field__segment[data-empty='true']:focus {
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-field__control[data-disabled='true'] .uh-time-field__segment {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------- sizes
+ * Mirrors Input.css's own per-size type scale exactly (same three roles,
+ * same sizes) since these segments sit in the same field row an `<input>`
+ * would, and the two need to line up when a form mixes TimeField with
+ * Input.
+ */
+.uh-field[data-size='sm'] .uh-time-field__segment {
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-field[data-size='md'] .uh-time-field__segment {
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-field[data-size='lg'] .uh-time-field__segment {
+  font-family: var(--uh-typography-web-body-l-font-family);
+  font-size: var(--uh-typography-web-body-l-font-size);
+  font-weight: var(--uh-typography-web-body-l-font-weight);
+}

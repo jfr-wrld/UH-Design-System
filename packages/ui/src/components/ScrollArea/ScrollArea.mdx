@@ -1,0 +1,30 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ScrollAreaStories from './ScrollArea.stories';
+
+<Meta of={ScrollAreaStories} />
+
+# ScrollArea
+
+Scrollbar bertema di atas perilaku scroll native - `@base-ui/react` (peer dependency,
+tidak pernah dibundel ke paket ini) yang menangani pointer/drag/keyboard sungguhan;
+komponen ini yang memegang styling track dan thumb berbasis token. Pakai ini hanya
+saat scrollbar OS bawaan memang tidak cocok dengan permukaan yang memuatnya (panel
+tinggi tetap di dalam Card, daftar panjang di dalam Popover) - sebagian besar konten
+yang scroll lebih baik diserahkan ke scrollbar browser sendiri.
+
+## Props
+
+<ArgTypes of={ScrollAreaStories} />
+
+## Contoh penggunaan
+
+<Canvas of={ScrollAreaStories.Vertical} />
+<Canvas of={ScrollAreaStories.Horizontal} />
+
+## Aksesibilitas
+
+Viewport bisa difokus lewat keyboard (`Tab`) dan discroll dengan tombol panah/Page
+Up/Page Down begitu fokus - perilaku ini datang dari `@base-ui/react`, bukan
+ditulis ulang di sini. Thumb scrollbar sendiri bisa diseret dengan pointer; untuk
+pengguna keyboard, fokus tetap ada di viewport, bukan di thumb - ini yang membuat
+scroll lewat keyboard tetap jalan tanpa Tab tambahan ke elemen scrollbar.

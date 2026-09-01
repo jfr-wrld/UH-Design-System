@@ -1,0 +1,155 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ChipStories from './Chip.stories';
+
+<Meta of={ChipStories} />
+
+# Chip
+
+Pil yang bisa disentuh, bukan label dekoratif - itu tugas `Badge`. Chip
+adalah filter yang bisa dinyalakan/dimatikan, satu pilihan di antara
+beberapa, atau filter yang sudah diterapkan dan ditampilkan kembali dengan
+tombol hapusnya sendiri. Bentuknya berubah tergantung prop mana yang diisi:
+`onClick` membuat label jadi tombol sungguhan yang membawa `aria-pressed`;
+tanpa itu label hanya teks biasa. `removable` menambah kontrol hapus kedua
+yang independen 44px, ditulis sebagai saudara dari tombol toggle di dalam
+satu wrapper, tidak pernah bersarang di dalamnya - karena satu `<button>`
+tidak boleh berisi `<button>` lain.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>onClick</code> saja untuk filter yang bisa dinyalakan/dimatikan pengguna -
+        "Penerbangan langsung", "Halal certified"
+      </td>
+      <td>
+        <code>onClick</code> untuk aksi yang bukan toggle (mengirim form, membuka dialog) - itu
+        tugas <code>Button</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>removable</code> saja (tanpa <code>onClick</code>) untuk filter yang sudah diterapkan
+        dan ditampilkan kembali di atas hasil pencarian - "Jakarta ✕"
+      </td>
+      <td>
+        <code>removable</code> tanpa <code>onRemove</code> - kontrol hapus akan tampil tapi tidak
+        melakukan apa-apa saat ditekan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Chip untuk label yang bisa disentuh - selalu ada <code>onClick</code> dan/atau{' '}
+        <code>removable</code>
+      </td>
+      <td>
+        <code>Badge</code> untuk label yang murni informasi - status pesanan, jumlah bintang hotel,
+        tanda "Terlaris". Chip tanpa <code>onClick</code> maupun <code>removable</code> hanyalah
+        teks berbentuk pil, bukan alasan Chip ada
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Beberapa Chip berdampingan sebagai daftar pilihan filter (mis. kelas penerbangan, jenis
+        kamar)
+      </td>
+      <td>
+        Satu Chip sebagai satu-satunya cara mengirim aksi penting - kalau hasilnya harus terjadi,
+        pakai <code>Button</code> yang lebih jelas maksudnya
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ChipStories} />
+
+## Contoh penggunaan
+
+### Filter yang sudah diterapkan
+
+Tanpa `onClick`, label jadi teks biasa - hanya tombol hapus yang interaktif, seperti tag pencarian yang sudah aktif.
+
+<Canvas of={ChipStories.AppliedFilterTag} />
+
+### Filter yang bisa dinyalakan/dimatikan
+
+`onClick` mengubah label jadi tombol sungguhan yang membawa `aria-pressed`, mengikuti `selected`.
+
+<Canvas of={ChipStories.ToggleFilter} />
+
+### Toggle dengan tombol hapus
+
+Kedua kontrol ada sekaligus, ditulis sebagai saudara di bawah satu wrapper - menekan hapus tidak pernah ikut memicu toggle.
+
+<Canvas of={ChipStories.RemovableToggle} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit di root (`<span>` pembungkus).
+Toggle-nya sendiri adalah `<button>` native membawa `aria-pressed`
+(true/false) saat `onClick` ada; tanpa `onClick`, slot yang sama menjadi
+`<span>` teks biasa - tidak fokusable, tidak punya peran interaktif.
+Kontrol hapus, saat ada, adalah `<button>` native terpisah dengan
+`aria-label` sendiri.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus antara tombol toggle dan tombol hapus (kalau ada keduanya), mengikuti
+        urutan DOM - dua target fokus terpisah, bukan satu
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol yang sedang fokus (perilaku native <code>&lt;button&gt;</code>) -
+        menekan tombol hapus memanggil <code>onRemove</code> tanpa ikut memicu <code>onClick</code>{' '}
+        milik toggle
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Toggle mengumumkan namanya lewat `children` dan statusnya lewat
+  `aria-pressed` - "Halal certified, pressed" saat `selected`.
+- Ikon (`icon`) selalu `aria-hidden` - dekoratif, label teks sudah membawa
+  makna yang sama.
+- Kontrol hapus diberi nama lewat `removeLabel` ("Remove" secara default),
+  terpisah dari nama toggle - screen reader tidak pernah mendengar dua
+  kontrol dengan nama yang sama pada satu Chip.
+- `disabled` memakai `aria-disabled`, bukan atribut `disabled` native -
+  sama seperti `Button`, jadi Chip yang nonaktif tetap ada di tab order dan
+  tetap terbaca, hanya aktivasinya yang diblokir di handler.
+
+**Wajib disediakan konsumen:**
+
+- `onRemove` setiap kali `removable` bernilai `true` - tanpa itu tombol
+  hapus tampil tapi tidak melakukan apa-apa.
+- `removeLabel` saat dipakai di luar bahasa Inggris - defaultnya "Remove",
+  bisa dioverride per pemanggilan untuk terjemahan.
+- Setidaknya satu dari `onClick` atau `removable` - Chip tanpa keduanya
+  hanya berupa teks berbentuk pil; kalau itu yang dibutuhkan, pakai `Badge`.

@@ -1,0 +1,117 @@
+/*
+ * Accordion
+ *
+ * One canonical treatment translated from the TailGrids reference's
+ * `style_one` (its own default): a stack of bordered, rounded cards, one
+ * gap apart, each opening independently. The reference actually ships five
+ * numbered style variants (a bordered card, a divided flat list, three
+ * soft-surface takes) - this system does not carry a `variant` prop for
+ * that the way `Tabs`' own TailGrids-character pass did not either; one
+ * deliberate reading of the pattern, not five.
+ *
+ * The panel itself carries no open/close animation, matching the
+ * reference's own character exactly: `hidden` toggles instantly there too.
+ * Only the chevron rotates, reusing the same `transform`/token pairing
+ * `Select`'s own chevron already established.
+ */
+
+.uh-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-16);
+}
+
+/* ----------------------------------------------------------------- item */
+
+.uh-accordion__item {
+  /* `overflow: clip`, not a radius on the trigger/content themselves - the
+     button and panel stay plain rectangles and the item's own rounded
+     corners clip them into a seamless card, the same technique the
+     reference's own `overflow-clip rounded-xl` relies on. */
+  overflow: clip;
+  border-radius: var(--uh-radius-card);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-accordion__item[data-disabled='true'] {
+  background-color: var(--uh-color-bg-muted);
+}
+
+/* -------------------------------------------------------------- heading */
+
+.uh-accordion__heading {
+  /* A heading element carries its own default margin and font size that
+     would otherwise fight the button filling it - reset to nothing here,
+     `.uh-accordion__trigger-label` below is what actually sets the type. */
+  margin: 0;
+  font: inherit;
+}
+
+/* -------------------------------------------------------------- trigger */
+
+.uh-accordion__trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-16);
+  min-height: var(--uh-size-tap-target-min);
+  padding: var(--uh-spacing-16) var(--uh-spacing-20);
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--uh-color-text-primary);
+}
+
+.uh-accordion__trigger[disabled] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-accordion__trigger:focus-visible {
+  /* Negative offset: a positive one would sit outside `.uh-accordion__item`
+     own rounded bounds and get clipped away by its `overflow: clip`, the
+     same reasoning `Tabs`' own panel focus ring already documents. */
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-accordion__trigger-label {
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: var(--uh-typography-web-body-m-line-height);
+  letter-spacing: var(--uh-typography-web-body-m-letter-spacing);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-accordion__chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-accordion__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-accordion__chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+/* -------------------------------------------------------------- content */
+
+.uh-accordion__content-inner {
+  padding: 0 var(--uh-spacing-20) var(--uh-spacing-20);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: var(--uh-typography-web-body-m-line-height);
+  letter-spacing: var(--uh-typography-web-body-m-letter-spacing);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}

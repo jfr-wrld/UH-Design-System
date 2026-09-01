@@ -1,0 +1,99 @@
+/*
+ * ProgressBar
+ *
+ * A single track thickness (size.progress-track) - the token is singular on
+ * purpose, one bar for one job. Colour carries variant; width carries
+ * progress. Indeterminate swaps the fixed-width fill for a looping stripe,
+ * sized and positioned entirely in CSS so no layout thrash comes from JS
+ * re-measuring anything on every frame.
+ */
+
+.uh-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  width: 100%;
+}
+
+.uh-progress__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-progress__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-progress__value {
+  flex: none;
+  color: var(--uh-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-progress__track {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: var(--uh-size-progress-track);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--uh-color-action-primary-default);
+  transition: width var(--uh-motion-duration-slow) var(--uh-motion-easing-standard);
+}
+
+.uh-progress[data-variant='success'] .uh-progress__fill {
+  background-color: var(--uh-color-feedback-success-solid);
+}
+
+.uh-progress[data-variant='error'] .uh-progress__fill {
+  background-color: var(--uh-color-feedback-error-solid);
+}
+
+/* ----------------------------------------------------------- indeterminate */
+
+.uh-progress__track[data-indeterminate='true'] .uh-progress__fill {
+  position: absolute;
+  inset-block: 0;
+  width: 40%;
+  transition: none;
+  animation: uh-progress-indeterminate var(--uh-motion-duration-sweep)
+    var(--uh-motion-easing-linear) infinite;
+}
+
+@keyframes uh-progress-indeterminate {
+  from {
+    inset-inline-start: -40%;
+  }
+  to {
+    inset-inline-start: 100%;
+  }
+}
+
+/* A moving bar carries no information under reduced motion - it becomes a
+   static, evenly-filled track instead of freezing mid-stripe. */
+@media (prefers-reduced-motion: reduce) {
+  .uh-progress__fill {
+    transition: none;
+  }
+  .uh-progress__track[data-indeterminate='true'] .uh-progress__fill {
+    position: static;
+    width: 100%;
+    animation: none;
+    opacity: var(--uh-opacity-disabled);
+  }
+}

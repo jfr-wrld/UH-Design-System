@@ -1,0 +1,42 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SeparatorStories from './Separator.stories';
+
+<Meta of={SeparatorStories} />
+
+# Separator
+
+Garis tipis pemisah konten - horizontal atau vertical, `role="separator"`
+secara default (struktur sungguhan), atau `decorative` saat garisnya murni
+visual.
+
+## Props
+
+<ArgTypes of={SeparatorStories} />
+
+## Contoh penggunaan
+
+<Canvas of={SeparatorStories.Playground} />
+
+## Vertical
+
+Separator vertical butuh parent dengan tinggi nyata untuk direntangi -
+biasanya sebuah flex row, cocok dengan `align-self: stretch` milik
+separator sendiri.
+
+<Canvas of={SeparatorStories.Vertical} />
+
+<Canvas of={SeparatorStories.Matrix} />
+
+## `decorative`
+
+Bedanya `Radix`'s own Separator juga menarik garis yang sama: sebuah
+pemisah antara dua section halaman yang benar-benar terpisah adalah
+struktur sungguhan yang layak diumumkan (`role="separator"`); satu yang
+diletakkan di dalam konten yang pembaca layar sudah paham terpisah dengan
+sendirinya (dua kartu yang masing-masing sudah landmark-nya sendiri,
+misalnya) adalah dekorasi yang pembaca yang bisa melihat dapatkan dari
+garisnya sendiri - pengumuman "separator" kedua di situ hanya kebisingan.
+Alasan yang sama persis yang sudah didokumentasikan `CommandSeparator`
+untuk `role="presentation"`-nya sendiri di dalam listbox.
+
+<Canvas of={SeparatorStories.DarkMode} />

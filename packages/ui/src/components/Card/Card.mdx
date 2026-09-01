@@ -1,0 +1,156 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CardStories from './Card.stories';
+
+<Meta of={CardStories} />
+
+# Card
+
+Shell yang jadi dasar setiap komponen berbentuk kartu (`PackageCard`,
+`AgencyCard`, `HotelCard`, `ReviewCard`): sebuah permukaan, salah satu dari
+tiga treatment (`outlined`/`elevated`/`flat`), dan skala padding. Tipe
+propsnya adalah discriminated union - memberi `href` membuat Card
+merender seluruh dirinya sebagai satu `<a>` yang bisa diklik, memberi
+`onClick` membuatnya sebagai satu `<button>`, dan tidak memberi keduanya
+membuatnya jadi `<div>` statis biasa. Ketiganya berbagi anatomi visual yang
+sama; yang berbeda cuma elemen root-nya.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Card statis (tanpa <code>href</code>/<code>onClick</code>) saat kontennya sendiri sudah
+        punya kontrol interaktif sendiri-sendiri, dan tidak ada satu tujuan tunggal untuk seluruh
+        kartu
+      </td>
+      <td>
+        Membungkus Card statis dengan <code>&lt;a&gt;</code>/<code>&lt;button&gt;</code> manual di
+        luar supaya "seluruh kartu bisa diklik" - itu tujuan <code>href</code>/<code>onClick</code>{' '}
+        bawaan Card, hit-area dan <code>aria-label</code>-nya sudah ditangani dengan benar di sana
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>href</code> saat seluruh kartu punya satu tujuan navigasi tunggal - foto, judul, harga
+        semuanya mengarah ke halaman detail paket yang sama
+      </td>
+      <td>
+        Memberi <code>href</code> dan <code>onClick</code> sekaligus - <code>CardProps</code> adalah
+        discriminated union, TypeScript menolaknya; pilih satu sesuai maksud (navigasi vs aksi)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onClick</code> saat seluruh kartu memicu satu aksi tanpa berpindah halaman - memilih
+        agency, menandai kartu terpilih dalam sebuah daftar
+      </td>
+      <td>
+        Melupakan <code>.uh-card__action</code> plus <code>stopPropagation</code> pada kontrol yang
+        dibersarangkan (mis. ikon wishlist) di dalam kartu interaktif - tanpa itu, klik pada ikon
+        ikut memicu aksi seluruh kartu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={CardStories} />
+
+## Contoh penggunaan
+
+### Kartu statis
+
+Tanpa <code>href</code> maupun <code>onClick</code> - kontainer biasa, tidak ada satu pun elemen interaktif tambahan yang dipasang Card sendiri.
+
+<Canvas of={CardStories.StaticCard} />
+
+### Sebagai link
+
+<code>href</code> membuat seluruh kartu jadi satu <code>&lt;a&gt;</code> yang dinamai lewat
+<code>label</code>, menuju satu halaman detail.
+
+<Canvas of={CardStories.LinkCard} />
+
+### Sebagai tombol
+
+<code>onClick</code> membuat seluruh kartu jadi satu <code>&lt;button&gt;</code> untuk aksi tanpa
+navigasi, seperti memilih sebuah agency.
+
+<Canvas of={CardStories.ButtonCard} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit di ketiga bentuk - Card statis
+adalah `<div>` polos, Card `href` merender `<a href>` native, Card
+`onClick` merender `<button type="button">` native. Elemen interaktifnya
+absolutely positioned untuk mengisi seluruh kartu dan tidak membawa konten
+visual sendiri; namanya berasal dari `label`, yang wajib diisi karena
+sebuah foto paket dan harga tidak bermakna apa-apa dibaca sendirian oleh
+screen reader.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus ke/dari hit-area kartu (link atau button), mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>
+        Mengaktifkan kartu (native pada <code>&lt;a href&gt;</code> dan <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan kartu (native pada <code>&lt;button&gt;</code> saat <code>onClick</code>; tidak
+        berlaku pada <code>&lt;a&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Card statis tidak menambahkan baris ini sama sekali - tidak ada elemen
+interaktif yang dipasang Card sendiri, jadi tidak ada perilaku keyboard
+untuk didokumentasikan di luar apa pun yang ada di dalam `children`.
+
+**Catatan screen reader:**
+
+- Hit-area link/button absolutely positioned di belakang konten
+  (`.uh-card__content`) dalam urutan DOM, tapi mengisi seluruh kartu secara
+  visual - kontrol bersarang yang perlu tetap bisa diklik sendiri (ikon
+  wishlist, tombol share) harus memakai `.uh-card__action`, yang memberinya
+  posisi sendiri sehingga menang urutan cat (paint order) dan menerima klik
+  lebih dulu daripada hit-area di bawahnya.
+- Card `onClick` mendukung `disabled` (diteruskan sebagai atribut `disabled`
+  native pada `<button>`); Card `href` tidak punya konsep nonaktif - tautan
+  selalu bisa dijangkau.
+
+**Wajib disediakan konsumen:**
+
+- `label` - wajib setiap kali `href` atau `onClick` diberikan; tipe
+  TypeScript-nya sendiri yang memaksa ini lewat discriminated union, bukan
+  sekadar konvensi.
+- Untuk kontrol bersarang yang harus tetap independen dari klik kartu:
+  class `.uh-card__action` pada elemennya, plus `event.stopPropagation()`
+  di handler-nya sendiri.

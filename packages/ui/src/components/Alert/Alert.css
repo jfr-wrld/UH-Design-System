@@ -1,0 +1,161 @@
+/*
+ * Alert / Banner
+ *
+ * Inline status, not floating: no portal, no z-index, part of the page's own
+ * flow. `layout=inline` is a bordered, radiused box for a card or a form -
+ * a validation summary, a sold-out notice. `layout=banner` is edge-to-edge
+ * with square corners, for the top of a page or section. Both share the
+ * same feedback-token vocabulary as Badge and Toast, and the same
+ * StatusIcon/CloseIcon as Toast (see lib/icons).
+ */
+
+.uh-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-8);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-alert[data-state='closing'] {
+  animation: uh-alert-exit var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+/*
+ * A left accent stripe instead of a boxed outline - adopted from the
+ * TailGrids-character pass. The status colour now reads as a single strong
+ * edge rather than a thin line traced around all four sides, and the tinted
+ * background (set per variant below) carries the rest of the shape without
+ * needing a border to close the box.
+ */
+.uh-alert[data-layout='inline'] {
+  padding: var(--uh-spacing-12) var(--uh-spacing-12) var(--uh-spacing-12) var(--uh-spacing-16);
+  border-inline-start: var(--uh-border-width-accent) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+}
+
+.uh-alert[data-layout='banner'] {
+  padding: var(--uh-spacing-12) var(--uh-spacing-24);
+  border-block: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}
+
+/* --------------------------------------------------------------- variant */
+
+.uh-alert[data-variant='success'] {
+  background-color: var(--uh-color-feedback-success-bg);
+  border-color: var(--uh-color-feedback-success-border);
+}
+.uh-alert[data-variant='success'] .uh-alert__icon {
+  color: var(--uh-color-feedback-success-solid);
+}
+
+.uh-alert[data-variant='warning'] {
+  background-color: var(--uh-color-feedback-warning-bg);
+  border-color: var(--uh-color-feedback-warning-border);
+}
+.uh-alert[data-variant='warning'] .uh-alert__icon {
+  color: var(--uh-color-feedback-warning-solid);
+}
+
+.uh-alert[data-variant='error'] {
+  background-color: var(--uh-color-feedback-error-bg);
+  border-color: var(--uh-color-feedback-error-border);
+}
+.uh-alert[data-variant='error'] .uh-alert__icon {
+  color: var(--uh-color-feedback-error-solid);
+}
+
+.uh-alert[data-variant='info'] {
+  background-color: var(--uh-color-feedback-info-bg);
+  border-color: var(--uh-color-feedback-info-border);
+}
+.uh-alert[data-variant='info'] .uh-alert__icon {
+  color: var(--uh-color-feedback-info-solid);
+}
+
+/* ------------------------------------------------------------------ body */
+
+.uh-alert__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+  margin-block-start: var(--uh-spacing-2);
+}
+
+.uh-alert__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-alert__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.uh-alert__title {
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-alert__description {
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-alert__title + .uh-alert__description {
+  margin-block-start: var(--uh-spacing-2);
+}
+
+.uh-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--uh-spacing-16);
+  margin-block-start: var(--uh-spacing-8);
+}
+
+.uh-alert__action {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--uh-color-text-brand);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  font-weight: var(--uh-typography-web-label-font-weight);
+  text-decoration: underline;
+  text-underline-offset: var(--uh-spacing-2);
+  cursor: pointer;
+}
+
+/* Sizing/colour/hover/focus come from the shared .uh-close-button (see
+   styles/utilities.css, data-size='sm'); this only pulls the target into
+   the row's own padding. */
+.uh-alert__close {
+  margin: calc(-1 * var(--uh-spacing-8)) calc(-1 * var(--uh-spacing-4))
+    calc(-1 * var(--uh-spacing-8)) 0;
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-alert-exit {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-alert {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

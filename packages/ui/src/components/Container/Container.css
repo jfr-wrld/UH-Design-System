@@ -1,0 +1,29 @@
+/*
+ * Container
+ *
+ * The page-level content column. Every value here resolves to a token - no
+ * literal size or colour in this file, same contract as every other
+ * component's stylesheet.
+ */
+
+.uh-container {
+  width: 100%;
+  margin-inline: auto;
+}
+
+.uh-container[data-size='sm'] {
+  max-width: var(--uh-size-container-sm);
+}
+.uh-container[data-size='md'] {
+  max-width: var(--uh-size-container-md);
+}
+.uh-container[data-size='lg'] {
+  max-width: var(--uh-size-container-lg);
+}
+.uh-container[data-size='xl'] {
+  max-width: var(--uh-size-container-xl);
+}
+
+.uh-container[data-padding='true'] {
+  padding-inline: var(--uh-spacing-16);
+}

@@ -1,0 +1,209 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as InputStories from './Input.stories';
+
+<Meta of={InputStories} />
+
+# Input
+
+Kolom teks satu baris untuk data bebas - nama, nomor paspor, alamat email,
+kata sandi. Label selalu ada di atas kolom, bukan mengambang di dalamnya:
+audiens produk ini sering menyalin nomor paspor langsung dari dokumen fisik
+sambil mengetik, dan label yang hilang begitu mereka mulai mengetik membuat
+mereka kehilangan konteks di tengah jalan. `clearable`, penghitung karakter,
+dan toggle password semuanya dibangun di atas `FieldShell` yang sama dipakai
+`PhoneInput`, jadi border, state error/success, dan footer pesan selalu
+konsisten di seluruh form.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Untuk teks bebas satu baris - nama, nomor paspor, alamat, catatan singkat</td>
+      <td>
+        Untuk nomor telepon - <code>type="tel"</code> sengaja tidak ada di sini karena setiap nomor
+        yang dikumpulkan produk ini lintas negara; pakai <code>PhoneInput</code> yang menyimpan kode
+        negara sebagai data terstruktur
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Untuk memilih dari daftar tetap opsi (negara, jenis kamar) - itu tugas <code>Select</code>
+      </td>
+      <td>
+        Memaksakan pilihan terbatas ke dalam <code>Input</code> teks bebas - pengguna bisa mengetik
+        apa saja, termasuk nilai yang tidak valid
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>errorMessage</code>/<code>successMessage</code> untuk validasi field per-field yang
+        bisa langsung diperbaiki pengguna
+      </td>
+      <td>
+        <code>disabled</code> sebagai pengganti pesan error - kolom yang dimatikan tidak menjelaskan
+        kenapa, pesan error menjelaskan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>clearable</code> untuk field pendek yang sering diulang-ulang isi ulang (kode promo,
+        pencarian ringan)
+      </td>
+      <td>
+        <code>clearable</code> untuk field panjang seperti alamat - tombol X tunggal tidak membantu
+        pilgrim mengedit satu bagian saja
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>maxLength</code> + penghitung karakter saat backend benar-benar punya batas panjang
+        (mis. catatan permintaan khusus)
+      </td>
+      <td>
+        Memasang <code>maxLength</code> hanya supaya terlihat rapi - batas yang tidak nyata
+        membingungkan pengguna yang isiannya terpotong tanpa alasan
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root komponennya adalah `FieldShell` (dipakai bersama `PhoneInput`), jadi
+class-nya berawalan `.uh-field`, bukan `.uh-input`.
+
+- **`.uh-field`** - root. Membawa `data-size`, `data-state`
+  (`default`/`error`/`success`), `data-full-width`.
+- **`.uh-field__label-row`** dan **`.uh-field__label`** - baris label di atas
+  kolom, ditambah **`.uh-field__required`** (asterisk dekoratif -
+  `aria-required` di elemen input yang membawa arti sebenarnya).
+- **`.uh-field__control`** - kotak berbingkai yang membungkus input dan
+  adornment. Membawa `data-disabled`, `data-readonly`, `data-filled`; ini
+  yang mengubah warna border saat hover/focus/error/success.
+- **`.uh-field__input`** - elemen `<input>` native itu sendiri, transparan,
+  mewarisi tipografi dari `.uh-field[data-size]`.
+- **`.uh-field__icon`** - pembungkus `leftIcon`/`rightIcon`, selalu
+  `aria-hidden`.
+- **`.uh-field__action`** - tombol adornment (clear atau toggle password),
+  membawa target sentuh 44px lewat pseudo-element `::after` meski ikonnya
+  lebih kecil.
+- **`.uh-field__footer`**, **`.uh-field__message`**, **`.uh-field__counter`**
+  - baris di bawah kolom untuk helper/error/success text dan penghitung
+    `maxLength`.
+
+## Props
+
+<ArgTypes of={InputStories} />
+
+## Contoh penggunaan
+
+### Field dasar
+
+Kasus paling umum: satu field wajib dengan placeholder, tanpa adornment.
+
+<Canvas of={InputStories.Basic} />
+
+### Dengan error validasi
+
+`errorMessage` mengganti `helperText`, mengatur `aria-invalid`, dan
+mengumumkan pesannya lewat `role="alert"`.
+
+<Canvas of={InputStories.WithError} />
+
+### Password dengan toggle
+
+`type="password"` otomatis menambah tombol show/hide; namanya berganti
+sesuai state (`Show password` ⇄ `Hide password`) alih-alih diam di satu teks.
+
+<Canvas of={InputStories.PasswordField} />
+
+Untuk melihat kedelapan state (default/hover/focus/filled/disabled/readonly/
+error/success) di tiga ukuran sekaligus, lihat story `StateMatrix`; untuk
+kombinasi ikon + clearable + counter, lihat `Adornments`.
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit - `<input>` native sudah membawa
+semantik yang benar, dihubungkan ke `<label>` lewat `htmlFor`/`id`.
+
+Komponen ini tidak menambah keyboard handler kustom di atas semantik native
+`<input>` - semua navigasi (Tab masuk/keluar, mengetik, seleksi teks) adalah
+perilaku bawaan browser. Yang ditambahkan hanya target keyboard untuk dua
+tombol adornment:
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke input, lalu ke tombol clear/toggle password jika ada, mengikuti urutan
+        DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>/<code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol clear atau toggle password saat fokus berada di sana (perilaku native{' '}
+        <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- `aria-invalid="true"` hanya muncul saat `errorMessage` terisi; pesan error
+  dibaca lewat `role="alert"` sehingga diumumkan segera, sementara helper
+  text dan success message dibaca lewat `aria-describedby` tanpa
+  menginterupsi.
+- Penghitung karakter (`.uh-field__counter`) bersifat dekoratif
+  (`aria-hidden`) - batasnya dinyatakan sekali lewat `characterLimitLabel`
+  yang tersembunyi visual, bukan diumumkan ulang di setiap ketikan.
+- Tombol clear dan toggle password selalu punya `aria-label` sendiri
+  (`clearLabel`, `showPasswordLabel`/`hidePasswordLabel`) - nama tombol
+  toggle berubah sesuai state supaya selalu menjelaskan aksi berikutnya,
+  bukan kondisi sekarang.
+- `disabled` memakai atribut native `disabled` (bukan `aria-disabled`),
+  karena field kosong yang dinonaktifkan memang tidak seharusnya
+  mengirimkan nilai saat form displit - beda dengan `Button`, yang harus
+  tetap bisa dijangkau keyboard.
+
+**Wajib disediakan konsumen:**
+
+- `label` - selalu string, tidak ada default yang masuk akal.
+- `clearLabel`/`showPasswordLabel`/`hidePasswordLabel` saat field dipakai
+  di luar bahasa Inggris - defaultnya bahasa Inggris, tapi bisa dioverride
+  per pemanggilan.
+- `characterLimitLabel` kalau pesan default (`Maximum ${max} characters`)
+  perlu diterjemahkan.
+
+## Catatan i18n
+
+Malay dan Indonesian umumnya 15-30% lebih panjang dari English untuk label
+dan helper text yang setara ("Passport Number" → "Nombor Pasport" / "Nomor
+Paspor"). Label field tidak dipotong atau di-`ellipsis`-kan - baris label
+(`.uh-field__label-row`) membiarkan teks yang lebih panjang membungkus ke
+baris berikutnya secara alami, begitu juga `helperText`/`errorMessage`/
+`successMessage`. Story `TextExpansion` membandingkan ketiga bahasa
+berdampingan di kolom 280px, lebar yang kira-kira sama dengan satu kolom
+form di layar ponsel kecil - di situlah label akan membungkus lebih dulu
+kalau memang akan membungkus:
+
+<Canvas of={InputStories.TextExpansion} />

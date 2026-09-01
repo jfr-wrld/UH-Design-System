@@ -1,0 +1,51 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as TimePickerStories from './TimePicker.stories';
+
+<Meta of={TimePickerStories} />
+
+# TimePicker
+
+Tombol trigger yang membuka tiga kolom scrollable - Hour, Minute, dan (dalam mode
+12 jam) AM/PM - untuk memilih waktu dengan menelusuri dan mengklik, bukan mengetik.
+Untuk input keyboard langsung, lihat `TimeField` - keduanya memakai bentuk
+`TimeValue` yang sama, jadi sebuah form bisa memakai salah satunya tanpa perlu
+menerjemahkan di antara keduanya.
+
+Memakai `Popover`/`PickerLayer` yang sama seperti `DatePicker` - popover di
+desktop, bottom sheet di ponsel - permukaan yang sama persis yang sudah dipakai
+`DatePicker`, bukan dibangun ulang dari nol.
+
+## Props
+
+<ArgTypes of={TimePickerStories} />
+
+## Contoh penggunaan
+
+<Canvas of={TimePickerStories.Basic} />
+<Canvas of={TimePickerStories.TwentyFourHour} />
+
+## Kolom menit
+
+`minuteStep` mengatur kelipatan yang muncul di kolom menit (default 5). Daftar
+scrollable 60 menit satu-satu adalah cara yang lebih buruk untuk memilih waktu
+dibanding mengetik lewat `TimeField` - jadi default-nya sengaja lebih kasar, dan
+bisa disetel ke `1` kalau memang perlu setiap menit muncul.
+
+## Popover tetap terbuka setelah memilih
+
+Memilih satu kolom (misalnya jam) tidak langsung menutup popover - seseorang
+biasanya perlu menyetel lebih dari satu kolom (jam, lalu menit) dalam satu kali
+buka. Popover hanya menutup lewat Escape, klik di luar, atau mengklik trigger
+lagi. `onChange` sendiri juga menunggu: sama seperti `TimeField`, memilih satu
+kolom saja tidak memicu `onChange` sampai setiap kolom yang dibutuhkan
+`hourCycle` saat ini benar-benar sudah dipilih - tidak ada jam bawaan yang
+diisi diam-diam untuk sebuah menit yang baru diklik sendirian.
+
+## Aksesibilitas
+
+Setiap kolom adalah `role="listbox"` dengan nama sendiri ("Hour", "Minute",
+"AM/PM"); setiap pilihan adalah `role="option"` dengan `aria-selected`. Navigasi
+dalam satu kolom pakai panah atas/bawah (roving tabindex - hanya satu opsi per
+kolom yang ada di urutan Tab), Home/End untuk lompat ke ujung, dan Enter/Space
+untuk memilih. Popover menutup dengan Escape dan fokus kembali ke trigger,
+mengikuti perilaku `DatePicker` yang sama persis.

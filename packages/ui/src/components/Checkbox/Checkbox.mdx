@@ -1,0 +1,140 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CheckboxStories from './Checkbox.stories';
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+A boolean choice that is part of a form and takes effect only when that form
+is submitted - agreeing to booking terms, opting into an add-on, marking one
+item among several as selected. The box itself is 20px so a column of
+options still reads as a list, but the pointer target is a full 44px laid
+over the box rather than inflating it, and the focus ring sits on the box
+rather than the whole row so it says exactly what is focused.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Pilihan boolean yang jadi bagian dari data form dan baru berarti setelah disubmit - mis.
+        "Saya setuju dengan syarat tempahan"
+      </td>
+      <td>
+        Setting yang berlaku seketika begitu diklik, tanpa langkah submit terpisah (mis. aktifkan
+        notifikasi push, dark mode) - pakai <code>Switch</code>, karena Switch menyiratkan "ini
+        berlaku sekarang", Checkbox menyiratkan "ini akan dikirim"
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Daftar pilihan non-eksklusif: pengguna boleh memilih 0 sampai N item sekaligus (mis. add-on
+        trip: asuransi, bagasi ekstra, transfer bandara)
+      </td>
+      <td>
+        Memilih tepat satu dari beberapa opsi yang saling eksklusif (mis. tipe kamar
+        single/double/triple) - pakai <code>Radio</code>/<code>RadioGroup</code>, supaya hanya satu
+        yang bisa aktif
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>indeterminate</code> untuk merefleksikan sebuah parent yang anak-anaknya sebagian
+        terpilih (mis. "Semua add-on" saat dua dari tiga sudah dicentang)
+      </td>
+      <td>
+        Memakai <code>indeterminate</code> sebagai gaya visual pengganti "belum diisi" - state ini
+        hanya masuk akal sebagai cerminan state anak, bukan tampilan pengganti default
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={CheckboxStories} />
+
+## Contoh penggunaan
+
+### Tidak tercentang
+
+Kondisi awal yang paling umum - satu pilihan tunggal yang belum diambil.
+
+<Canvas of={CheckboxStories.Unchecked} />
+
+### Tercentang
+
+`defaultChecked` untuk uncontrolled, atau `checked` + `onChange` untuk controlled.
+
+<Canvas of={CheckboxStories.Checked} />
+
+### Indeterminate
+
+Dipakai saat sebuah checkbox mewakili grup yang sebagian anaknya terpilih, bukan semua atau tidak sama sekali.
+
+<Canvas of={CheckboxStories.Indeterminate} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit - `<input type="checkbox">` native
+sudah membawa role `checkbox`. Saat `indeterminate` aktif, platform
+melaporkan `aria-checked="mixed"` lewat properti DOM `indeterminate`, bukan
+lewat atribut `aria-checked` yang ditulis tangan - menulis atributnya sendiri
+akan membuat satu elemen punya dua sumber kebenaran yang bisa saling
+bertentangan.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus ke/dari checkbox, mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Mengubah state checked (perilaku native <code>&lt;input type="checkbox"&gt;</code>, tidak
+        ada handler custom)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Label diklik lewat elemen `<label>` yang di-`htmlFor` ke id input, jadi
+  mengklik teks label sama efeknya dengan mengklik boks - target sentuh
+  paling umum yang dipakai orang.
+- `description` (jika ada) ditautkan lewat `aria-describedby`, terbaca
+  screen reader setelah nama checkbox, bukan sebagai baris teks lepas.
+- `error` mengeset `aria-invalid="true"` di input - state error tidak
+  boleh hanya mengandalkan warna karena boks glyph-nya sendiri hanya
+  berubah warna tanpa bentuk yang berbeda.
+- Boks visual (`.uh-choice__box`) selalu `aria-hidden` - dia murni
+  mencerminkan state input lewat CSS, sehingga screen reader membaca input
+  aslinya dan tidak pernah membaca boks dua kali.
+
+**Wajib disediakan konsumen:**
+
+- `label` - wajib secara tipe TypeScript, karena nama checkbox tidak punya
+  default yang masuk akal.
+- Relasi anak-parent untuk `indeterminate` harus dihitung sendiri oleh
+  pemanggil (mis. dari jumlah item anak yang tercentang) - Checkbox tidak
+  tahu tentang checkbox lain, dia hanya menampilkan apa pun boolean yang
+  diberikan lewat prop.

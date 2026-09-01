@@ -1,0 +1,178 @@
+/*
+ * Command
+ *
+ * A command palette's whole interaction model is one shared idea: an input
+ * drives `aria-activedescendant` on a `role="listbox"` of `role="option"`
+ * items, the same accessible pairing `SearchCombobox` already uses for its
+ * own filtered list. `CommandDialog` (in CommandDialog.tsx, no CSS of its
+ * own) is this same markup dropped into `Overlay`'s panel, so its border,
+ * radius, and shadow live here rather than being duplicated on the dialog.
+ */
+
+.uh-command {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--uh-size-command-width);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-card);
+  background-color: var(--uh-color-bg-surface-raised);
+  box-shadow: var(--uh-elevation-3);
+  overflow: hidden;
+}
+
+/* Inside CommandDialog's Overlay the width is already fixed by the panel
+   above, so the palette itself only needs to fill it, border included. */
+.uh-command-dialog .uh-command {
+  max-width: none;
+  box-shadow: none;
+}
+
+/* -------------------------------------------------------------- search */
+
+.uh-command__input-row {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  padding-inline: var(--uh-spacing-16);
+  border-block-end: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}
+
+.uh-command__input-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-command__input-icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-command__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: var(--uh-size-control-lg);
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-command__input:focus {
+  outline: none;
+}
+
+.uh-command__input::placeholder {
+  color: var(--uh-color-text-tertiary);
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------- list */
+
+.uh-command__list {
+  overflow-y: auto;
+  max-height: var(--uh-size-command-list-height);
+  padding: var(--uh-spacing-8);
+}
+
+.uh-command__empty {
+  padding: var(--uh-spacing-32) var(--uh-spacing-16);
+  color: var(--uh-color-text-tertiary);
+  text-align: center;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* --------------------------------------------------------------- group */
+
+.uh-command__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-2);
+  padding-block: var(--uh-spacing-4);
+}
+
+.uh-command__group-heading {
+  padding: var(--uh-spacing-8) var(--uh-spacing-12) var(--uh-spacing-4);
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  letter-spacing: var(--uh-typography-web-caption-letter-spacing);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+.uh-command__separator {
+  block-size: var(--uh-border-width-hairline);
+  margin-block: var(--uh-spacing-4);
+  background-color: var(--uh-color-border-default);
+}
+
+/* A divider needs two sides to divide - hide it the moment either side is
+   the one that's gone. Filtering down to just the group after a separator
+   leaves the separator floating with nothing above it (found by actually
+   filtering the Playground story down to "Billing"); filtering down to just
+   the group *before* one leaves it floating with nothing below instead
+   (found the same way, filtering down to "Umrah Reguler" in Bookings) -
+   the mirror image of the first case, and `:has()` is what makes checking a
+   *following* sibling's hidden state possible at all. */
+.uh-command__group[hidden] + .uh-command__separator,
+.uh-command__separator:has(+ .uh-command__group[hidden]) {
+  display: none;
+}
+
+/* ---------------------------------------------------------------- item */
+
+.uh-command__item {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-text-primary);
+  cursor: pointer;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-command__item[data-active='true'] {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-command__item[data-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-command__item > svg {
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+}
+
+/* ------------------------------------------------------------- shortcut */
+
+.uh-command__shortcut {
+  flex: none;
+  margin-inline-start: auto;
+  padding: var(--uh-spacing-2) var(--uh-spacing-4);
+  border-radius: var(--uh-radius-sm);
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}

@@ -6,6 +6,7 @@ import { Rating } from '../Rating/Rating.js';
 import { formatCount } from '../../lib/units.js';
 import { yearsInOperation } from './years.js';
 import { DEFAULT_LABELS, type AgencyCardLabels } from './labels.js';
+import { VerifiedIcon } from '../../lib/icons.js';
 
 export type AgencyCardVariant = 'compact' | 'full';
 
@@ -38,25 +39,6 @@ export interface AgencyCardProps {
   locale?: string | undefined;
   labels?: Partial<AgencyCardLabels> | undefined;
   className?: string | undefined;
-}
-
-function VerifiedIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M12 3l2.2 1.6 2.7-.2.9 2.6 2.2 1.6-1 2.6 1 2.6-2.2 1.6-.9 2.6-2.7-.2L12 21l-2.2-1.6-2.7.2-.9-2.6L4 15.4l1-2.6-1-2.6 2.2-1.6.9-2.6 2.7.2z"
-        fill="currentColor"
-      />
-      <path
-        d="M8.75 12.2l2.1 2.1 4.4-4.4"
-        fill="none"
-        stroke="var(--uh-color-bg-surface)"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
 }
 
 function AgencyCardImpl(props: AgencyCardProps, ref: ForwardedRef<HTMLElement>) {
@@ -193,5 +175,14 @@ function AgencyCardImpl(props: AgencyCardProps, ref: ForwardedRef<HTMLElement>) 
   );
 }
 
-export const AgencyCard = forwardRef(AgencyCardImpl);
-AgencyCard.displayName = 'AgencyCard';
+export const AgencyCard = /* @__PURE__ */ forwardRef(AgencyCardImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  AgencyCard.displayName = 'AgencyCard';
+}

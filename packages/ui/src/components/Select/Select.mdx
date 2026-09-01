@@ -1,0 +1,248 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SelectStories from './Select.stories';
+
+<Meta of={SelectStories} />
+
+# Select
+
+Kontrol untuk memilih satu nilai dari daftar tertutup - kewarganegaraan,
+jenis kamar, maskapai. Listbox-nya di-portal ke `document.body` supaya
+kartu atau tabel dengan `overflow: hidden` tidak pernah memotongnya, dan
+lewat prop `searchable` komponen yang sama bisa berubah dari dropdown
+klik-pilih biasa menjadi combobox yang bisa diketik/difilter, tanpa
+mengubah semantik ARIA-nya (tetap `role="combobox"` + `role="listbox"`
+di kedua mode).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk memilih dari daftar tertutup dengan nilai yang valid harus salah satu opsi (negara,
+        jenis kamar)
+      </td>
+      <td>
+        Untuk teks bebas yang tidak terbatas pada daftar tertentu - pakai <code>Input</code>, jangan
+        paksakan opsi tak terbatas ke dalam <code>options</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>searchable</code> saat daftar cukup panjang (kira-kira lebih dari 10-15 opsi) sehingga
+        mengetik lebih cepat dari men-scan visual
+      </td>
+      <td>
+        <code>searchable</code> untuk daftar pendek (2-5 opsi) - itu menambah langkah mengetik yang
+        tidak perlu dibanding langsung klik
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>loading</code> saat opsi datang dari fetch async, supaya listbox tetap ada (wajib
+        untuk <code>aria-controls</code>) tapi menunjukkan status sibuk, bukan daftar kosong yang
+        membingungkan
+      </td>
+      <td>
+        Membiarkan <code>options=[]</code> tanpa <code>loading</code> saat menunggu data - pengguna
+        akan mengira memang tidak ada pilihan sama sekali
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>clearable</code> saat "tidak memilih apa pun" adalah state yang valid (filter
+        opsional)
+      </td>
+      <td>
+        <code>clearable</code> pada field <code>required</code> - membiarkan pengguna mengosongkan
+        field yang nanti pasti gagal validasi terasa kontradiktif
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya `<div className="uh-select">` yang membungkus `FieldShell`
+(chrome label/border/footer sama seperti `Input`) plus listbox yang
+di-portal terpisah.
+
+- **`.uh-select__control`** - baris di dalam `.uh-field__control` yang
+  membungkus nilai terpilih, tombol clear, dan chevron.
+- **`.uh-select__value`** - teks nilai terpilih atau `placeholder`;
+  `text-overflow: ellipsis` memotong nilai panjang alih-alih meluapkan
+  kolom (dipakai saat `searchable` mati - mode combobox memakai
+  `.uh-field__input` bawaan `Input.css` untuk baris yang sama).
+- **`.uh-select__chevron`** - ikon panah, berputar 180° lewat
+  `data-open` saat listbox terbuka.
+- **`.uh-select__portal`** - wadah `position: fixed` yang di-portal ke
+  `document.body`, posisinya dihitung ulang dari `getBoundingClientRect`
+  trigger setiap kali scroll/resize.
+- **`.uh-select__panel`** - kotak listbox itu sendiri: border, radius,
+  shadow elevation-3.
+- **`.uh-select__list`** - `<ul role="listbox">`, tinggi dibatasi
+  (`--uh-size-overlay-max-height`) dengan scroll di dalamnya.
+- **`.uh-select__option`** - satu `<li role="option">`; `data-active`
+  menandai opsi yang sedang disorot keyboard/hover, `aria-selected`
+  menandai yang benar-benar terpilih - dua hal yang bisa berbeda saat
+  pengguna menjelajah dengan panah tanpa mengonfirmasi.
+- **`.uh-select__check`** - ikon centang, hanya tampak pada opsi yang
+  `aria-selected="true"` - seleksi ditandai dua kali (centang + bold)
+  supaya tidak bergantung pada warna saja.
+- **`.uh-select__status`** - baris `role="status"` yang menggantikan
+  seluruh isi listbox saat `loading` atau saat hasil filter kosong;
+  listbox tidak boleh berisi apa pun selain `option`, jadi status ini
+  duduk di sebelahnya, bukan di dalamnya.
+
+## Props
+
+<ArgTypes of={SelectStories} />
+
+## Contoh penggunaan
+
+### Field dasar
+
+Daftar pendek, klik untuk membuka, klik atau Enter untuk memilih.
+
+<Canvas of={SelectStories.Basic} />
+
+### Bisa dicari
+
+`searchable` mengubah trigger menjadi input yang bisa diketik dan
+memfilter daftar sambil berjalan; dipasangkan dengan `clearable` supaya
+pilihan bisa dikosongkan lagi.
+
+<Canvas of={SelectStories.Searchable} />
+
+### Dengan error validasi
+
+`errorMessage` mengatur `aria-invalid` pada combobox dan menghubungkannya
+ke pesan lewat `aria-describedby`, persis seperti pada `Input`.
+
+<Canvas of={SelectStories.WithError} />
+
+Untuk melihat listbox dalam keadaan terbuka (banyak opsi dengan scroll,
+opsi disabled, empty state) lihat story `OpenStates`; untuk kasus fetch
+async yang datang belakangan lihat `AsyncLoading`.
+
+## Aksesibilitas
+
+**Peran ARIA:** trigger memakai `role="combobox"` di kedua mode
+(`searchable` atau tidak) dengan `aria-haspopup="listbox"`,
+`aria-expanded`, dan `aria-activedescendant` yang mengikuti opsi yang
+sedang disorot. `aria-controls` hanya diisi id listbox saat listbox
+sedang terbuka - listbox itu sendiri `role="listbox"` dengan
+`aria-label` sama dengan label field (karena pada mode non-searchable
+trigger-nya `<div>`, bukan elemen bernama otomatis, jadi field
+menghubungkannya lewat `aria-labelledby` ke label + nilai, bukan
+`<label htmlFor>` biasa). Tiap baris opsi adalah `role="option"` dengan
+`aria-selected` dan `aria-disabled`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ArrowDown</code> / <code>ArrowUp</code>
+      </td>
+      <td>
+        Listbox tertutup: membukanya. Listbox terbuka: memindahkan sorotan ke opsi
+        berikut/sebelumnya, melompati opsi <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>
+        Listbox tertutup: membukanya. Listbox terbuka: memilih opsi yang sedang disorot dan menutup
+        listbox
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Sama seperti <code>Enter</code> untuk membuka - hanya pada mode non-<code>searchable</code>,
+        supaya spasi tetap bisa diketik saat mode <code>searchable</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>Menutup listbox tanpa mengubah nilai</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Menutup listbox lalu melanjutkan urutan tab secara native (tidak terperangkap)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code> / <code>End</code>
+      </td>
+      <td>
+        Melompat ke opsi pertama/terakhir yang tidak <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Karakter huruf/angka (mode non-<code>searchable</code>)
+      </td>
+      <td>
+        Type-ahead: melompat ke opsi pertama yang labelnya diawali ketikan berturut-turut dalam
+        800ms
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Saat `loading` atau hasil filter kosong, listbox tetap ada (kosong
+  dari opsi) tapi `aria-busy="true"` diset dan baris `role="status"` di
+  sebelahnya membacakan `loadingMessage`/`emptyMessage` - listbox tidak
+  pernah diberi teks status di dalamnya sendiri karena secara semantik
+  hanya boleh berisi `option`.
+- Opsi terpilih ditandai dua kali: `aria-selected="true"` untuk
+  pembaca layar, dan ikon centang plus font tebal untuk yang melihat -
+  jadi tidak bergantung pada satu sinyal saja.
+- Pada mode non-`searchable`, trigger adalah `<div>` dengan
+  `tabIndex={0}` dan `aria-disabled` saat `disabled` (bukan atribut
+  `disabled` native, karena `<div>` tidak punya itu); pada mode
+  `searchable`, trigger adalah `<input>` sungguhan dengan atribut
+  `disabled` native.
+
+**Wajib disediakan konsumen:**
+
+- `label` dan `options` - keduanya tidak punya default yang masuk akal.
+- `emptyMessage`/`loadingMessage`/`clearLabel` saat dipakai di luar
+  bahasa Inggris - defaultnya bahasa Inggris.
+- `onValueChange` untuk penggunaan terkontrol (`value` diberikan tanpa
+  ini membuat Select tampak macet karena UI tidak pernah mendapat nilai
+  baru).
+
+## Catatan i18n
+
+Label `options` tetap dalam bahasa aslinya (daftar negara disimpan dalam
+bahasa Inggris) - yang diterjemahkan hanya label field dan helper text.
+"Brunei Darussalam" sengaja dipakai sebagai opsi terpanjang untuk
+membuktikan `.uh-select__value` memotongnya dengan ellipsis alih-alih
+mendorong lebar kolom. Story `TextExpansion` membandingkan ketiga bahasa
+berdampingan di kolom 280px:
+
+<Canvas of={SelectStories.TextExpansion} />

@@ -214,22 +214,15 @@
 
 /* -------------------------------------------------------------- progress */
 
+/*
+ * The bar itself is a ProgressBar (see components/ProgressBar) - this class
+ * only spaces it under the file name and size. Found duplicated as a
+ * hand-rolled track/fill pair during the Fase 6 verification pass and
+ * folded into the shared component instead.
+ */
 .uh-upload__progress {
   display: block;
-  width: 100%;
-  height: var(--uh-size-progress-track);
   margin-block-start: var(--uh-spacing-4);
-  overflow: hidden;
-  border-radius: var(--uh-radius-full);
-  background-color: var(--uh-color-bg-surface-sunken);
-}
-
-.uh-upload__progress-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--uh-radius-full);
-  background-color: var(--uh-color-action-primary-default);
-  transition: inline-size var(--uh-motion-duration-base) var(--uh-motion-easing-standard);
 }
 
 /* ---------------------------------------------------------------- remove */

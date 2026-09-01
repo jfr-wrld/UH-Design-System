@@ -1,0 +1,148 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PopoverStories from './Popover.stories';
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+Panel mengambang kecil yang tergantung pada elemen pemicunya - opsi share,
+menu urutan, form singkat. Ia adalah sepupu interaktif dari Tooltip: mesin
+penempatan yang sama (`useAnchoredPortal`) tapi kontrak sebaliknya. Tooltip
+mengulang apa yang sudah dikatakan pemiliknya dan lenyap begitu pointer
+bergerak; Popover _berisi_ sesuatu - tombol, tautan, form kecil - jadi ia
+terbuka lewat klik, menahan fokus tanpa menjebaknya, dan menutup lewat
+Escape, klik di luar, atau fokus yang pindah keluar. Tidak modal: halaman
+tetap bisa di-scroll, dan panelnya ikut menyesuaikan posisi.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Konten interaktif yang bisa diklik atau diisi - form kecil, daftar opsi, tombol share</td>
+      <td>
+        Teks penjelas singkat yang hanya mengulang label pemicunya - pakai <code>Tooltip</code>,
+        yang muncul saat hover dan hilang begitu pointer bergerak
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Terbuka lewat klik dan tetap terbuka sampai pengguna secara sadar menutupnya (Escape, klik
+        di luar, fokus berpindah)
+      </td>
+      <td>
+        Butuh perilaku modal - mengunci fokus, memblokir scroll halaman - pakai <code>Modal</code>/
+        <code>Drawer</code>; Popover memang sengaja tidak modal
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>arrow</code> saat pemicunya kecil/berupa ikon, supaya sumbernya tetap jelas
+      </td>
+      <td>
+        Konten panjang seperti ringkasan pesanan lengkap - pakai <code>Drawer</code>, Popover
+        dirancang untuk konten ringkas dekat pemicu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={PopoverStories} />
+
+## Contoh penggunaan
+
+### Opsi share
+
+Popover paling umum: tombol pemicu yang membuka daftar aksi singkat.
+
+<Canvas of={PopoverStories.SharePackage} />
+
+### Opsi urutan
+
+Konten interaktif (radio button) tetap bisa dipakai di dalam Popover - klik di dalamnya tidak ikut menutup panel.
+
+<Canvas of={PopoverStories.SortOptions} />
+
+### Info harga
+
+Popover dari tombol kecil untuk teks penjelas singkat yang tetap perlu tetap terbuka sampai pengguna menutupnya sendiri - beda dari Tooltip yang hilang begitu pointer bergerak.
+
+<Canvas of={PopoverStories.PriceInfoPopover} />
+
+## Aksesibilitas
+
+**Peran ARIA:** panel membawa `role="dialog"` tanpa `aria-modal` - dialog
+non-modal, fokus boleh masuk tapi tidak terjebak. `aria-label` wajib diisi
+karena `content`-nya bebas bentuk apa pun. Elemen pemicu (`trigger`)
+di-clone, bukan dibungkus - ia mempertahankan semantiknya sendiri dan
+mendapat tambahan `aria-haspopup="dialog"`, `aria-expanded`, serta
+`aria-controls` yang hanya terpasang selama panel benar-benar ada di DOM.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Enter</code>/<code>Space</code> pada pemicu
+      </td>
+      <td>Membuka atau menutup panel (toggle) - native lewat elemen pemicu itu sendiri</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berjalan lewat urutan DOM biasa di dalam konten - tidak dijebak; begitu fokus melewati
+        elemen fokusabel terakhir di dalam panel, panel menutup dengan sendirinya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>Menutup panel dan mengembalikan fokus ke elemen pemicu</td>
+    </tr>
+    <tr>
+      <td>Klik di luar panel dan pemicu</td>
+      <td>
+        Menutup panel bila <code>closeOnClickOutside</code> (default <code>true</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>Klik pada elemen di dalam panel</td>
+      <td>
+        Tidak menutup panel - inilah beda utamanya dari Tooltip, isi Popover tetap bisa dipakai
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Fokus yang pindah ke luar panel maupun pemicu (mis. Tab ke elemen
+  berikutnya di halaman) memicu penutupan - dideteksi lewat event `focusin`
+  pada dokumen, bukan `focusout`, karena `relatedTarget` pada `focusout`
+  tidak selalu tersedia di semua browser.
+- `aria-controls` pada pemicu hanya muncul selagi panel ada di DOM, supaya
+  tidak ada referensi menggantung ke elemen yang sudah tidak ter-render.
+
+**Wajib disediakan konsumen:**
+
+- `aria-label` - wajib, karena `content` bisa berupa apa saja dan komponen
+  tidak bisa menebak namanya sendiri.
+- `trigger` berupa satu elemen React valid yang menerima `ref` dan `onClick`
+  - `trigger`-nya sendiri yang menyimpan `onClick` asli pemanggil, keduanya
+    dijalankan berurutan, tidak saling menimpa.

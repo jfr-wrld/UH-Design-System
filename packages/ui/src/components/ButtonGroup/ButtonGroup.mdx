@@ -1,0 +1,69 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ButtonGroupStories from './ButtonGroup.stories';
+
+<Meta of={ButtonGroupStories} />
+
+# ButtonGroup
+
+Menggabungkan `Button` yang bersebelahan menjadi satu strip tersegmentasi -
+pembungkus tata letak murni di sekitar `Button` milik sistem ini sendiri,
+bukan implementasi kedua darinya. Hanya anak pertama dan terakhir yang tetap
+punya radius sudut luar; setiap sambungan di antaranya menggambar satu garis
+pembatas yang sama terlepas dari variant apa pun.
+
+## Props
+
+<ArgTypes of={ButtonGroupStories} />
+
+## Contoh penggunaan
+
+<Canvas of={ButtonGroupStories.Playground} />
+
+## Bukan implementasi kedua dari Button
+
+Referensi TailGrids memiliki gaya tombolnya sendiri lewat `cva` yang
+menyasar sembarang elemen `<button>` sebagai child - artinya setiap varian,
+ukuran, ikon, dan status loading/disabled milik `Button` harus ditulis ulang
+di sana. Sistem ini sudah punya `Button` sungguhan dengan semuanya itu;
+`ButtonGroup` di sini hanya menyentuh tepi luar setiap child-nya (radius
+sudut, garis pembatas antar segmen) dan tidak pernah merender tombolnya
+sendiri - beri child berupa `Button` sungguhan dan setiap prop-nya (variant,
+size, ikon, loading, disabled) tetap berfungsi persis seperti di luar
+grup.
+
+<Canvas of={ButtonGroupStories.Matrix} />
+
+## Garis pembatas yang selalu terlihat
+
+`Button` sudah menggambar `border: 1px solid` di keempat sisinya untuk
+setiap variant sekalipun (`primary` pun border-nya transparan, bukan tanpa
+border sama sekali) - jadi setiap segmen selain yang pertama cukup
+tumpang-tindih 1px ke border-mulai milik dirinya sendiri lewat margin
+negatif, lalu warna border itu saja yang diganti ke token pembatas netral.
+Tidak ada box-shadow tambahan, tidak ada ukuran kotak tombol mana pun yang
+berubah - dan karena tekniknya cuma mewarnai ulang border yang memang sudah
+ada, hasilnya seragam terlepas dari variant apa pun, termasuk `primary`
+yang border aslinya sendiri tidak terlihat.
+
+## Orientasi
+
+`orientation` (`horizontal` default, atau `vertical`) menentukan di sisi
+mana radius sudut luar dan garis pembatas berada - horizontal di kiri/kanan,
+vertical di atas/bawah. Bukan bagian dari referensi TailGrids-nya sendiri
+(yang hanya horizontal), ditambahkan di sini karena biayanya kecil (murni
+CSS kondisional) sementara kebutuhannya - sebuah grup tombol berdiri
+tersusun, bukan berderet - cukup umum di dunia nyata.
+
+<Canvas of={ButtonGroupStories.DarkMode} />
+
+<Canvas of={ButtonGroupStories.TextExpansion} />
+
+## Aksesibilitas
+
+`label` opsional: beri kalau tombol-tombolnya sungguhan satu toolbar aksi
+terkait ("Bold/Italic/Underline") sehingga `role="group"` plus nama itu
+berguna bagi pengguna pembaca layar; lewati kalau tombol-tombolnya sekadar
+kebetulan bersebelahan tanpa makna kelompok tambahan (pasangan Prev/Next
+tersegmentasi yang sudah cukup jelas dari label masing-masing tombolnya
+sendiri, misalnya) - `role="group"` tanpa nama yang benar-benar menambah
+informasi hanya kebisingan tambahan bagi pembaca layar.

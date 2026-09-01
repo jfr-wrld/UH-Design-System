@@ -29,8 +29,22 @@ const FORBIDDEN = [
 /**
  * Values that are structural rather than design decisions: a full turn, a
  * half-offset, a zero. These carry no brand meaning and have no token.
+ *
+ * `@container (min-width: 350px)` is a different kind of exception: it IS
+ * a design value (350 = `size.modal.sm`'s 400px minus the modal panel's
+ * own padding and border), but a container-query condition is evaluated
+ * before custom properties resolve, so a `var()` reference is invalid CSS
+ * there and silently drops the whole rule (confirmed against this
+ * package's own build). See Modal.css's own comment on the same line for
+ * the full story, including why it is 350 and not 400 - if
+ * `size.modal.sm` ever changes, this line has to change with it by hand.
  */
-const ALLOWED_LINES = [/rotate\(360deg\)/, /translateY\(-50%\)/, /inset\(50%\)/];
+const ALLOWED_LINES = [
+  /rotate\(360deg\)/,
+  /translateY\(-50%\)/,
+  /inset\(50%\)/,
+  /@container \(min-width: 350px\)/,
+];
 
 async function cssFiles(dir) {
   const found = [];

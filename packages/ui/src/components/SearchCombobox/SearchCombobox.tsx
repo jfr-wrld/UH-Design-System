@@ -10,6 +10,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { Search1, RefreshCircle3Clockwise, ErrorCircle1 } from '@tailgrids/icons';
 
 import { MOBILE_QUERY } from '../../hooks/breakpoints.js';
 import { useAnchoredPortal } from '../../hooks/useAnchoredPortal.js';
@@ -18,6 +19,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { Spinner } from '../Spinner/Spinner.js';
 import { DEFAULT_LABELS, defaultEmptyMessage, type SearchComboboxLabels } from './labels.js';
 import { splitMatches } from './highlight.js';
+import { CloseIcon } from '../../lib/icons.js';
 
 export interface SearchOption {
   id: string;
@@ -29,80 +31,61 @@ export interface SearchOption {
 }
 
 export interface SearchComboboxProps {
+  /** Names the combobox for assistive tech; also the accessible name of the listbox and, on mobile, of the trigger button. */
   label: string;
+  /** Controlled query. Pair with `onChange`; omit both and the field manages its own text via `defaultValue`. */
   value?: string | undefined;
+  /** Initial query for the uncontrolled case. Ignored once `value` is passed. */
   defaultValue?: string | undefined;
+  /** Fires on every keystroke, controlled or not - this is the raw text, not the debounced search. */
   onChange?: ((value: string) => void) | undefined;
   /** Called once the typing settles, never on every keystroke. */
   onSearch?: ((query: string) => void) | undefined;
+  /** Fires when a result is chosen by click, Enter, or tap. The field fills with the option's label and the popup closes. */
   onSelect?: ((option: SearchOption) => void) | undefined;
+  /** The rows to show. The component never filters these itself - pass back whatever `onSearch` (or the initial `recentSearches`) turned up. */
   options?: readonly SearchOption[] | undefined;
+  /** Set while a search request is in flight. Combines with the debounce's own "typing" state to decide what the status region announces. */
   loading?: boolean | undefined;
+  /** Shown in the empty field and, on mobile, on the closed trigger. */
   placeholder?: string | undefined;
+  /** Shown in place of results when the field is empty and focused. */
   recentSearches?: readonly string[] | undefined;
+  /** Enables the "Clear recent searches" control in the popup header. Omit it and the control is not rendered at all. */
   onClearRecent?: (() => void) | undefined;
   /** A string, or a function of the query so it can name what was searched for. */
   emptyMessage?: string | ((query: string) => string) | undefined;
   /** Set by the consumer when the search itself failed. */
   errorMessage?: string | undefined;
+  /** Persistent hint under the field. Replaced by `errorMessage` when one is set, never shown alongside it. */
   helperText?: string | undefined;
+  /** Milliseconds to wait after the last keystroke before `onSearch` fires. `0` searches on every keystroke. */
   debounce?: number | undefined;
+  /** Closes and locks the field; the popup cannot open while true. */
   disabled?: boolean | undefined;
+  /** Overrides for the built-in English copy (recent-searches heading, clear buttons, loading and cancel text, result count). */
   labels?: Partial<SearchComboboxLabels> | undefined;
+  /** Extra class merged onto the root `.uh-search` element. */
   className?: string | undefined;
 }
 
 type Entry = { kind: 'recent'; value: string } | { kind: 'option'; option: SearchOption };
 
 function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <circle cx="11" cy="11" r="6.25" stroke="currentColor" strokeWidth="1.75" />
-      <path d="M15.5 15.5L20 20" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
+  return <Search1 aria-hidden="true" focusable="false" />;
 }
 
-function ClearIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
+/*
+ * @tailgrids/icons has no literal "clock with a history arrow" glyph -
+ * RefreshCircle3Clockwise (a circular, clockwise-turning arrow) stands in
+ * for the same "recent activity" idea.
+ */
 function HistoryIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M12 7.5V12l3 1.75"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="7.25" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
-  );
+  return <RefreshCircle3Clockwise aria-hidden="true" focusable="false" />;
 }
 
 function AlertIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="7.25" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M12 8v4.5M12 15.5v.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <ErrorCircle1 aria-hidden="true" focusable="false" />;
 }
 
 function SearchComboboxImpl(props: SearchComboboxProps, ref: ForwardedRef<HTMLInputElement>) {
@@ -461,7 +444,7 @@ function SearchComboboxImpl(props: SearchComboboxProps, ref: ForwardedRef<HTMLIn
           aria-label={labels.clearQuery}
           onClick={clearQuery}
         >
-          <ClearIcon />
+          <CloseIcon />
         </button>
       ) : null}
     </div>
@@ -679,5 +662,14 @@ function SearchComboboxImpl(props: SearchComboboxProps, ref: ForwardedRef<HTMLIn
   );
 }
 
-export const SearchCombobox = forwardRef(SearchComboboxImpl);
-SearchCombobox.displayName = 'SearchCombobox';
+export const SearchCombobox = /* @__PURE__ */ forwardRef(SearchComboboxImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  SearchCombobox.displayName = 'SearchCombobox';
+}

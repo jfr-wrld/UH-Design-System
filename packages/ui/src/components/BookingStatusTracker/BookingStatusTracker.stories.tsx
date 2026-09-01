@@ -65,6 +65,40 @@ export const Horizontal: Story = {
   ),
 };
 
+export const CheckoutWizard: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`steps` and `currentStep` are not booking-lifecycle-specific despite the ' +
+          "component's own name - anywhere a person moves through a fixed, ordered " +
+          'sequence of screens reads the same way, including *before* a booking exists ' +
+          'yet: a checkout wizard picking a package, then passengers, then payment, then a ' +
+          "final review. No `timestamp` on any step here - a wizard step hasn't " +
+          '"happened" at a point in time the way a real booking milestone has, it is just ' +
+          'where the person currently is in the form.',
+      },
+    },
+  },
+  args: {
+    currentStep: 1,
+    steps: [
+      { label: 'Package' },
+      { label: 'Passengers' },
+      { label: 'Payment' },
+      { label: 'Review' },
+    ],
+    labels: { tracker: 'Booking steps' },
+  },
+  render: (args) => (
+    <Page>
+      <div style={{ maxWidth: '640px' }}>
+        <BookingStatusTracker {...args} />
+      </div>
+    </Page>
+  ),
+};
+
 export const Vertical: Story = {
   args: { currentStep: 1, variant: 'vertical' },
   parameters: {
@@ -161,6 +195,56 @@ export const DarkMode: Story = {
       </div>
     </Page>
   ),
+};
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for
+ * BookingStatusTracker.mdx's "Contoh penggunaan" section - args-only
+ * stories so the Docs Source panel reconstructs clean
+ * `<BookingStatusTracker ... />` JSX instead of a render function body.
+ * Kept separate from the stories above, which exist to prove the whole
+ * surface works, not to be copied verbatim.
+ */
+
+export const HorizontalInProgress: Story = {
+  parameters: { layout: 'padded' },
+  args: { currentStep: 1 },
+};
+
+export const VerticalWithDetails: Story = {
+  parameters: { layout: 'padded' },
+  args: {
+    variant: 'vertical',
+    currentStep: 2,
+    locale: 'en-MY',
+    steps: [
+      {
+        label: 'Booking',
+        description: 'Confirmed by Madinah Travel & Tours.',
+        timestamp: new Date(2026, 1, 3, 10, 12),
+      },
+      {
+        label: 'Payment',
+        description: 'Paid in full by FPX transfer.',
+        timestamp: new Date(2026, 1, 5, 14, 32),
+      },
+      { label: 'Documents', description: 'Passports due 30 days before departure.' },
+      { label: 'Ready to Depart' },
+    ],
+  },
+};
+
+export const PaymentDeclined: Story = {
+  parameters: { layout: 'padded' },
+  args: {
+    currentStep: 1,
+    steps: [
+      { label: 'Booking' },
+      { label: 'Payment', error: true, description: 'Card was declined. Try again.' },
+      { label: 'Documents' },
+      { label: 'Ready to Depart' },
+    ],
+  },
 };
 
 const MS_STEPS = [

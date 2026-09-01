@@ -153,5 +153,14 @@ function ButtonImpl(props: ButtonProps, ref: ForwardedRef<HTMLButtonElement & HT
   );
 }
 
-export const Button = forwardRef(ButtonImpl);
-Button.displayName = 'Button';
+export const Button = /* @__PURE__ */ forwardRef(ButtonImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Button.displayName = 'Button';
+}

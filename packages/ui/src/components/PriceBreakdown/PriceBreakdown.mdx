@@ -1,0 +1,239 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PriceBreakdownStories from './PriceBreakdown.stories';
+
+<Meta of={PriceBreakdownStories} />
+
+# PriceBreakdown
+
+The last table a pilgrim reads before paying: base price, add-ons, tax,
+fees, a discount, and a total, each row through the same money formatter as
+`PriceDisplay`. The details collapse - open on a desktop, closed on a
+phone, either overridable with `defaultExpanded` - but the total never
+does, because hiding the one number the screen exists to show would make
+the collapse a trap. The component adds nothing up itself: the total is a
+supplied `PriceItem`, since deciding how rounding, deposits, or instalments
+settle is the consumer's contract with its own pricing service, not a
+display component's job.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk rincian harga berjenjang sebelum checkout - base, add-on, pajak, fee, diskon, total
+      </td>
+      <td>
+        Untuk satu angka harga saja (kartu paket, ringkasan singkat) - itu tugas{' '}
+        <code>PriceDisplay</code>, komponen ini selalu berupa tabel
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>currency</code> dan <code>locale</code> diisi sebagai dua prop yang benar-benar
+        independen - simbol datang dari <code>currency</code>, pengelompokan angka datang dari{' '}
+        <code>locale</code>
+      </td>
+      <td>
+        Menurunkan <code>currency</code> dari <code>locale</code> (atau sebaliknya) - invoice rupiah
+        yang dibaca dalam bahasa Inggris tetap "Rp", bukan berubah jadi "IDR"; lihat story{' '}
+        <code>IdrBreakdownInEnglish</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>amount</code> selalu positif pada baris <code>type: 'discount'</code> - tipe itulah
+        yang memberi tahu komponen untuk menggambar tanda minus dan warna sukses
+      </td>
+      <td>
+        Membiasakan diri mengirim <code>amount</code> negatif untuk diskon - komponen memang
+        menoleransinya (dinormalisasi lewat <code>Math.abs</code>), tapi kontrak tipenya "selalu
+        positif"; jangan andalkan toleransi itu sebagai cara normal memanggilnya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Sertakan satu <code>PriceItem</code> ber-<code>type: 'total'</code> sendiri kalau baris
+        total memang diinginkan
+      </td>
+      <td>
+        Berharap komponen ini menjumlahkan sendiri atau memvalidasi bahwa angka-angkanya benar - ia
+        tidak pernah menghitung apa pun, hanya menggambar apa yang diberikan (lihat story{' '}
+        <code>Long</code>: tanpa item <code>total</code>, tidak ada baris total yang muncul)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Biarkan <code>defaultExpanded</code> mengikuti default-nya (terbuka di desktop, tertutup di
+        ponsel) kecuali ada alasan kuat
+      </td>
+      <td>
+        Memaksa <code>defaultExpanded={false}</code> di desktop secara umum - itu menyembunyikan
+        rincian harga dari pengguna yang sebenarnya punya cukup ruang layar untuk melihatnya, dan
+        mengalahkan default responsif yang sudah dibangun
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya adalah `<div>` yang membawa `data-variant` (`card` menambah
+border, padding, dan background; `inline` tidak menambah apa pun karena
+komponen ini dimaksudkan untuk duduk di dalam surface yang sudah ada).
+
+- **`.uh-breakdown`** - root.
+- **`.uh-breakdown__passengers`** - baris ringkasan opsional di atas tabel
+  ("2 Adults, 1 Child"), dirangkai lewat `Intl.ListFormat` sesuai `locale`.
+- **`.uh-breakdown__toggle`** - tombol `<button>` show/hide, hanya muncul
+  kalau ada baris selain total untuk disembunyikan. Membawa
+  `aria-expanded` dan `aria-controls` ke `<tbody>` di bawahnya.
+- **`.uh-breakdown__chevron`** - ikon panah di dalam toggle, berputar 180°
+  lewat `data-open`.
+- **`.uh-breakdown__table`** - elemen `<table>` sesungguhnya, bukan
+  `<div>` yang dibentuk seperti tabel - `aria-label` diambil dari
+  `labels.breakdown`.
+- **`.uh-breakdown__row`** - satu `<tr>`, membawa `data-type` (`base`,
+  `addon`, `tax`, `fee`, `discount`, `total`) yang mengubah warna dan
+  ukuran tipografinya.
+- **`.uh-breakdown__label`** - sel `<th scope="row">` di kolom kiri.
+- **`.uh-breakdown__info`** - tombol info 24px di samping label, hanya
+  muncul kalau baris punya `note`; memicu `Tooltip`.
+- **`.uh-breakdown__amount`** - sel `<td>` kanan, rata kanan, angka
+  tabular lewat token `numeric-table` (atau `numeric-price-md` khusus
+  baris total).
+
+## Props
+
+<ArgTypes of={PriceBreakdownStories} />
+
+## Contoh penggunaan
+
+### Rincian sederhana
+
+Kasus paling kecil: base price, satu fee, dan total - tidak ada penumpang,
+tidak ada diskon, tidak ada catatan.
+
+<Canvas of={PriceBreakdownStories.SimpleBreakdown} />
+
+### Booking lengkap dengan diskon
+
+Kuantitas per baris ("Base Price × 2"), catatan di belakang ikon info, baris
+diskon berwarna sukses dengan tanda minus, ringkasan penumpang di atas
+tabel, dan total yang dipisahkan garis serta ukuran tipografi yang lebih
+besar.
+
+<Canvas of={PriceBreakdownStories.FullBookingWithDiscount} />
+
+### Mata uang berbeda, locale sama
+
+`currency="IDR"` dengan `locale="en"` - simbolnya tetap "Rp" dan angka
+mengelompok dengan koma ala bahasa Inggris, bukan berubah jadi "IDR" atau
+ikut memakai titik ala Indonesia. Ini bukti visual bahwa kedua prop tidak
+saling menurunkan satu sama lain.
+
+<Canvas of={PriceBreakdownStories.IdrBreakdownInEnglish} />
+
+Untuk melihat ketiga mata uang berdampingan dengan locale yang cocok
+masing-masing, lihat story `Currencies`; untuk varian `inline` tanpa
+border/background sendiri, lihat `Inline`; untuk kondisi tertutup secara
+eksplisit lewat `defaultExpanded={false}`, lihat `Collapsed`.
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran custom - `<table>` native membawa peran
+`table`-nya sendiri, diberi nama lewat `aria-label={labels.breakdown}`.
+Tombol toggle mengikuti pola disclosure widget standar: `aria-expanded`
+menyatakan status terbuka/tertutup, `aria-controls` menunjuk ke `id`
+`<tbody>` yang dikontrolnya. Tombol info memicu `Tooltip` (`role="tooltip"`
+pada elemen yang muncul), bukan popover atau dialog.
+
+**Baris yang tertutup benar-benar hilang dari accessibility tree**, bukan
+cuma disembunyikan secara visual. `<tbody>` memakai atribut HTML native
+`hidden`, bukan `display: none` lewat CSS saja dan bukan `aria-hidden`
+sendirian - jadi screen reader tidak menemukan baris yang sedang
+disembunyikan, persis seperti pengguna sighted. Baris total ada di
+`<tfoot>` di luar `<tbody>` yang bisa collapse, sehingga tetap terbaca apa
+pun status togglenya.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus di antara toggle show/hide dan setiap tombol info yang ada, mengikuti
+        urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Pada toggle: membuka/menutup detail (semantik native <code>&lt;button&gt;</code>). Pada
+        tombol info: tidak melakukan apa-apa secara langsung - tooltip-nya sudah terbuka begitu
+        tombol menerima fokus, bukan menunggu aktivasi
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>
+        Menutup tooltip yang sedang terbuka pada tombol info, tanpa memindahkan fokus keluar dari
+        tombol itu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Baris diskon membawa teks tersembunyi visual "Discount" sebelum tanda
+  minusnya - baik tanda minus maupun warna sukses tidak reliably
+  terdengar, jadi katanya diucapkan secara eksplisit.
+- Label dengan kuantitas ("Base Price × 2") adalah satu simpul teks biasa,
+  bukan dua elemen terpisah, sehingga terbaca utuh sebagai satu frasa.
+- Ringkasan penumpang adalah paragraf teks biasa di atas tabel, dirangkai
+  lewat `Intl.ListFormat` sesuai `locale` ("2 Adults, 1 Child, 1 Infant"),
+  dengan kategori berhitung nol dijatuhkan dari daftar.
+- Tombol info diberi nama lewat `labels.moreAbout(item.label)`
+  ("More about Visa Processing"), bukan nama generik "Info" - jadi setiap
+  tombol info di tabel yang sama tetap bisa dibedakan satu sama lain oleh
+  screen reader.
+
+**Wajib disediakan konsumen:**
+
+- `items`, `currency`, `locale` - ketiganya wajib, tidak ada default yang
+  masuk akal untuk salah satunya.
+- Baris `type: 'total'` sendiri kalau baris total diinginkan - komponen
+  tidak pernah menghitung atau mengarang satu.
+- Kalau menerjemahkan lewat `labels`, isi seluruh kunci yang dipakai di
+  layar itu - default-nya bahasa Inggris, dan `labels` hanya di-merge
+  sebagian (`Partial<PriceBreakdownLabels>`), jadi kunci yang tidak diisi
+  tetap tampil dalam bahasa Inggris.
+
+## Catatan i18n
+
+Kolom label adalah yang fleksibel - ia boleh wrap - sementara kolom angka
+tidak pernah wrap (`white-space: nowrap` di `.uh-breakdown__amount`),
+supaya label Indonesia yang panjang tidak mendorong angka keluar dari tepi
+kanannya yang lurus. Story `TextExpansion` membandingkan string asli
+spesifikasi ("Harga Asas", "Pemprosesan Visa", "Insurans Perjalanan") dalam
+tiga bahasa berdampingan, masing-masing kolom 300px:
+
+<Canvas of={PriceBreakdownStories.TextExpansion} />

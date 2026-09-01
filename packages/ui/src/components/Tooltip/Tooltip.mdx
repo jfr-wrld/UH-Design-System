@@ -1,0 +1,16 @@
+import { Meta, ArgTypes } from '@storybook/blocks';
+import * as TooltipStories from './Tooltip.stories';
+
+<Meta of={TooltipStories} />
+
+# Tooltip
+
+Label tambahan singkat yang muncul saat trigger-nya di-hover atau di-focus -
+untuk menjelaskan ikon atau kontrol yang maknanya tidak selalu jelas dari
+tampilannya saja. `placement` otomatis flip ke sisi sebaliknya kalau ruang
+viewport tidak cukup, dan `aria-describedby` menyambungkannya ke trigger
+tanpa mengganti nama aksesibilitas trigger itu sendiri.
+
+## Props
+
+<ArgTypes of={TooltipStories} />

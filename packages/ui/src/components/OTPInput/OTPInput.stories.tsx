@@ -274,6 +274,43 @@ export const DarkMode: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for OTPInput.mdx's
+ * "Contoh Penggunaan" section - args-only so the Docs Source panel shows
+ * clean `<OTPInput ... />` JSX rather than a render function body.
+ */
+
+export const SmsCode: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Verification code',
+    length: 6,
+    helperText: 'Sent by SMS to +60 12-345 6789',
+    autoFocus: true,
+  },
+};
+
+export const AgencyAccessCode: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Agency access code',
+    length: 4,
+    type: 'alphanumeric',
+    helperText: 'Provided by your travel agency',
+  },
+};
+
+export const IncorrectCode: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Verification code',
+    length: 6,
+    defaultValue: '482913',
+    error: true,
+    errorMessage: 'That code is incorrect. Check the SMS and enter the last code you received.',
+  },
+};
+
 /* --------------------------------------------------------- text expansion */
 
 const COPY = [

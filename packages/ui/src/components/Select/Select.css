@@ -68,8 +68,13 @@
   padding-top: var(--uh-spacing-4);
 }
 
+/*
+ * `border-strong`, not `border-default`: this panel holds real clickable
+ * option rows, not decoration - the same reasoning Input's own border
+ * already uses, moved here in the TailGrids-character pass.
+ */
 .uh-select__panel {
-  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
+  border: var(--uh-border-width-1) solid var(--uh-color-border-strong);
   border-radius: var(--uh-radius-md);
   background-color: var(--uh-color-bg-surface);
   box-shadow: var(--uh-elevation-3);

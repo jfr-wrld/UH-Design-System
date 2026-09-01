@@ -1,0 +1,56 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as BreadcrumbsStories from './Breadcrumbs.stories';
+
+<Meta of={BreadcrumbsStories} />
+
+# Breadcrumbs
+
+Jejak tautan naik ke hierarki halaman, terbaru di akhir. `nav` landmark
+berlabel yang membawa daftar berurutan (`<ol>`), item terakhir ditandai
+`aria-current="page"`.
+
+## Props
+
+<ArgTypes of={BreadcrumbsStories} />
+
+## Contoh penggunaan
+
+<Canvas of={BreadcrumbsStories.Playground} />
+
+## Tiga gaya pemisah, plus ikon
+
+<Canvas of={BreadcrumbsStories.Matrix} />
+
+## Yang diperbaiki dari referensi TailGrids
+
+Referensi TailGrids yang jadi acuan komponen ini melewatkan tiga hal yang WAI-
+ARIA Breadcrumb Pattern sebenarnya minta, dan ketiganya diperbaiki di sini,
+bukan diikuti apa adanya:
+
+- **Tidak ada `nav` landmark** - referensi langsung merender `<ol>` telanjang.
+  Di sini dibungkus `<nav aria-label={label}>`, mengikuti aturan yang sama
+  yang sudah dipakai `Pagination`'s sendiri: `label` wajib diisi, bukan
+  default diam-diam ke "Breadcrumb" - benar untuk kebanyakan halaman, tapi
+  salah untuk jejak kedua di halaman yang sama (jejak langkah sebuah wizard,
+  misalnya), dan landmark dengan nama yang ternyata bohong lebih buruk
+  daripada yang memaksa pemanggil bilang apa nama sebenarnya.
+- **Tidak ada `aria-current="page"`** - referensi hanya membedakan item
+  terakhir lewat warna teks (`text-title-50` vs `text-text-100`), sesuatu
+  yang tidak terbaca oleh pembaca layar sama sekali. Di sini item terakhir
+  tetap `<a href>` sungguhan (mengikuti bentuk setiap item dari `items` apa
+  adanya), hanya ditambah `aria-current="page"` untuk memberi tahu assistive
+  technology bahwa ini yang sedang dibuka.
+- **Pemisah tidak disembunyikan** - glyph pemisah (`/`, chevron, titik) di
+  referensi tidak punya `aria-hidden`, jadi bisa terbaca sebagai konten oleh
+  pembaca layar padahal murni dekorasi tata letak bagi pembaca yang bisa
+  melihat. Alasan yang sama persis yang sudah didokumentasikan
+  `CommandSeparator` untuk pemisahnya sendiri.
+
+`activeHref` milik referensi juga tidak ikut dibawa - properti itu dideklarasi
+di tipe tapi tidak pernah benar-benar dipakai di fungsi referensinya sendiri
+(item terakhir di array `items` yang menentukan gaya "halaman ini", bukan
+`activeHref`), jadi membawanya ke sini hanya akan menambah satu prop mati.
+
+<Canvas of={BreadcrumbsStories.DarkMode} />
+
+<Canvas of={BreadcrumbsStories.TextExpansion} />

@@ -8,8 +8,11 @@ import {
   type DragEvent,
   type ForwardedRef,
 } from 'react';
+import { UploadCloud, Page } from '@tailgrids/icons';
 
 import { DEFAULT_LABELS, constraintLines, type FileUploadLabels } from './labels.js';
+import { CloseIcon } from '../../lib/icons.js';
+import { ProgressBar } from '../ProgressBar/ProgressBar.js';
 import {
   describeAccept,
   formatFileSize,
@@ -20,6 +23,7 @@ import {
 } from './files.js';
 
 export interface FileUploadProps {
+  /** Field label shown above the drop area; also half of the input's accessible name. */
   label: string;
   /** Handed every file that passed the size and format checks. */
   onUpload?: ((files: File[]) => void) | undefined;
@@ -27,70 +31,34 @@ export interface FileUploadProps {
   onRemove?: ((id: string) => void) | undefined;
   /** The rows to show. Owned by the consumer, who runs the actual upload. */
   value?: readonly UploadFile[] | undefined;
+  /** Same syntax as the native `accept` attribute - MIME types, `image/*`, or `.ext`, comma-separated. Enforced again in JS, since drag-and-drop bypasses the browser's own filter. */
   accept?: string | undefined;
   /** In bytes. Counted in binary steps, so 5 * 1024 * 1024 reads back as 5 MB. */
   maxSize?: number | undefined;
+  /** Caps the row count, existing `value` entries included. Whatever would push past it is refused, not silently trimmed. */
   maxFiles?: number | undefined;
+  /** Allows more than one file per pick or drop. Off by default - most document fields (e.g. one passport photo) take exactly one file. */
   multiple?: boolean | undefined;
+  /** Supporting copy under the drop area. Replaced by `errorMessage` when both are set, so only one message shows at a time. */
   helperText?: string | undefined;
   /** Set by the consumer, for a problem with the set as a whole. */
   errorMessage?: string | undefined;
+  /** Blocks the picker, drag-and-drop, and removal. The input stays in the tab order; only the interaction is refused. */
   disabled?: boolean | undefined;
+  /** BCP 47 locale used to format file sizes via `Intl.NumberFormat` (5 MB vs 5 Mo). Does not translate the labels themselves - pass `labels` for that. */
   locale?: string | undefined;
+  /** Overrides merged over `DEFAULT_LABELS`. Required for anything beyond English. */
   labels?: Partial<FileUploadLabels> | undefined;
+  /** Extra class appended to the root element, after `uh-upload`. */
   className?: string | undefined;
 }
 
 function UploadIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M4 15v3a2 2 0 002 2h12a2 2 0 002-2v-3"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <UploadCloud aria-hidden="true" focusable="false" />;
 }
 
 function DocumentIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M14 3.5H7.5a2 2 0 00-2 2v13a2 2 0 002 2h9a2 2 0 002-2V8z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.75 3.75V8.5h4.75"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function RemoveIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Page aria-hidden="true" focusable="false" />;
 }
 
 /**
@@ -375,17 +343,11 @@ function FileUploadImpl(props: FileUploadProps, ref: ForwardedRef<HTMLInputEleme
                 <span className="uh-upload__size">{formatFileSize(file.size, locale)}</span>
 
                 {file.status === 'uploading' ? (
-                  <span
-                    className="uh-upload__progress"
-                    role="progressbar"
-                    aria-label={labels.progressLabel(file.name)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    {...(file.progress === undefined ? {} : { 'aria-valuenow': file.progress })}
-                  >
-                    <span
-                      className="uh-upload__progress-fill"
-                      style={{ inlineSize: `${file.progress ?? 0}%` }}
+                  <span className="uh-upload__progress">
+                    <ProgressBar
+                      label={labels.progressLabel(file.name)}
+                      value={file.progress}
+                      indeterminate={file.progress === undefined}
                     />
                   </span>
                 ) : null}
@@ -423,7 +385,7 @@ function FileUploadImpl(props: FileUploadProps, ref: ForwardedRef<HTMLInputEleme
                   disabled={disabled}
                   onClick={() => remove(file)}
                 >
-                  <RemoveIcon />
+                  <CloseIcon />
                 </button>
               )}
             </li>
@@ -449,7 +411,7 @@ function FileUploadImpl(props: FileUploadProps, ref: ForwardedRef<HTMLInputEleme
                   setRejections((current) => current.filter((item) => item.id !== rejection.id))
                 }
               >
-                <RemoveIcon />
+                <CloseIcon />
               </button>
             </li>
           ))}
@@ -464,5 +426,14 @@ function FileUploadImpl(props: FileUploadProps, ref: ForwardedRef<HTMLInputEleme
   );
 }
 
-export const FileUpload = forwardRef(FileUploadImpl);
-FileUpload.displayName = 'FileUpload';
+export const FileUpload = /* @__PURE__ */ forwardRef(FileUploadImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  FileUpload.displayName = 'FileUpload';
+}

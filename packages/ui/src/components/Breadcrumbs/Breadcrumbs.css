@@ -1,0 +1,94 @@
+/*
+ * Breadcrumbs
+ *
+ * The TailGrids reference gives the slash divider a tighter gap (6px) than
+ * the dot one (8px) - a distinction this system's spacing scale has no 6px
+ * step for. One gap for every divider type instead, at the roomier of the
+ * two, rather than inventing a token for a difference this small.
+ */
+
+.uh-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-breadcrumbs__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  letter-spacing: var(--uh-typography-web-body-s-letter-spacing);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+  text-decoration: none;
+}
+
+.uh-breadcrumbs__link:hover {
+  color: var(--uh-color-text-primary);
+  text-decoration: underline;
+}
+
+.uh-breadcrumbs__link:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+  border-radius: var(--uh-radius-sm);
+}
+
+/* The current page: still a real link (see Breadcrumbs.tsx's own comment on
+   why), just the one item that reads as "already here" rather than "go
+   here" - a step darker, no underline invitation to click it again. */
+.uh-breadcrumbs__link[data-current='true'] {
+  color: var(--uh-color-text-primary);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-breadcrumbs__link[data-current='true']:hover {
+  text-decoration: none;
+}
+
+.uh-breadcrumbs__icon {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-breadcrumbs__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-breadcrumbs__divider {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-breadcrumbs__divider > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-breadcrumbs__divider[data-shape='dot'] {
+  width: var(--uh-spacing-4);
+  height: var(--uh-spacing-4);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-text-tertiary);
+}

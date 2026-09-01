@@ -177,3 +177,30 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Switch.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Switch ... />` JSX instead of a render function body.
+ * Kept separate from StateMatrix/WithDescription above, which exist to prove
+ * the whole surface works, not to be copied verbatim.
+ */
+
+export const Off: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Email me trip updates' },
+};
+
+export const On: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Email me trip updates', defaultChecked: true },
+};
+
+export const Disabled: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'WhatsApp updates',
+    disabled: true,
+    description: 'Not available for numbers outside Malaysia yet',
+  },
+};

@@ -11,6 +11,7 @@ import {
 import { FieldShell, type FieldSize } from '../Field/FieldShell.js';
 import { useControllableState } from '../../hooks/useControllableState.js';
 import { CountryMark } from './flags.js';
+import { ChevronDownIcon } from '../../lib/icons.js';
 import {
   COUNTRY_RULES,
   formatNational,
@@ -60,14 +61,6 @@ export interface PhoneInputProps {
   otherCodeLabel?: string | undefined;
   id?: string | undefined;
   className?: string | undefined;
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputElement>) {
@@ -250,7 +243,7 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
             <CountryMark country={country} />
             <span className="uh-phone__dial">{optionDial(country, otherDial)}</span>
             <span className="uh-phone__chevron" aria-hidden="true" data-open={open || undefined}>
-              <ChevronIcon />
+              <ChevronDownIcon />
             </span>
           </div>
 
@@ -342,5 +335,14 @@ function PhoneInputImpl(props: PhoneInputProps, ref: ForwardedRef<HTMLInputEleme
   );
 }
 
-export const PhoneInput = forwardRef(PhoneInputImpl);
-PhoneInput.displayName = 'PhoneInput';
+export const PhoneInput = /* @__PURE__ */ forwardRef(PhoneInputImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  PhoneInput.displayName = 'PhoneInput';
+}

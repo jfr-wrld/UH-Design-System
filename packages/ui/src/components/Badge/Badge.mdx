@@ -1,0 +1,141 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as BadgeStories from './Badge.stories';
+
+<Meta of={BadgeStories} />
+
+# Badge
+
+A small, non-interactive label that marks the status or a short attribute of
+something else - a booking's lifecycle state, "Best Seller" on a package
+card. It renders tinted, never solid: a package grid can carry six or seven
+badges at once, and solid fills at that density would compete with the
+price. The one interactive part it can carry is its own small remove
+control (`removable`), for when a badge is standing in for an applied
+filter chip rather than a status label.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Menandai status atau atribut singkat pada item di dalam daftar/grid (status booking, "Best
+        Seller") - murni informasi, tidak mengharapkan klik
+      </td>
+      <td>
+        Untuk sebuah aksi yang bisa ditoggle pengguna (mis. filter yang bisa dipilih/dibatalkan
+        berulang kali) - pakai <code>Chip</code>, yang seluruh alasannya ada adalah menjadi
+        interaktif lewat <code>onClick</code>; Badge tanpa <code>removable</code> sama sekali tidak
+        punya target klik
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Filter yang sudah diterapkan dan bisa dihapus lewat satu tombol kecil (
+        <code>removable</code>) - mis. daftar filter aktif "Ramadan", "14 hari"
+      </td>
+      <td>
+        Pesan sistem yang butuh perhatian penuh pengguna (galat halaman, "Anda sedang offline") -
+        pakai <code>Alert</code>, yang punya <code>layout="banner"</code> dan bisa membawa judul,
+        aksi, dan tombol tutup; Badge dirancang kecil dan inline, bukan pemblokir perhatian
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Warna variant mengikuti makna, bukan selera - <code>success</code>/<code>warning</code>/
+        <code>error</code> untuk status yang sudah punya konotasi baku (dibayar, hampir penuh,
+        dibatalkan)
+      </td>
+      <td>
+        Memakai warna variant hanya untuk dekorasi tanpa makna status - pengguna akan mulai
+        mengasosiasikan warna dengan arti yang salah di seluruh produk
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={BadgeStories} />
+
+## Contoh penggunaan
+
+### Status booking
+
+`variant` menerima nilai `BadgeStatus` (`pending`, `paid`, `confirmed`, dst.) selain nilai `BadgeVariant` biasa, dan `dot` menegaskan statusnya tanpa mengandalkan warna latar saja.
+
+<Canvas of={BadgeStories.Status} />
+
+### Filter yang bisa dihapus
+
+`removable` menambah tombol tutup 24px dengan `removeLabel` sebagai nama aksesibel wajibnya.
+
+<Canvas of={BadgeStories.Removable} />
+
+### Dengan ikon
+
+`icon` menerima node apa pun; Badge sendiri yang menandainya `aria-hidden` karena label teks sudah menyampaikan makna yang sama.
+
+<Canvas of={BadgeStories.WithIcon} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit - Badge adalah `<span>` biasa.
+Statusnya dibaca screen reader lewat teks label (`children`), bukan lewat
+warna atau `dot`. Saat `removable`, tombol tutupnya adalah elemen
+`<button type="button">` native dengan `aria-label` dari `removeLabel`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke tombol remove saat <code>removable</code> - badge itu sendiri tidak
+        pernah masuk tab order karena bukan elemen interaktif
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol remove (perilaku native <code>&lt;button&gt;</code>, memicu{' '}
+        <code>onRemove</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- `dot` dan `icon` selalu `aria-hidden` - keduanya dekoratif, label teks
+  sudah menyampaikan status yang sama sehingga tidak diumumkan dua kali.
+- Kontras dot diukur pada token `-text` role-nya (bukan `-solid`) - dot
+  kecil dianggap objek grafis oleh WCAG dan butuh minimal 3:1 terhadap latar
+  di sekitarnya.
+- Tanpa `removable`, Badge tidak menghasilkan elemen fokusabel sama sekali -
+  ini disengaja, karena Badge yang murni status tidak seharusnya mencuri
+  tab stop dari kontrol yang benar-benar interaktif di sekitarnya.
+
+**Wajib disediakan konsumen:**
+
+- `children` - label teks, wajib secara tipe TypeScript, karena status
+  tidak boleh hanya disampaikan lewat warna.
+- `removeLabel` saat `removable` diaktifkan - default-nya "Remove" dalam
+  bahasa Inggris, jadi pemanggil wajib mengisi ulang untuk menyebut apa yang
+  dihapus (mis. "Remove filter: Ramadan"), bukan sekadar "Remove" yang tidak
+  jelas kalau ada banyak badge sejenis di layar.

@@ -327,6 +327,41 @@ export const DarkMode: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for DateRangePicker.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<DateRangePicker ... />` JSX instead of a render
+ * function body. No `layout: 'centered'` override: the calendar panel is
+ * large enough that it wants the file's own fullscreen layout.
+ */
+
+export const DepartureAndReturn: Story = {
+  args: {
+    label: 'Travel dates',
+    defaultStartDate: start,
+    defaultEndDate: end,
+    helperText: 'Pick the departure first, then the return.',
+  },
+};
+
+export const PackageDurationLimits: Story = {
+  args: {
+    label: 'Travel dates',
+    minDate: addDays(today, 2),
+    minRange: 9,
+    maxRange: 14,
+    helperText: 'Packages run from nine to fourteen days.',
+  },
+};
+
+export const ReturnDateRequired: Story = {
+  args: {
+    label: 'Travel dates',
+    defaultStartDate: start,
+    errorMessage: 'Choose a return date to continue.',
+  },
+};
+
 export const TextExpansion: Story = {
   args: { label: 'Travel dates' },
   parameters: {

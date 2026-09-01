@@ -1,0 +1,186 @@
+/*
+ * Font Comparison
+ *
+ * Three self-hosted candidate typefaces, loaded from the @fontsource
+ * packages already sitting in node_modules (no CDN, no network fetch at
+ * render time) - the same self-hosting principle packages/tokens/build/css/
+ * fonts.css uses for Plus Jakarta Sans and Noto Naskh Arabic, just scoped to
+ * this one comparison page instead of the shipped token layer. Latin subset
+ * only, four static weights each (400/500/600/700) - what the components on
+ * this page actually call for; no variable-font trick needed since this
+ * page never interpolates between weights.
+ *
+ * This file is imported only by FontComparison.stories.tsx. It does not
+ * touch packages/tokens or packages/ui/src/styles.css - no design token
+ * changes, per the brief.
+ */
+
+@font-face {
+  font-family: 'Geist';
+  src: url('../../node_modules/@fontsource/geist/files/geist-latin-400-normal.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('../../node_modules/@fontsource/geist/files/geist-latin-500-normal.woff2')
+    format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('../../node_modules/@fontsource/geist/files/geist-latin-600-normal.woff2')
+    format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('../../node_modules/@fontsource/geist/files/geist-latin-700-normal.woff2')
+    format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Manrope';
+  src: url('../../node_modules/@fontsource/manrope/files/manrope-latin-400-normal.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Manrope';
+  src: url('../../node_modules/@fontsource/manrope/files/manrope-latin-500-normal.woff2')
+    format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Manrope';
+  src: url('../../node_modules/@fontsource/manrope/files/manrope-latin-600-normal.woff2')
+    format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Manrope';
+  src: url('../../node_modules/@fontsource/manrope/files/manrope-latin-700-normal.woff2')
+    format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../../node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-400-normal.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../../node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-500-normal.woff2')
+    format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../../node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-600-normal.woff2')
+    format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../../node_modules/@fontsource/hanken-grotesk/files/hanken-grotesk-latin-700-normal.woff2')
+    format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * Dongle ships only three static weights - 300/400/700, no 500 or 600. The
+ * label (weight 500) and every semibold heading/title/button (weight 600)
+ * this page asks for have no exact match; the browser's font-weight
+ * fallback (CSS Fonts Module 4 §5.2) picks the nearest declared weight
+ * instead of synthesizing bold, so 500 resolves to 400 and 600 resolves to
+ * 700 here - a real, reportable property of this font, not a bug in this
+ * page. See the Session report for what that looks like in practice.
+ */
+@font-face {
+  font-family: 'Dongle';
+  src: url('../../node_modules/@fontsource/dongle/files/dongle-latin-300-normal.woff2')
+    format('woff2');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dongle';
+  src: url('../../node_modules/@fontsource/dongle/files/dongle-latin-400-normal.woff2')
+    format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Dongle';
+  src: url('../../node_modules/@fontsource/dongle/files/dongle-latin-700-normal.woff2')
+    format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/*
+ * One column, one font-family override - every other declaration in every
+ * component under it (size, weight, color, spacing) stays exactly what the
+ * token layer says. `font-family` is the only property this file sets on
+ * component internals, and it works by winning specificity through the
+ * `data-font` attribute selector, not by editing any component's own CSS.
+ */
+[data-font='jakarta'] {
+  font-family: var(--uh-typography-web-body-m-font-family);
+}
+[data-font='geist'] {
+  font-family: 'Geist', sans-serif;
+}
+[data-font='manrope'] {
+  font-family: 'Manrope', sans-serif;
+}
+[data-font='hanken'] {
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+[data-font='dongle'] {
+  font-family: 'Dongle', sans-serif;
+}
+
+/*
+ * !important, deliberately: every component under a column sets its own
+ * font-family from a typography token (e.g. PriceDisplay's tabular-numeral
+ * stack), and this page's entire point is overriding exactly that one
+ * property to see how the candidate font handles it - including whether its
+ * own numerals stay tabular. A plain `inherit` rule would tie on specificity
+ * with those component rules and lose unpredictably to source order; this
+ * page is not shipped product CSS, so forcing the win here is the right
+ * tool, not a shortcut around a real constraint.
+ */
+[data-font] * {
+  font-family: inherit !important;
+}

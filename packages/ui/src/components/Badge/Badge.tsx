@@ -1,5 +1,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
+import { CloseIcon } from '../../lib/icons.js';
+
 export type BadgeVariant =
   'neutral' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
 
@@ -21,19 +23,6 @@ export interface BadgeProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'child
   /** Accessible name for the remove control; override to localise. */
   removeLabel?: string;
   className?: string | undefined;
-}
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
 }
 
 export function Badge({
@@ -76,4 +65,13 @@ export function Badge({
   );
 }
 
-Badge.displayName = 'Badge';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Badge.displayName = 'Badge';
+}

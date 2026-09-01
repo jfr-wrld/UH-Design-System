@@ -1,4 +1,8 @@
 import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react';
+import {
+  ChevronLeft as ChevronLeftGlyph,
+  ChevronRight as ChevronRightGlyph,
+} from '@tailgrids/icons';
 
 import {
   addDays,
@@ -47,19 +51,11 @@ export interface CalendarProps {
 }
 
 function ChevronLeft() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M14 7l-5 5 5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
+  return <ChevronLeftGlyph aria-hidden="true" focusable="false" />;
 }
 
 function ChevronRight() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M10 7l5 5-5 5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
+  return <ChevronRightGlyph aria-hidden="true" focusable="false" />;
 }
 
 export function Calendar({

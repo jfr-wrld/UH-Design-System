@@ -1,0 +1,39 @@
+/*
+ * NativeSelect
+ *
+ * The field chrome (label, bordered box, message row) comes from Input.css.
+ * `.uh-field__control` is already a flex row with a gap - the same layout
+ * `Select` uses for its own value-plus-chevron pair - so the select and its
+ * chevron just sit side by side as ordinary flex siblings, no absolute
+ * positioning needed. Only the native chevron is stripped here (every
+ * platform draws its own, inconsistent one) and redrawn as our own icon.
+ */
+
+.uh-native-select__select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.uh-native-select__select:disabled {
+  cursor: not-allowed;
+}
+
+.uh-native-select__chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+  pointer-events: none;
+}
+
+.uh-native-select__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-field__control[data-disabled='true'] .uh-native-select__chevron {
+  color: var(--uh-color-text-disabled);
+}

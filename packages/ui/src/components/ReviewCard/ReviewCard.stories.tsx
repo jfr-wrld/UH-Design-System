@@ -243,6 +243,53 @@ const ID_LABELS: Partial<ReviewCardLabels> = {
   photo: (position, total) => `Foto ${position} dari ${total}`,
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for ReviewCard.mdx's
+ * "Contoh penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<ReviewCard ... />` JSX instead of a render function
+ * body. Kept separate from the stories above, which exist to prove the
+ * whole surface works, not to be copied verbatim.
+ */
+
+export const Basic: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    author: { name: 'Aisyah Rahman', verified: true },
+    rating: 5,
+    date: RECENT,
+    content:
+      'Alhamdulillah, everything was taken care of from the airport to the hotel. The mutawwif was patient with my parents.',
+    packageName: '14-Day Ramadan Umrah Package',
+  },
+};
+
+export const WithHelpfulVote: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    author: { name: 'Hafiz Omar' },
+    rating: 4,
+    date: OLD,
+    content: 'Good value overall, though the Jeddah transfer ran an hour late.',
+    helpfulCount: 8,
+    onHelpful: () => {},
+  },
+};
+
+export const PhotoGallery: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    author: { name: 'Nur Iman', verified: true },
+    rating: 5,
+    date: RECENT,
+    content: 'The room really was two minutes from the Haram, exactly as promised.',
+    photos: [
+      { src: SCAN, alt: 'The hotel room' },
+      { src: SCAN, alt: 'View towards the Haram' },
+    ],
+    onPhotoClick: () => {},
+  },
+};
+
 export const TextExpansion: Story = {
   args: base,
   parameters: {

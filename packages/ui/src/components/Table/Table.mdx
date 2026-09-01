@@ -1,0 +1,50 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as TableStories from './Table.stories';
+
+<Meta of={TableStories} />
+
+# Table
+
+Pembungkus tipis dan composable di sekitar keluarga `<table>` native. `Table`,
+`TableHeader`, `TableBody`, `TableRow`, `TableHead`, dan `TableCell` masing-masing
+memetakan langsung ke `table`/`thead`/`tbody`/`tr`/`th`/`td` - hanya menambahkan
+styling berbasis token milik sistem ini. Setiap atribut HTML native tetap jalan di
+setiap bagian (`colSpan` pada sel, `onClick` pada baris) karena masing-masing
+meng-extend tipe atribut HTML elemen aslinya. `aria-label`/`aria-labelledby` pada
+`Table` sendiri jadi pengecualian yang disengaja - lihat bagian Aksesibilitas di
+bawah untuk ke mana keduanya sebenarnya pergi.
+
+## Props
+
+<ArgTypes of={TableStories} />
+
+## Contoh penggunaan
+
+<Canvas of={TableStories.RecentBookings} />
+
+## Full bleed
+
+`fullBleed` menghapus border sisi dan sudut membulat luar, supaya tabel bisa duduk
+rata dengan tepi wadah yang menampungnya (kartu selebar penuh, sebuah section
+halaman) alih-alih tampil sebagai panelnya sendiri.
+
+## Scroll horizontal
+
+`Table` membungkus tabel dalam kontainer scroll horizontal sendiri - tabel data
+adalah persis jenis konten yang tidak boleh memaksa halaman itu sendiri untuk
+scroll ke samping. Tabel yang lebih lebar dari wadahnya akan scroll di dalam
+kotaknya sendiri, sisa halaman tetap utuh.
+
+## Aksesibilitas
+
+Setiap `TableHead` memakai `scope="col"` secara default - pembaca layar tidak bisa
+menyimpulkan itu dari posisi seperti pembaca yang bisa melihat. Untuk sel header
+baris di dalam `TableBody`, teruskan `scope="row"` secara eksplisit.
+
+Kotak scroll horizontal (lihat bagian di atas) yang sungguhan bisa difokus dan
+di-scroll lewat keyboard - jadi `aria-label`/`aria-labelledby` yang diberikan ke
+`Table` mendarat di kotak itu sendiri (dengan `role="region"`), bukan di
+`<table>` di dalamnya, sama seperti viewport scrollable milik `Carousel` sendiri.
+Tanpa salah satunya, kotak scroll tetap bisa difokus lewat Tab seperti biasa,
+hanya saja tanpa nama aksesibel - beri salah satunya kalau tabelnya cukup
+signifikan untuk perlu diumumkan tersendiri oleh pembaca layar.

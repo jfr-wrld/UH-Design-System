@@ -9,6 +9,13 @@
  * subsetting step in build-fonts.mjs. `tnum` is not in fontTools' default
  * keep-list, which is exactly the kind of regression this catches.
  *
+ * Only Plus Jakarta Sans is checked, not DM Sans: DM Sans (the functional/body
+ * face) has no `tnum` feature at all upstream - confirmed against its own
+ * GSUB table, not a subsetting regression - so no numeric role uses it, and
+ * both `numeric.price-*` and `numeric.table` stay on Plus Jakarta Sans
+ * instead. Re-add a check here if a numeric role ever moves to a different
+ * face.
+ *
  * Run: pnpm --filter @umrahhaji/tokens verify:numerals
  */
 import { readFile } from 'node:fs/promises';

@@ -10,7 +10,7 @@
 
 .uh-field {
   --uh-field-height: var(--uh-size-control-md);
-  --uh-field-padding-inline: var(--uh-spacing-16);
+  --uh-field-padding-inline: var(--uh-spacing-20);
   --uh-field-icon: var(--uh-size-icon-md);
   --uh-field-border: var(--uh-color-border-strong);
 
@@ -170,7 +170,7 @@
 
 .uh-field[data-size='sm'] {
   --uh-field-height: var(--uh-size-control-sm);
-  --uh-field-padding-inline: var(--uh-spacing-12);
+  --uh-field-padding-inline: var(--uh-spacing-16);
   --uh-field-icon: var(--uh-size-icon-sm);
 }
 
@@ -188,7 +188,7 @@
 
 .uh-field[data-size='lg'] {
   --uh-field-height: var(--uh-size-control-lg);
-  --uh-field-padding-inline: var(--uh-spacing-20);
+  --uh-field-padding-inline: var(--uh-spacing-24);
   --uh-field-icon: var(--uh-size-icon-lg);
 }
 

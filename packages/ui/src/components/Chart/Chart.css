@@ -1,0 +1,110 @@
+/*
+ * Chart
+ *
+ * The plot itself (grid, axes, lines, bars) is styled through props handed
+ * straight to recharts, referencing color.chart tokens by CSS variable -
+ * recharts draws to SVG attributes, not classes, so there is nothing to
+ * write here for that part. This file only styles the pieces this
+ * component renders itself: the tooltip and the legend.
+ */
+
+.uh-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-chart__plot {
+  width: 100%;
+}
+
+/* ------------------------------------------------------------- tooltip */
+
+.uh-chart__tooltip {
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-sm);
+  background-color: var(--uh-color-bg-elevation-3);
+  box-shadow: var(--uh-elevation-3);
+}
+
+.uh-chart__tooltip-label {
+  margin: 0 0 var(--uh-spacing-4);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+.uh-chart__tooltip-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.uh-chart__tooltip-row {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+}
+
+.uh-chart__tooltip-swatch {
+  flex: none;
+  width: var(--uh-spacing-8);
+  height: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-full);
+}
+
+.uh-chart__tooltip-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-chart__tooltip-value {
+  flex: none;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-numeric-table-font-family);
+  font-size: var(--uh-typography-numeric-table-font-size);
+  line-height: var(--uh-typography-numeric-table-line-height);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+/* -------------------------------------------------------------- legend */
+
+.uh-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--uh-spacing-16);
+  margin: 0;
+  padding: 0;
+  padding-block-start: var(--uh-spacing-8);
+  list-style: none;
+}
+
+.uh-chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+.uh-chart__legend-swatch {
+  flex: none;
+  width: var(--uh-spacing-8);
+  height: var(--uh-spacing-8);
+  border-radius: var(--uh-radius-full);
+}

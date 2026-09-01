@@ -1,0 +1,154 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as AgencyCardStories from './AgencyCard.stories';
+
+<Meta of={AgencyCardStories} />
+
+# AgencyCard
+
+Kartu kepercayaan. Memesan paket Umrah berarti mengirim uang enam angka ke
+perusahaan yang belum pernah ditemui pilgrim secara langsung, dan kartu ini
+adalah tempat platform membuktikan perusahaan itu nyata: nomor lisensi
+ditulis pada ukuran label dengan angka tabular berdampingan dengan skemanya
+(TOB untuk Malaysia, PPIU untuk Indonesia, skema lain dicetak apa adanya),
+dan tanda verifikasi selalu berupa baris berteks - bukan centang tanpa
+label, karena warna-plus-bentuk bukan pesan yang diterima semua orang. Dua
+`variant`: `compact` (baris media tanpa border, menumpang di permukaan kartu
+lain) dan `full` (kartu berdiri sendiri dengan tahun beroperasi, jumlah
+paket, dan lencana).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>variant="full"</code> dengan <code>onClick</code> sebagai kartu profil agensi yang
+        bisa diklik menuju halaman detailnya
+      </td>
+      <td>
+        <code>variant="full"</code> di dalam grid listing paket - nomor lisensi dan lencana yang
+        berulang di puluhan kartu sekaligus membuat informasi penting justru tenggelam
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="compact"</code> tanpa <code>onClick</code> saat menumpang di permukaan yang
+        sudah bisa diklik sendiri (mis. di dalam detail paket) - kartu ini tidak membawa border atau
+        background sendiri
+      </td>
+      <td>
+        <code>variant="compact"</code> dengan <code>onClick</code> di dalam <code>PackageCard</code>{' '}
+        yang seluruh permukaannya sudah interaktif - dua lapis klik yang tumpang tindih
+        membingungkan, baik untuk mouse maupun keyboard
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Membiarkan <code>rating</code>, <code>licenseNumber</code>, atau <code>operatingSince</code>{' '}
+        kosong ketika datanya memang belum ada - baris terkait hilang seluruhnya, bukan tampil
+        dengan label kosong
+      </td>
+      <td>
+        Mengisi <code>operatingSince</code> dengan angka jumlah tahun (mis. <code>12</code>)
+        alih-alih tahun mulai beroperasi (mis. <code>2014</code>) - komponen sengaja tidak
+        menampilkan apa pun untuk tahun yang mustahil, bukan mencetak "2.014 tahun beroperasi"
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={AgencyCardStories} />
+
+## Contoh penggunaan
+
+### Baris ringkas di dalam kartu lain
+
+`variant="compact"` tanpa `onClick` - tidak ada border atau background sendiri, mewarisi permukaan tempatnya menumpang.
+
+<Canvas of={AgencyCardStories.CompactRow} />
+
+### Profil agensi yang bisa diklik
+
+`variant="full"` dengan `onClick` membuat seluruh kartu jadi satu `<button>` menuju halaman profil agensi.
+
+<Canvas of={AgencyCardStories.ClickableProfile} />
+
+### Agensi baru dengan data minim
+
+Tanpa rating, tanpa lencana, tanpa tahun beroperasi - setiap baris yang datanya kosong hilang seluruhnya, bukan tampil dengan label tanpa isi.
+
+<Canvas of={AgencyCardStories.NewAgencyMinimalRecord} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit. Dengan `onClick`, root-nya adalah
+`<button>` native; tanpa itu, root-nya adalah `<article>` biasa. Tidak
+pernah `<div role="button">` dan tidak pernah kedua bentuk itu bersarang -
+kartu memilih salah satu berdasarkan ada tidaknya `onClick`, bukan
+menumpuk keduanya.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke kartu (hanya saat <code>onClick</code> ada, karena hanya bentuk itu
+        yang fokusable), mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>
+        Mengaktifkan kartu (perilaku native <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan kartu (perilaku native <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Tanda verifikasi selalu diumumkan sebagai teks ("Verified Agency" dan
+  ikonnya) - tidak pernah ikon tanpa kata di sampingnya.
+- `Rating` di dalam kartu membawa `role="img"` dengan kalimat lengkap
+  sendiri ("4.8 out of 5, 1,284 reviews"); baris ini hilang seluruhnya saat
+  `rating` tidak diisi, bukan terbaca sebagai "0 out of 5".
+- Nomor lisensi diberi tipografi tabular tapi tidak diberi markup khusus
+  screen reader - dibaca sebagai teks biasa berurutan dengan skema dan
+  labelnya.
+
+**Wajib disediakan konsumen:**
+
+- `name` - satu-satunya prop wajib; setiap prop lain boleh kosong dan
+  kartu tetap render dengan baris-baris yang relevan hilang.
+- `labels` untuk menerjemahkan tanda verifikasi, label nomor lisensi,
+  kalimat tahun beroperasi, jumlah paket, dan kalimat rating - defaultnya
+  bahasa Inggris.
+- `onClick` hanya saat kartu benar-benar memicu navigasi ke halaman
+  sendiri; biarkan kosong saat kartu menumpang di permukaan yang sudah
+  interaktif (lihat tabel kapan-pakai di atas).

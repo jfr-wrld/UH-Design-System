@@ -267,6 +267,31 @@ export const Adornments: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Input.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Input ... />` JSX instead of a render function body.
+ */
+
+export const Basic: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Passport Number', placeholder: 'A1234567', required: true },
+};
+
+export const WithError: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Passport Number',
+    defaultValue: 'A12',
+    errorMessage: 'Passport number must be 8 characters',
+  },
+};
+
+export const PasswordField: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Password', type: 'password', defaultValue: 'verysecret' },
+};
+
 /* -------------------------------------------------------- text expansion */
 
 const EXPANSION = [

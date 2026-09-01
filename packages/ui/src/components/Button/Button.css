@@ -13,7 +13,7 @@
 .uh-btn {
   /* Size-driven values; each data-size block below overrides these. */
   --uh-btn-height: var(--uh-size-control-md);
-  --uh-btn-padding-inline: var(--uh-spacing-16);
+  --uh-btn-padding-inline: var(--uh-spacing-20);
   --uh-btn-gap: var(--uh-spacing-8);
   --uh-btn-icon: var(--uh-size-icon-md);
 
@@ -41,7 +41,7 @@
 
 .uh-btn[data-size='sm'] {
   --uh-btn-height: var(--uh-size-control-sm);
-  --uh-btn-padding-inline: var(--uh-spacing-12);
+  --uh-btn-padding-inline: var(--uh-spacing-16);
   --uh-btn-icon: var(--uh-size-icon-sm);
 
   font-family: var(--uh-typography-web-button-sm-font-family);
@@ -53,7 +53,7 @@
 
 .uh-btn[data-size='md'] {
   --uh-btn-height: var(--uh-size-control-md);
-  --uh-btn-padding-inline: var(--uh-spacing-16);
+  --uh-btn-padding-inline: var(--uh-spacing-20);
   --uh-btn-icon: var(--uh-size-icon-md);
 
   font-family: var(--uh-typography-web-button-md-font-family);
@@ -65,7 +65,7 @@
 
 .uh-btn[data-size='lg'] {
   --uh-btn-height: var(--uh-size-control-lg);
-  --uh-btn-padding-inline: var(--uh-spacing-20);
+  --uh-btn-padding-inline: var(--uh-spacing-24);
   --uh-btn-gap: var(--uh-spacing-12);
   --uh-btn-icon: var(--uh-size-icon-lg);
 

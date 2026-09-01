@@ -1,0 +1,156 @@
+/*
+ * Slider
+ *
+ * `@base-ui/react` positions the track's fill and every thumb with its own
+ * inline styles (percentage insets computed from the live value) - this
+ * file never sets `position`, `left`, `top`, or `translate` on
+ * `.uh-slider__indicator` or `.uh-slider__thumb`, only their paint (size,
+ * colour, border, radius). Fighting those inline styles with our own would
+ * either do nothing (ours loses to the more specific inline style) or,
+ * worse, silently win and break the drag math.
+ *
+ * The thumb's native `<input type="range">` is visually hidden by Base UI
+ * itself (screen readers and keyboard focus still reach it) rather than
+ * rendered as a sibling the way Switch's own hidden input is, so its
+ * `:focus-visible` state is surfaced with `:has()` on the visible thumb
+ * `<div>` instead of an adjacent-sibling selector - same technique already
+ * used by Rating, Card, and Chip in this package.
+ */
+
+.uh-slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  width: 100%;
+}
+
+.uh-slider__label {
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-slider__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* The visual track is thin, but the draggable/clickable region it sits
+     inside still has to meet the 44px tap-target floor. */
+  min-height: var(--uh-size-tap-target-min);
+  cursor: pointer;
+}
+
+/* The tooltip pill floats above the control's own top edge (see below), so
+   whatever sits directly above it - the visible label, or just the top of
+   the story/page - needs room reserved or the pill collides with it the
+   moment it appears. Found by hovering a tooltip-mode slider with
+   `showLabel` on: without this, the value pill sat on top of the label
+   text one row up instead of over the thumb. */
+.uh-slider__control:has(.uh-slider__value[data-display='tooltip']) {
+  margin-block-start: var(--uh-spacing-32);
+}
+
+.uh-slider__track {
+  position: relative;
+  width: 100%;
+  height: var(--uh-size-slider-track);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-slider__indicator {
+  border-radius: inherit;
+  background-color: var(--uh-color-action-primary-default);
+}
+
+.uh-slider__thumb {
+  width: var(--uh-size-slider-thumb);
+  height: var(--uh-size-slider-thumb);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  /* `thick`, not `hairline`: this border is the thumb's whole identity as
+     "the selected point on the track", the same job it does marking a
+     selected radio or an active tab. */
+  border: var(--uh-border-width-thick) solid var(--uh-color-action-primary-default);
+  cursor: grab;
+  transition: border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+/* `:not([data-disabled])` on the root, not the thumb itself - disabled
+   lives on `.uh-slider`, not `.uh-slider__thumb`, so without it a disabled
+   thumb still repainted its border on hover even under `cursor: not-allowed`
+   and the root's own dimmed opacity, the one hover rule in this file that
+   didn't already exclude the disabled state. */
+.uh-slider:not([data-disabled]) .uh-slider__thumb:hover {
+  border-color: var(--uh-color-action-primary-hover);
+}
+
+.uh-slider[data-dragging] .uh-slider__thumb {
+  cursor: grabbing;
+}
+
+.uh-slider__thumb:has(input:focus-visible) {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: var(--uh-size-focus-ring-offset);
+}
+
+.uh-slider[data-disabled] {
+  opacity: var(--uh-opacity-disabled);
+}
+
+.uh-slider[data-disabled] .uh-slider__control,
+.uh-slider[data-disabled] .uh-slider__thumb {
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------- value display */
+
+.uh-slider__value {
+  color: var(--uh-color-text-secondary);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/* `'text'` (the default when rendered at all): a plain line under the
+   track, same job as ProgressBar's own `showValue`. No extra rule needed
+   beyond the shared one above. */
+
+/* `'tooltip'`: the same text as a small inverse pill floating above the
+   control, using the exact surface/text pairing the standalone Tooltip
+   component already uses - this is a tooltip in every way that matters,
+   just laid out in-flow instead of portaled, since it never needs to
+   escape an ancestor's overflow or dodge a viewport edge. */
+.uh-slider__value[data-display='tooltip'] {
+  position: absolute;
+  bottom: calc(100% + var(--uh-spacing-8));
+  left: 50%;
+  z-index: var(--uh-z-index-tooltip);
+  transform: translateX(-50%);
+  padding: var(--uh-spacing-2) var(--uh-spacing-8);
+  border-radius: var(--uh-radius-tooltip);
+  background-color: var(--uh-color-bg-inverse);
+  color: var(--uh-color-text-inverse);
+  box-shadow: var(--uh-elevation-2);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-slider__control:hover .uh-slider__value[data-display='tooltip'],
+.uh-slider__control:focus-within .uh-slider__value[data-display='tooltip'],
+.uh-slider[data-dragging] .uh-slider__value[data-display='tooltip'] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-slider__thumb,
+  .uh-slider__value[data-display='tooltip'] {
+    transition: none;
+  }
+}

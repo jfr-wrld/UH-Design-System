@@ -1,0 +1,251 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as FileUploadStories from './FileUpload.stories';
+
+<Meta of={FileUploadStories} />
+
+# FileUpload
+
+Sebuah drop zone untuk dokumen - paspor, visa, tiket - yang pilgrim seret ke
+layar atau pilih lewat file picker native. Komponen ini memvalidasi format
+dan ukuran di sisi klien, menampilkan daftar file dengan status
+uploading/success/error masing-masing, tapi tidak pernah mengunggah apa pun
+sendiri: `onUpload` menyerahkan file yang lolos, dan pemanggil yang
+menjalankan permintaan sesungguhnya serta melaporkan hasilnya lewat `value`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk dokumen yang wajib diverifikasi manusia - paspor, visa, tiket - di mana pilgrim
+        benar-benar mengunggah berkas asli
+      </td>
+      <td>
+        Untuk data terstruktur yang bisa diketik langsung (nama, nomor paspor, tanggal lahir) -
+        pakai <code>Input</code>/<code>DatePicker</code>, jangan minta foto dari data yang
+        sebenarnya bisa diinput teks
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Saat validasi format dan ukuran penting sebelum berkas terkirim - <code>accept</code>/
+        <code>maxSize</code> ditolak di klien dengan pesan yang menyebut nama file, batasnya, dan
+        apa yang harus dilakukan
+      </td>
+      <td>
+        Untuk satu ikon profil kecil yang cukup langsung terlihat begitu dipilih, tanpa perlu daftar
+        multi-file dan status upload per baris
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ketika proses upload butuh state <code>uploading</code>/<code>success</code>/
+        <code>error</code> yang terlihat pilgrim, dengan progress bar per file - dikendalikan lewat{' '}
+        <code>value</code> + <code>onUpload</code> + <code>onRemove</code>
+      </td>
+      <td>
+        Kalau penyimpanan berkasnya instan dan realistis tidak pernah gagal - overhead daftar status
+        per baris tidak perlu untuk kasus sesederhana itu
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>multiple</code> saat pilgrim memang boleh melampirkan lebih dari satu dokumen (paspor
+        + visa + tiket), dipasangkan dengan <code>maxFiles</code> yang wajar
+      </td>
+      <td>
+        <code>multiple</code> untuk field yang bisnisnya hanya butuh satu dokumen - defaultnya{' '}
+        <code>false</code> justru karena kebanyakan field dokumen personal cuma perlu satu berkas
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code> untuk dokumen yang sudah dikunci setelah booking dikonfirmasi (lihat
+        story <code>Disabled</code>) - pilgrim tidak bisa lagi mengubahnya
+      </td>
+      <td>
+        <code>disabled</code> sebagai pengganti pesan error yang bisa diperbaiki - masalah yang
+        masih bisa dibetulkan pilgrim pakai <code>errorMessage</code> atau pesan penolakan, bukan
+        mematikan seluruh drop zone
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya adalah `<div className="uh-upload">`; area interaktifnya adalah
+`<label>` yang membungkus `<input type="file">` yang disembunyikan secara
+visual, bukan `<div>` yang berpura-pura jadi tombol.
+
+- **`.uh-upload`** - root. Membawa `data-state` (`idle` / `dragging` /
+  `uploading` / `success` / `partial` / `error`, dihitung dari `value` dan
+  penolakan lokal) dan `data-disabled`.
+- **`.uh-upload__label`** - label field, di atas drop area.
+- **`.uh-upload__drop`** - `<label>` yang membungkus input file; satu-satunya
+  elemen interaktif untuk memilih atau menjatuhkan berkas. Membawa
+  `data-dragging` selama sesuatu ada di atasnya.
+- **`.uh-upload__drop-icon`**, **`.uh-upload__prompt`**,
+  **`.uh-upload__constraints`** - ikon panah unggah, ajakan ("Drag files
+  here or browse"), dan baris format/ukuran maksimum di bawahnya.
+- **`.uh-upload__message`** - `helperText` atau `errorMessage` keseluruhan;
+  yang kedua membawa `role="alert"` dan menggantikan yang pertama, bukan
+  tampil berdampingan.
+- **`.uh-upload__list`** / **`.uh-upload__item`** - daftar berkas
+  (`<ul>`/`<li>`), satu baris per file yang sedang diunggah, sukses, gagal,
+  atau ditolak secara lokal.
+- **`.uh-upload__preview`** (+ **`__thumb`** untuk gambar, **`__doc`** untuk
+  dokumen) - thumbnail atau ikon dokumen; keduanya `aria-hidden` karena nama
+  file di sebelahnya sudah menyampaikan hal yang sama.
+- **`.uh-upload__detail`** (+ **`__name`**, **`__size`**, **`__progress`**,
+  **`__error`**) - nama file (terpotong dengan ellipsis), ukuran dalam angka
+  tabular, progress bar saat `uploading`, pesan error saat `error`.
+- **`.uh-upload__remove`** - tombol hapus per baris, 44×44 - target sentuh
+  minimum.
+- **`.uh-upload__confirm`** (+ **`-question`**, **`-yes`**, **`-no`**) -
+  pertanyaan konfirmasi yang muncul di baris yang sama saat menghapus file
+  yang sudah sukses diunggah.
+
+## Props
+
+<ArgTypes of={FileUploadStories} />
+
+## Contoh penggunaan
+
+### Dokumen untuk booking
+
+Kasus paling umum: satu dokumen wajib, misalnya halaman foto paspor, dengan
+batas format dan ukuran yang dinyatakan sebelum pilgrim memilih file.
+
+<Canvas of={FileUploadStories.BookingDocument} />
+
+### Beberapa dokumen sekaligus
+
+`multiple` dan `maxFiles` dipasangkan saat satu booking memang butuh lebih
+dari satu berkas - di sini paspor dan surat visa sudah tersimpan di
+`value`.
+
+<Canvas of={FileUploadStories.MultipleDocuments} />
+
+### File yang ditolak
+
+Penolakan client-side (ukuran atau format salah) menyebut nama file, batas
+yang dilanggar, dan apa yang harus dilakukan - bukan sekadar "berkas tidak
+valid".
+
+<Canvas of={FileUploadStories.RejectedFile} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran kustom - `<label htmlFor>` yang membungkus
+`<input type="file">` asli sudah membawa semantik yang benar, sehingga Tab,
+Enter, dan Space bekerja tanpa penanganan keyboard tambahan dari komponen
+ini. Nama aksesibel input digabung dari label field dan teks ajakan lewat
+`aria-labelledby` (`label + " " + prompt`) - contohnya terbaca sebagai
+"Passport and travel documents Drag files here or browse". Baris format,
+ukuran maksimum, dan `helperText`/`errorMessage` terhubung lewat
+`aria-describedby`. Daftar file adalah `<ul>`/`<li>` biasa (role `list` /
+`listitem`), dan setiap progress bar adalah `role="progressbar"` dengan
+`aria-valuenow`/`aria-valuemax` dari komponen `ProgressBar`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke/dari input file atau tombol di daftar baris, mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code> (pada input file)
+      </td>
+      <td>
+        Membuka file picker OS - perilaku native <code>&lt;input type="file"&gt;</code>, tidak ada
+        key handler kustom di komponen ini
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code> (pada tombol hapus)
+      </td>
+      <td>
+        Menghapus baris, atau menampilkan pertanyaan konfirmasi dulu kalau file itu sudah sukses
+        diunggah
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code> (pada Remove/Keep saat konfirmasi tampil)
+      </td>
+      <td>Menjalankan atau membatalkan penghapusan</td>
+    </tr>
+  </tbody>
+</table>
+
+Seret-dan-jatuhkan (drag-and-drop) sendiri tidak bisa dipicu lewat keyboard -
+ini keterbatasan HTML Drag and Drop API, bukan sesuatu yang bisa ditambal
+komponen. Tidak masalah: input file native di baliknya memberi jalur
+keyboard penuh ke fungsi yang sama, jadi tidak ada kemampuan yang hilang
+bagi pengguna keyboard.
+
+**Catatan screen reader:**
+
+- Baris live region (`role="status"`) mengumumkan satu kalimat ringkasan per
+  perubahan state - jumlah yang sedang diunggah, jumlah yang sukses, jumlah
+  yang gagal, atau kombinasi keduanya untuk state `partial` - bukan
+  persentase yang berjalan; angka persentase tetap ada di progress bar
+  masing-masing file, dibaca saat diminta.
+- `errorMessage` membuat `<p>` pesan membawa `role="alert"` (diumumkan
+  segera) sekaligus `aria-invalid="true"` pada input; `helperText` saja
+  tidak membawa keduanya.
+- Thumbnail dan ikon dokumen selalu `aria-hidden` - nama file di sampingnya
+  sudah menyampaikan makna yang sama.
+- Menghapus file yang sudah sukses diunggah bertanya dulu, di baris yang
+  sama, bukan lewat modal - baris yang akan dihapus tetap terlihat selama
+  pertanyaannya dijawab.
+
+**Wajib disediakan konsumen:**
+
+- `label` - selalu wajib, tidak ada default; separuh dari nama aksesibel
+  kontrol berasal dari sini.
+- `onUpload` untuk benar-benar menerima file yang lolos - komponen ini tidak
+  pernah mengunggah apa pun sendiri, hanya menyaring dan menyerahkannya.
+- `value` dan `onRemove` untuk merefleksikan status/progress per file dan
+  mengizinkan pilgrim menghapus baris - komponen tidak menyimpan state
+  upload sendiri di luar penolakan lokal, status drag, dan pertanyaan
+  konfirmasi.
+- Teks nyata untuk `errorMessage` dan `error` per file - komponen tidak
+  mengarang pesan generik di luar pesan penolakan ukuran/format yang
+  sendirinya berasal dari `labels`.
+- `labels` (atau menerima default bahasa Inggris) untuk apa pun di luar
+  bahasa Inggris, dipasangkan dengan `locale` yang sesuai untuk format
+  ukuran file.
+
+## Catatan i18n
+
+Malay dan Indonesian berjalan lebih panjang dari English untuk baris yang
+sama ("Drag files here or browse" → "Seret berkas ke sini atau telusuri").
+Prompt dan dua baris batasan berada di kolom tengah tersendiri, jadi
+terjemahan yang lebih panjang membuat area lebih tinggi, bukan mendorong
+sesuatu ke samping; nama file di daftar tetap terpotong dengan ellipsis dan
+tombol hapus tetap menjaga 44px, sehingga baris tetap muat pada lebar yang
+sama di ketiga bahasa. Lihat story `TextExpansion` untuk perbandingan
+ketiganya berdampingan pada kontainer 280px:
+
+<Canvas of={FileUploadStories.TextExpansion} />

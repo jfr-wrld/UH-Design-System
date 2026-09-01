@@ -1,0 +1,126 @@
+/*
+ * Grid
+ *
+ * A two-axis grid layout. Column count is set per-instance through the
+ * `--uh-grid-columns` custom property (a structural count, not a design
+ * value lint:ds cares about) rather than a fixed set of `data-columns`
+ * rules, since the consumer picks any whole number of equal columns.
+ *
+ * Every remaining value here resolves to a token - no literal size or
+ * colour, same contract as every other component's stylesheet.
+ */
+
+.uh-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--uh-grid-columns, 1), minmax(0, 1fr));
+}
+
+/* -------------------------------------------------------------------- gap */
+
+.uh-grid[data-gap='2'] {
+  gap: var(--uh-spacing-2);
+}
+.uh-grid[data-gap='4'] {
+  gap: var(--uh-spacing-4);
+}
+.uh-grid[data-gap='8'] {
+  gap: var(--uh-spacing-8);
+}
+.uh-grid[data-gap='12'] {
+  gap: var(--uh-spacing-12);
+}
+.uh-grid[data-gap='16'] {
+  gap: var(--uh-spacing-16);
+}
+.uh-grid[data-gap='20'] {
+  gap: var(--uh-spacing-20);
+}
+.uh-grid[data-gap='24'] {
+  gap: var(--uh-spacing-24);
+}
+.uh-grid[data-gap='32'] {
+  gap: var(--uh-spacing-32);
+}
+.uh-grid[data-gap='40'] {
+  gap: var(--uh-spacing-40);
+}
+.uh-grid[data-gap='48'] {
+  gap: var(--uh-spacing-48);
+}
+.uh-grid[data-gap='64'] {
+  gap: var(--uh-spacing-64);
+}
+
+/*
+ * Per-axis overrides. Written after the shorthand `[data-gap]` rules above
+ * on purpose: both attribute selectors carry identical specificity, so
+ * source order is what lets a single `row-gap`/`column-gap` win over the
+ * shorthand's own value on that one axis, without touching the other axis.
+ */
+.uh-grid[data-row-gap='2'] {
+  row-gap: var(--uh-spacing-2);
+}
+.uh-grid[data-row-gap='4'] {
+  row-gap: var(--uh-spacing-4);
+}
+.uh-grid[data-row-gap='8'] {
+  row-gap: var(--uh-spacing-8);
+}
+.uh-grid[data-row-gap='12'] {
+  row-gap: var(--uh-spacing-12);
+}
+.uh-grid[data-row-gap='16'] {
+  row-gap: var(--uh-spacing-16);
+}
+.uh-grid[data-row-gap='20'] {
+  row-gap: var(--uh-spacing-20);
+}
+.uh-grid[data-row-gap='24'] {
+  row-gap: var(--uh-spacing-24);
+}
+.uh-grid[data-row-gap='32'] {
+  row-gap: var(--uh-spacing-32);
+}
+.uh-grid[data-row-gap='40'] {
+  row-gap: var(--uh-spacing-40);
+}
+.uh-grid[data-row-gap='48'] {
+  row-gap: var(--uh-spacing-48);
+}
+.uh-grid[data-row-gap='64'] {
+  row-gap: var(--uh-spacing-64);
+}
+
+.uh-grid[data-column-gap='2'] {
+  column-gap: var(--uh-spacing-2);
+}
+.uh-grid[data-column-gap='4'] {
+  column-gap: var(--uh-spacing-4);
+}
+.uh-grid[data-column-gap='8'] {
+  column-gap: var(--uh-spacing-8);
+}
+.uh-grid[data-column-gap='12'] {
+  column-gap: var(--uh-spacing-12);
+}
+.uh-grid[data-column-gap='16'] {
+  column-gap: var(--uh-spacing-16);
+}
+.uh-grid[data-column-gap='20'] {
+  column-gap: var(--uh-spacing-20);
+}
+.uh-grid[data-column-gap='24'] {
+  column-gap: var(--uh-spacing-24);
+}
+.uh-grid[data-column-gap='32'] {
+  column-gap: var(--uh-spacing-32);
+}
+.uh-grid[data-column-gap='40'] {
+  column-gap: var(--uh-spacing-40);
+}
+.uh-grid[data-column-gap='48'] {
+  column-gap: var(--uh-spacing-48);
+}
+.uh-grid[data-column-gap='64'] {
+  column-gap: var(--uh-spacing-64);
+}

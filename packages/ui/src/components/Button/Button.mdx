@@ -1,0 +1,200 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ButtonStories from './Button.stories';
+
+<Meta of={ButtonStories} />
+
+# Button
+
+The control for a single, deliberate action - submitting a form, confirming
+a booking, opening a dialog. Six variants carry six different weights of
+commitment (primary through destructive), three sizes cover the button's
+own reading order (a page has at most one primary), and `loading` swaps the
+label for a spinner without moving the box, so a form does not reflow the
+moment a pilgrim submits it.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk aksi yang mengubah state atau memicu proses - submit form, konfirmasi booking, buka
+        dialog
+      </td>
+      <td>
+        Untuk navigasi antar halaman - pakai <code>Button as="a"</code> hanya kalau tujuannya benar
+        memicu aksi di halaman baru (mis. "Lanjutkan ke Pembayaran"); navigasi murni pakai elemen
+        link biasa
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Satu <code>variant="primary"</code> per layar - itulah aksi yang paling penting di layar itu
+      </td>
+      <td>
+        Dua atau lebih tombol primary berdampingan - kalau semuanya penting, tidak ada yang penting
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>loading</code> saat menunggu respons async (submit, upload) supaya lebar tombol tidak
+        berubah
+      </td>
+      <td>
+        Mengganti seluruh tombol dengan <code>Spinner</code> saat loading - itu menggeser layout dan
+        menghilangkan label yang sedang dikerjakan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>iconOnly</code> hanya saat ikonnya sudah jadi konvensi universal (mis. hati untuk
+        wishlist) dan <code>aria-label</code> diisi
+      </td>
+      <td>
+        <code>iconOnly</code> untuk aksi yang tidak jelas dari bentuk ikon saja - pilgrim yang lebih
+        tua adalah audiens utama produk ini
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabled</code> untuk kondisi yang benar-benar tidak bisa diubah pengguna saat itu
+      </td>
+      <td>
+        <code>disabled</code> sebagai pengganti validasi - state error yang bisa diperbaiki pengguna
+        pakai pesan error, bukan tombol yang dimatikan
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya adalah elemen `<button>` (default) atau `<a>` (`as="a"`) - satu
+elemen interaktif, tidak pernah dua bersarang.
+
+- **`.uh-btn`** - root. Membawa `data-variant`, `data-size`,
+  `data-loading`, `data-full-width`, dan `aria-disabled`/`aria-busy` alih-alih
+  atribut `disabled` native (lihat Aksesibilitas).
+- **`.uh-btn__content`** - pembungkus label + ikon kiri/kanan. Disembunyikan
+  secara visual (bukan dihapus dari DOM) saat `loading`, supaya lebar kotak
+  tidak berubah.
+- **`.uh-btn__icon`** - pembungkus `leftIcon`/`rightIcon`, `aria-hidden`
+  karena label teks sudah menyampaikan makna yang sama.
+- **`.uh-btn__spinner`** - muncul hanya saat `loading`; membawa
+  `<Spinner decorative>` (dekoratif secara visual) plus teks `loadingLabel`
+  yang disembunyikan visual tapi terbaca screen reader.
+
+## Props
+
+<ArgTypes of={ButtonStories} />
+
+## Contoh penggunaan
+
+### Aksi utama
+
+Kasus paling umum: satu CTA primary yang memicu langkah berikutnya.
+
+<Canvas of={ButtonStories.Primary} />
+
+### Dengan ikon
+
+`leftIcon`/`rightIcon` menerima node apa pun; komponen sendiri yang
+menandainya `aria-hidden` dan membatasi ukurannya lewat token ikon.
+
+<Canvas of={ButtonStories.WithIcon} />
+
+### Loading
+
+Lebar tombol tidak berubah antara idle dan `loading` - `loadingLabel`
+diumumkan ke screen reader, spinner-nya sendiri dekoratif.
+
+<Canvas of={ButtonStories.Loading} />
+
+Untuk melihat keenam varian × lima ukuran state (default/hover/focus/active/
+disabled/loading) sekaligus, lihat story `StateMatrix`; untuk full-width,
+icon-only dan `as="a"`, lihat `SizesAndIcons`.
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit - elemen native `<button>` atau
+`<a href>` sudah membawa semantik yang benar. Tidak pernah gunakan `<div
+role="button">`.
+
+**`aria-disabled`, bukan atribut `disabled`.** Tombol yang tidak aktif
+(`disabled` atau `loading`) tetap ada di tab order dan tetap bisa dibaca
+screen reader - hanya klik dan aktivasi keyboard yang diblokir di handler,
+bukan lewat menghapusnya dari interaksi. Ini disengaja: tombol yang lenyap
+dari tab order adalah salah satu cara paling umum sebuah form terasa rusak
+bagi pengguna keyboard.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus ke/dari tombol, mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>
+        Mengaktifkan tombol (native pada <code>&lt;button&gt;</code> dan <code>&lt;a href&gt;</code>
+        )
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol (native pada <code>&lt;button&gt;</code>; tidak berlaku pada{' '}
+        <code>&lt;a&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Tombol `iconOnly` **wajib** mengisi `aria-label` - ini diwajibkan oleh
+  tipe TypeScript-nya sendiri (`iconOnly` dan `aria-label` adalah pasangan
+  yang tidak bisa dipisah), bukan sekadar konvensi.
+- Ikon dekoratif (`leftIcon`, `rightIcon`, spinner) selalu `aria-hidden`,
+  supaya screen reader tidak membacakan SVG path yang tidak bermakna.
+- Saat `loading`, `aria-busy="true"` diumumkan bersama `loadingLabel` yang
+  tersembunyi visual - screen reader dengar "Processing", pengguna sighted
+  lihat spinner.
+
+**Wajib disediakan konsumen:**
+
+- `children` (label teks) untuk tombol biasa, atau `aria-label` untuk
+  `iconOnly` - salah satu wajib ada, tidak ada default yang masuk akal.
+- `href` saat `as="a"` - href tetap dipertahankan bahkan saat tombol
+  nonaktif secara visual, supaya elemennya tetap bisa dijangkau.
+
+## Catatan i18n
+
+Malay dan Indonesian berjalan 15-30% lebih panjang dari English untuk label
+yang sama ("Book Now" → "Tempah Sekarang" / "Pesan Sekarang"). Button tidak
+memotong atau menyingkat teks sendiri - `white-space` default browser
+membiarkan label bungkus multi-baris kalau kontainernya sempit, jadi tanggung
+jawab pemanggil untuk memberi ruang cukup (atau memakai label yang lebih
+pendek) di layar sempit. Lihat story `TextExpansion` untuk perbandingan
+ketiga bahasa berdampingan di kontainer 240px, sisi `fullWidth` dan
+non-`fullWidth`:
+
+<Canvas of={ButtonStories.TextExpansion} />

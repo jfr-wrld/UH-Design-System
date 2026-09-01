@@ -5,6 +5,7 @@ import { formatDateShort } from '../DatePicker/date.js';
 import { formatCount } from '../../lib/units.js';
 import { ActivityGlyph, type ActivityKind } from './icons.js';
 import { DEFAULT_LABELS, type ItineraryTimelineLabels } from './labels.js';
+import { ChevronDownIcon } from '../../lib/icons.js';
 
 export type ItineraryCity = 'Makkah' | 'Madinah' | 'Jeddah' | (string & {});
 
@@ -31,14 +32,6 @@ export interface ItineraryTimelineProps {
   collapsible?: boolean | undefined;
   labels?: Partial<ItineraryTimelineLabels> | undefined;
   className?: string | undefined;
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 function ItineraryTimelineImpl(props: ItineraryTimelineProps, ref: ForwardedRef<HTMLOListElement>) {
@@ -93,7 +86,7 @@ function ItineraryTimelineImpl(props: ItineraryTimelineProps, ref: ForwardedRef<
                 >
                   {heading}
                   <span className="uh-itinerary__chevron" data-open={expanded ? 'true' : undefined}>
-                    <ChevronIcon />
+                    <ChevronDownIcon />
                   </span>
                 </button>
               ) : (
@@ -141,5 +134,14 @@ function ItineraryTimelineImpl(props: ItineraryTimelineProps, ref: ForwardedRef<
   );
 }
 
-export const ItineraryTimeline = forwardRef(ItineraryTimelineImpl);
-ItineraryTimeline.displayName = 'ItineraryTimeline';
+export const ItineraryTimeline = /* @__PURE__ */ forwardRef(ItineraryTimelineImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  ItineraryTimeline.displayName = 'ItineraryTimeline';
+}

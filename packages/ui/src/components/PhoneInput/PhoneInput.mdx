@@ -1,0 +1,191 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PhoneInputStories from './PhoneInput.stories';
+
+<Meta of={PhoneInputStories} />
+
+# PhoneInput
+
+Field nomor telepon dengan pemilih negara (kode panggil) di sisi kiri dan
+nomor nasional di kanan, yang selalu menyimpan nilainya dalam format
+E.164 (`"+60123456789"`) apa pun format yang diketik atau ditempel
+pengguna. Parsernya mengenali "0123456789", "+60123456789",
+"60123456789", dan "012-345 6789" sebagai nomor Malaysia yang sama, dan
+kode negara yang ditempel langsung memindahkan picker ke negara yang
+tepat tanpa menunggu blur. Pickernya sengaja dibatasi empat pasar (MY, ID,
+SG, BN) plus satu opsi "Other" manual untuk kode negara di luar itu -
+bukan daftar dunia - supaya tetap berupa popover kecil, bukan dropdown
+yang perlu dicari.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Nomor kontak jemaah yang perlu tersimpan dalam format E.164 standar, terlepas dari bagaimana
+        pengguna mengetik atau menempelnya
+      </td>
+      <td>
+        <code>Input</code> teks biasa untuk nomor internasional - format tampilan nasional (dengan
+        digit trunk, pemisah per negara) berbeda dari E.164 yang tersimpan, dan input biasa tidak
+        pernah menormalkan keduanya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Salah satu dari empat pasar platform ini (MY/ID/SG/BN), dengan "Other" sebagai jalan keluar
+        manual untuk kode negara lain
+      </td>
+      <td>
+        Field yang butuh cakupan kode negara dunia lengkap - komponen ini sengaja dibatasi ke pasar
+        yang dijual platform, bukan picker negara universal
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Sumber data yang sering datang dari <em>paste</em> (mis. disalin dari kontak/WhatsApp) -
+        parser menangani beberapa format umum sekaligus
+      </td>
+      <td>
+        Memvalidasi panjang atau kelengkapan nomor di dalam komponen ini - seperti field lain di
+        sistem ini, <code>errorMessage</code> tetap tanggung jawab konsumen
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={PhoneInputStories} />
+
+## Contoh penggunaan
+
+### Dasar
+
+Nomor Malaysia yang sudah tersimpan sebagai E.164 langsung ditampilkan dalam format nasionalnya, "012-345 6789".
+
+<Canvas of={PhoneInputStories.Default} />
+
+### Negara lain
+
+`defaultCountry="ID"` memindahkan kode panggil ke +62 dan format pengelompokan digit mengikuti aturan Indonesia (3-4-4).
+
+<Canvas of={PhoneInputStories.IndonesianNumber} />
+
+### Dengan pesan error
+
+`errorMessage` datang dari validasi konsumen (mis. nomor terlalu pendek) - komponen tidak pernah menilai panjang atau kelengkapan nomor sendiri.
+
+<Canvas of={PhoneInputStories.WithErrorMessage} />
+
+## Aksesibilitas
+
+**Peran ARIA:** trigger pemilih negara adalah `<div role="combobox">`
+dengan `aria-haspopup="listbox"`, `aria-expanded`, `aria-controls` yang
+menunjuk ke daftar saat terbuka, dan `aria-activedescendant` yang
+mengikuti opsi yang sedang disorot. Daftar negaranya sendiri
+`role="listbox"` berisi `role="option"` dengan `aria-selected` pada
+negara yang aktif. Field nomor memakai `type="tel"` biasa, dinamai lewat
+`FieldShell` seperti field lain, dengan `aria-invalid` mengikuti keadaan
+error.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Dari trigger negara langsung ke field nomor (bukan ke item daftar) - picker tidak pernah
+        menahan fokus
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>↓</code> / <code>↑</code> / <code>Enter</code> / <code>Space</code> saat tertutup
+      </td>
+      <td>Membuka daftar negara, dimulai dari negara yang sedang aktif</td>
+    </tr>
+    <tr>
+      <td>
+        <code>↓</code> (ArrowDown)
+      </td>
+      <td>Menyorot opsi berikutnya, berputar dari opsi terakhir kembali ke yang pertama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>↑</code> (ArrowUp)
+      </td>
+      <td>Menyorot opsi sebelumnya, berputar dari opsi pertama ke yang terakhir</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code> / <code>End</code>
+      </td>
+      <td>Langsung menyorot opsi pertama / terakhir dalam daftar</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code> saat terbuka
+      </td>
+      <td>
+        Memilih negara yang sedang disorot, menutup daftar, dan mengembalikan fokus ke trigger
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>Menutup daftar tanpa memilih; fokus tetap di trigger</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code> saat daftar terbuka
+      </td>
+      <td>
+        Menutup daftar lalu melanjutkan perpindahan fokus seperti biasa ke field nomor - tidak
+        menjebak fokus di dalam picker
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Trigger diberi `aria-label` yang menyebut nama negara secara eksplisit
+  (mis. "Country: Singapore"), bukan sekadar kode panggil - supaya tetap
+  jelas maknanya walau dibaca lepas dari konteks visual.
+- Menempel nomor dengan kode negara yang tidak terdaftar (mis. `+971...`)
+  otomatis memindahkan picker ke opsi "Other" dan memunculkan field kode
+  panggil manual (`aria-label` dari `otherCodeLabel`) - perubahan ini
+  diumumkan lewat label trigger yang ikut berubah.
+- Selagi caret berada di field nomor, tampilan turun ke digit mentah
+  tanpa pemisah pengelompokan, supaya caret tidak "dilawan" saat
+  pemisah baru muncul di tengah pengetikan; pengelompokan kembali muncul
+  begitu field kehilangan fokus.
+- Pesan error diberi `role="alert"` lewat `FieldShell`; helper text biasa
+  hanya tersambung lewat `aria-describedby`.
+
+**Wajib disediakan konsumen:**
+
+- `label` - satu-satunya prop wajib, menamai field nomor. Nama trigger
+  negara ikut disusun otomatis dari `label` lewat `aria-label` daftar
+  opsinya.
+- `errorMessage` dari logika validasi eksternal (mis. panjang nomor per
+  negara) - komponen ini hanya menormalkan format, tidak pernah menilai
+  valid-tidaknya sendiri.
+- `countryLabel`/`otherLabel`/`otherCodeLabel` bila teks default berbahasa
+  Inggris ("Country: …", "Other", "Country calling code") perlu
+  dilokalkan ke bahasa antarmuka.

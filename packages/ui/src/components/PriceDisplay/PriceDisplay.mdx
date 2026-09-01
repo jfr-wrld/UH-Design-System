@@ -1,0 +1,196 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PriceDisplayStories from './PriceDisplay.stories';
+
+<Meta of={PriceDisplayStories} />
+
+# PriceDisplay
+
+The one place a price is drawn - a package card, a checkout summary, a
+comparison row. It formats a single amount through `Intl.NumberFormat`,
+carries an optional struck-through original price for a discount, and can
+qualify itself with `from`, `per pax`, or an instalment line. It does not
+compute a discount percentage, does not add tax, and does not know what an
+instalment plan should be - those are supplied, or composed beside it as a
+separate `Badge` or `PriceBreakdown`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk menampilkan satu angka harga di mana pun - kartu paket, ringkasan checkout, baris
+        perbandingan
+      </td>
+      <td>
+        Untuk daftar item berharga (base + fee + pajak + total) - itu tugas{' '}
+        <code>PriceBreakdown</code>, bukan komponen ini
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>currency</code> dan <code>locale</code> diisi sebagai dua prop yang benar-benar
+        independen - simbol datang dari <code>currency</code>, pengelompokan angka datang dari{' '}
+        <code>locale</code>
+      </td>
+      <td>
+        Menurunkan <code>currency</code> dari <code>locale</code> (atau sebaliknya) - harga rupiah
+        yang dibaca dalam bahasa Inggris tetap "Rp", bukan berubah jadi "IDR"; lihat story{' '}
+        <code>IdrReadInEnglish</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>originalAmount</code> saat memang ada harga sebelum diskon yang lebih tinggi dari
+        harga sekarang
+      </td>
+      <td>
+        <code>originalAmount</code> yang sama dengan atau lebih rendah dari <code>amount</code> -
+        komponen akan mengabaikannya diam-diam (lihat story <code>IncompleteData</code>), jadi
+        jangan andalkan itu untuk menyembunyikan data yang salah
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Badge persentase diskon ("22% off") ditempatkan <em>di samping</em>{' '}
+        <code>PriceDisplay</code> oleh komponen yang menyusunnya - lihat story{' '}
+        <code>WithDiscountBadge</code>
+      </td>
+      <td>
+        Menghitung sendiri persentase diskon dan memasukkannya sebagai teks ke dalam komponen ini -
+        itu bukan tanggung jawabnya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>installment</code> diisi dengan angka bulanan yang sudah dihitung pemanggil (dari
+        layanan harga)
+      </td>
+      <td>
+        Membagi <code>amount</code> dengan <code>months</code> secara manual untuk mengisi{' '}
+        <code>installment.monthly</code> - pembulatan yang tidak pas jadi urusan komponen ini
+        padahal bukan yang menghitungnya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>fractionDigits</code> hanya saat sen/desimal benar-benar berarti (mis. saldo, bukan
+        harga paket)
+      </td>
+      <td>
+        Mengabaikan default <code>fractionDigits=0</code> tanpa alasan - harga paket adalah angka
+        bulat, dan pembulatan diam-diam ke satuan penuh adalah keputusan yang sengaja diserahkan ke
+        pemanggil, bukan default yang tersembunyi
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya adalah elemen `<p>` - teks statis, bukan kontrol interaktif.
+
+- **`.uh-price`** - root. Membawa `data-size` dan `data-discounted`.
+- **`.uh-price__row`** - baris utama: prefix, angka, harga asal yang dicoret,
+  qualifier per-pax. `flex-wrap` disengaja - harga panjang seperti
+  "Rp 45.000.000" beserta harga asalnya yang dicoret tidak selalu muat satu
+  baris di kartu sempit, dan turun ke baris kedua lebih baik daripada
+  meluber.
+- **`.uh-price__amount`** - angka utama. Memakai token tipografi
+  `numeric-price-{sm,md,lg,xl}` sesuai `size`, dengan
+  `font-variant-numeric: tabular-nums` supaya digit berbaris rapi di kolom
+  harga.
+- **`.uh-price__original`** - harga sebelum diskon, elemen `<s>` yang
+  dicoret. Muncul setelah angka utama, bukan sebelumnya, dan memakai token
+  `numeric-price-sm` yang lebih kecil.
+- **`.uh-price__prefix`** - kata "from" sebelum angka.
+- **`.uh-price__per-pax`** - kata "per pax" setelah angka.
+- **`.uh-price__instalment`** - baris opsional "or RM 817/month × 12" di
+  bawah harga utama, memakai token `numeric-table` (bukan `numeric-price`) -
+  ini angka pendukung, bukan angka utama layar.
+
+## Props
+
+<ArgTypes of={PriceDisplayStories} />
+
+## Contoh penggunaan
+
+### Harga polos
+
+Kasus paling umum: satu angka, satu mata uang, satu locale.
+
+<Canvas of={PriceDisplayStories.Basic} />
+
+### Dengan harga coretan
+
+`originalAmount` hanya digambar kalau memang lebih tinggi dari `amount` -
+data yang tidak masuk akal (sama, lebih rendah, atau bukan angka) diabaikan
+diam-diam alih-alih digambar sebagai kesalahan.
+
+<Canvas of={PriceDisplayStories.DiscountedPrice} />
+
+### Mata uang berbeda, locale sama
+
+`currency="IDR"` dengan `locale="en"` yang sama seperti contoh pertama.
+Simbolnya tetap "Rp", bukan "IDR" - inilah yang dimaksud independensi
+`currency` dari `locale`.
+
+<Canvas of={PriceDisplayStories.IdrReadInEnglish} />
+
+Untuk melihat seluruh kombinasi mata uang × varian (polos, diskon, per pax,
+from, instalment) sekaligus, lihat story `Matrix`; untuk perilaku pada kartu
+sempit dengan mata uang terpanjang (rupiah) di ukuran terkecil, lihat
+`LongestCurrencyAtSmallest`.
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit. Root-nya adalah `<p>` biasa -
+teks statis yang dibaca screen reader sebagai paragraf, bukan kontrol yang
+butuh peran ARIA tersendiri.
+
+Komponen ini pada dasarnya tidak punya interaksi keyboard yang berarti -
+tidak ada elemen fokusabel di dalamnya, jadi tidak ada tabel tombol
+keyboard untuk didokumentasikan di sini secara jujur. Kalau `PriceDisplay`
+dibungkus dalam elemen interaktif oleh pemanggil (mis. seluruh kartu paket
+sebagai link), interaksi keyboard itu milik pembungkusnya, bukan komponen
+ini.
+
+**Catatan screen reader:**
+
+- Harga coretan (`originalAmount`) membawa teks tersembunyi visual "Original
+  price" sebelum angkanya - dicoret secara visual saja tidak terdengar oleh
+  screen reader, jadi labelnya diucapkan secara eksplisit.
+- Urutan baca mengikuti urutan yang harus dibayar dulu: angka `amount` selalu
+  datang sebelum `originalAmount` di DOM, walau secara visual keduanya
+  bersebelahan.
+- Saat `amount` bukan angka valid (`NaN` atau `Infinity`), komponen tidak
+  merender apa pun - lebih baik tidak ada elemen sama sekali daripada
+  `<p>` berisi teks "NaN" yang dibacakan screen reader.
+
+**Wajib disediakan konsumen:**
+
+- `amount`, `currency`, `locale` - ketiganya wajib, tidak ada default yang
+  masuk akal untuk salah satunya.
+- `aria-label` saat angka saja ambigu di konteks itu - misalnya beberapa
+  harga di satu layar yang perlu dibedakan ("Total for two pilgrims"),
+  karena screen reader hanya membaca digit tanpa tahu itu total, per malam,
+  atau per orang kalau tidak diberi nama.
+
+## Catatan i18n
+
+Kata-kata di sekitar angka yang berubah panjang antarbahasa, bukan angkanya
+sendiri: Malay "setiap orang" lebih dari dua kali panjang "per pax" dalam
+bahasa Inggris. Karena itu label per-pax duduk di baseline angka dalam baris
+yang boleh wrap ( `.uh-price__row` memakai `flex-wrap` ), bukan dipatok kaku
+di sampingnya. Story `TextExpansion` membandingkan English, Malay, dan
+Indonesian berdampingan dalam kartu 220px, dengan `locale` dikunci ke
+`ms-MY` sepanjang kolom Malay supaya pengelompokan angka tidak ikut berubah
+saat kata-katanya berubah:
+
+<Canvas of={PriceDisplayStories.TextExpansion} />

@@ -1,0 +1,146 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as HotelCardStories from './HotelCard.stories';
+
+<Meta of={HotelCardStories} />
+
+# HotelCard
+
+Kartu hotel di dalam paket, dengan hierarki yang sengaja dibalik dari
+kebiasaan situs booking: jarak ke masjid mengalahkan nama hotelnya sendiri,
+karena itulah angka yang jadi dasar pilgrim memilih hotel. Jarak diformat
+lewat formatter bersama - meter di bawah satu kilometer, kilometer di
+atasnya, angka tabular di kedua kasus - dan landmarknya mengikuti `city`:
+Haram di Makkah, Nabawi di Madinah. Kelas bintang digambar lewat `Rating`
+sebagai klasifikasi, bukan skor ulasan. Dua `variant`: `compact` (baris
+horizontal untuk listing) dan `full` (kolom untuk halaman detail, semua
+amenitas terlihat tanpa dilipat).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>variant="compact"</code> (default) di daftar paket - gambar dan badan kartu
+        berdampingan, amenitas dilipat jadi "+N" setelah empat ikon pertama
+      </td>
+      <td>
+        <code>variant="compact"</code> di halaman detail paket - ruang di sana cukup untuk kolom
+        penuh, dan melipat amenitas justru menyembunyikan informasi yang pilgrim datang untuk baca
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="full"</code> di halaman detail paket - gambar di atas, semua amenitas tampil
+        sebagai ikon berlabel tanpa dilipat
+      </td>
+      <td>
+        <code>variant="full"</code> di dalam grid listing sempit - kolom penuh butuh lebar yang
+        tidak selalu tersedia di kartu ringkasan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Membiarkan <code>starRating</code> atau <code>distanceToHaram</code> kosong ketika datanya
+        memang belum ada - baris terkait hilang seluruhnya
+      </td>
+      <td>
+        Mengira <code>distanceToHaram</code> selalu berarti Masjidil Haram - untuk hotel di Madinah,
+        prop yang sama mengukur jarak ke Masjid Nabawi dan label baris berubah menyesuaikan{' '}
+        <code>city</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={HotelCardStories} />
+
+## Contoh penggunaan
+
+### Baris ringkas di daftar paket
+
+`variant="compact"` (default) - gambar dan badan berdampingan, amenitas dilipat jadi penghitung "+N" setelah empat ikon pertama.
+
+<Canvas of={HotelCardStories.ListingRow} />
+
+### Kartu detail penuh
+
+`variant="full"` - kolom penuh di halaman detail, semua amenitas tampil sebagai ikon berlabel tanpa dilipat.
+
+<Canvas of={HotelCardStories.HotelDetailFull} />
+
+### Hotel di Madinah
+
+`city="Madinah"` mengganti landmark baris jarak dari Haram ke Nabawi secara otomatis - prop `distanceToHaram` tetap dipakai apa adanya.
+
+<Canvas of={HotelCardStories.MadinahListingRow} />
+
+## Aksesibilitas
+
+**Peran ARIA:** root-nya `<article>` biasa, tidak ada peran interaktif di
+kartu itu sendiri - kartu ini bukan tombol atau link. Setiap ikon amenitas
+adalah `<button>` native tersendiri dengan `aria-label` sama dengan
+labelnya, dibungkus `Tooltip` yang mengulang teks yang sama; klasifikasi
+bintang digambar lewat `Rating` dengan `role="img"` dan kalimat lengkap
+sebagai nama ("5 out of 5 stars").
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus antar tombol ikon amenitas satu per satu, mengikuti urutan DOM daftar{' '}
+        <code>&lt;ul&gt;</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol amenitas yang sedang fokus (perilaku native <code>&lt;button&gt;</code>
+        ); tooltip-nya sendiri juga muncul saat tombol menerima fokus, bukan hanya saat dihover
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Gambar hotel (`image`) selalu diberi `alt=""` - dekoratif, karena nama
+  hotel di sampingnya sudah menyampaikan hotel mana ini.
+- Setiap ikon amenitas punya `aria-label` sendiri sama dengan `label`-nya;
+  tooltip mengulang teks yang sama, jadi tidak ada informasi yang hanya
+  hidup di dalam tooltip.
+- Penghitung "+N" pada mode `compact` adalah teks biasa, bukan tombol -
+  amenitas yang terlipat tidak bisa dijangkau dari kartu ringkas; pindah
+  ke `variant="full"` untuk membaca semuanya.
+- Kelas bintang membawa satu kalimat lengkap sebagai nama (`stars` label,
+  default "5 out of 5 stars"), bukan sekadar lima ikon tanpa makna.
+
+**Wajib disediakan konsumen:**
+
+- `name` dan `city` - dua prop wajib; setiap prop lain boleh kosong dan
+  baris terkait hilang seluruhnya.
+- `amenities` sebagai daftar `{ id, label }` dengan `label` yang sudah
+  diterjemahkan sendiri oleh pemanggil - `id` hanya memilih artwork
+  ikonnya, dan id yang belum digambar tetap jatuh ke tanda generik sambil
+  mempertahankan labelnya.
+- `labels` untuk menerjemahkan baris jarak, jumlah malam, dan kalimat
+  kelas bintang - defaultnya bahasa Inggris.

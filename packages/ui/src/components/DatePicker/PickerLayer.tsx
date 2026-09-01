@@ -3,7 +3,10 @@ import { createPortal } from 'react-dom';
 
 import { MOBILE_QUERY } from '../../hooks/breakpoints.js';
 import { useAnchoredPortal } from '../../hooks/useAnchoredPortal.js';
+import { useFocusTrap } from '../../hooks/useFocusTrap.js';
 import { useMediaQuery } from '../../hooks/useMediaQuery.js';
+import { useScrollLock } from '../../hooks/useScrollLock.js';
+import { CloseIcon } from '../../lib/icons.js';
 
 /** Why the layer closed. The caller decides where focus belongs for each. */
 export type CloseReason = 'escape' | 'outside' | 'button';
@@ -17,23 +20,6 @@ export interface PickerLayerProps {
   children: ReactNode;
   footer?: ReactNode | undefined;
   closeLabel: string;
-}
-
-const FOCUSABLE =
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), ' +
-  'textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-
-function CloseIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M7 7l10 10M17 7L7 17"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
 }
 
 /**
@@ -73,46 +59,22 @@ export function PickerLayer({
   });
 
   /* The page behind a sheet must not scroll under the pilgrim's thumb. */
-  useEffect(() => {
-    if (!open || !mobile) return undefined;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [open, mobile]);
+  useScrollLock(open && mobile);
+
+  /* A modal sheet keeps Tab inside it; the desktop popover deliberately does
+     not, so tabbing onward stays a way out rather than a trap. */
+  useFocusTrap(open && mobile, panelRef);
 
   useEffect(() => {
     if (!open) return undefined;
-
     function onKeyDown(event: globalThis.KeyboardEvent) {
-      if (event.key === 'Escape') {
-        event.stopPropagation();
-        onClose('escape');
-        return;
-      }
-      if (event.key !== 'Tab' || !mobile) return;
-
-      /* A modal sheet keeps Tab inside it; the popover deliberately does not,
-         so tabbing onward is a way out rather than a trap. */
-      const panel = panelRef.current;
-      if (!panel) return;
-      const stops = [...panel.querySelectorAll<HTMLElement>(FOCUSABLE)];
-      if (stops.length === 0) return;
-      const first = stops[0]!;
-      const last = stops[stops.length - 1]!;
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      onClose('escape');
     }
-
     document.addEventListener('keydown', onKeyDown, true);
     return () => document.removeEventListener('keydown', onKeyDown, true);
-  }, [open, mobile, onClose]);
+  }, [open, onClose]);
 
   if (!open) return null;
 
@@ -130,7 +92,7 @@ export function PickerLayer({
           <span className="uh-picker__sheet-title">{label}</span>
           <button
             type="button"
-            className="uh-picker__close"
+            className="uh-close-button uh-picker__close"
             aria-label={closeLabel}
             onClick={() => onClose('button')}
           >

@@ -1,0 +1,127 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ChartStories from './Chart.stories';
+
+<Meta of={ChartStories} />
+
+# Chart
+
+Grafik garis atau batang untuk data kategorikal - dibangun untuk tampilan tren di
+portal admin/agency (booking atau revenue dari waktu ke waktu, revenue per paket),
+bukan toolkit charting serba guna. `recharts` yang menggambar sebenarnya (peer
+dependency, tidak pernah dibundel ke paket ini - lihat komentar `external` di
+`vite.config.ts`); komponen ini yang memegang styling berbasis token, format
+currency/locale-aware di setiap sumbu dan tooltip, serta tabel data yang bisa
+diakses screen reader yang selalu menyertai visualnya (yang `aria-hidden`).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Tren satu atau beberapa metrik dari waktu ke waktu (booking bulanan, revenue bulanan) -{' '}
+        <code>type="line"</code>
+      </td>
+      <td>
+        Satu angka tunggal yang butuh ditonjolkan (total booking bulan ini) - itu peran{' '}
+        <code>PriceDisplay</code> atau teks biasa, bukan grafik
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Perbandingan nilai antar kategori (revenue per paket, per agency) - <code>type="bar"</code>
+      </td>
+      <td>
+        Rincian harga per baris (base, pajak, diskon) - itu peran <code>PriceBreakdown</code>, bukan
+        grafik
+      </td>
+    </tr>
+    <tr>
+      <td>Portal admin atau agency (desktop-leaning, B2B) yang perlu melihat performa</td>
+      <td>
+        Layar pemesanan jemaah - tidak ada kebutuhan grafik di sana, dan menambahkannya hanya
+        menambah berat tanpa tujuan
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ChartStories} />
+
+## Contoh penggunaan
+
+### Tren booking bulanan
+
+<Canvas of={ChartStories.BookingsTrend} />
+
+### Revenue per paket
+
+`type="bar"` dengan `currency` supaya sumbu dan tooltip terformat sebagai uang, bukan
+angka polos.
+
+<Canvas of={ChartStories.RevenueByPackage} />
+
+### Dua metrik sekaligus
+
+Lebih dari satu entri di `series` otomatis menampilkan legend.
+
+<Canvas of={ChartStories.MultiSeries} />
+
+## Aksesibilitas
+
+**Peran ARIA:** area plot visual (`.uh-chart__plot`, SVG dari recharts) diberi
+`aria-hidden="true"` dan `role="presentation"` - grafik SVG pada dasarnya tidak
+bisa dinavigasi screen reader dengan makna yang setara dengan data aslinya. Sebagai
+gantinya, setiap `Chart` selalu merender `<table>` sungguhan (disembunyikan visual
+lewat `.uh-sr-only`, bukan `display:none` - tetap ada di accessibility tree) berisi
+data yang sama persis: satu kolom untuk `xKey`, satu kolom per `series`, dengan
+`<caption>` dari prop `label`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Interaksi</th>
+      <th>Perilaku</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Mouse hover di atas titik/batang</td>
+      <td>Tooltip menampilkan label, nilai per series, dan warna penanda</td>
+    </tr>
+    <tr>
+      <td>Screen reader</td>
+      <td>
+        Membaca tabel sungguhan (lihat di atas), bukan visual SVG - setiap sel bisa dinavigasi satu
+        per satu seperti tabel data biasa
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Grafik ini tidak punya interaksi keyboard sendiri di atas visualnya (recharts
+  tidak menyediakan fokus per titik) - tabel `sr-only` adalah jalur akses penuh
+  untuk pengguna keyboard/screen reader, bukan pelengkap sebagian.
+- Warna series (`color.chart.1` sampai `color.chart.5`) dipilih untuk bisa
+  dibedakan satu sama lain secara visual, tapi warna BUKAN satu-satunya sinyal -
+  setiap series juga punya `label` yang dipakai sebagai nama kolom tabel dan nama
+  di legend/tooltip.
+
+**Wajib disediakan konsumen:**
+
+- `label` - kalimat yang menjelaskan apa yang ditampilkan grafik ini; ini yang
+  dibaca screen reader lewat `<caption>` tabel, bukan asumsi generik "grafik".
+- `series[].label` yang sudah diterjemahkan untuk setiap metrik.
+- `currency` kalau nilainya uang - jangan format manual sebelum dikirim ke
+  `Chart`; formatting currency/locale sepenuhnya jadi tanggung jawab komponen ini
+  supaya sumbu, tooltip, dan tabel selalu konsisten satu sama lain.

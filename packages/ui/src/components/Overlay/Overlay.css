@@ -1,0 +1,84 @@
+/*
+ * Overlay
+ *
+ * The bare mechanics Modal, Drawer, and BottomSheet each already have their
+ * own copy of (backdrop, centering, enter/exit animation) - this is that
+ * same shared shape with no panel chrome imposed, for content that does not
+ * fit any of those three. The panel enters on the overlay pairing (slower +
+ * emphasized) and leaves on the exit pairing (fast + accelerate), both as
+ * animations rather than transitions, so the unmount can wait for
+ * animationend - see `usePresence`'s own comment for why that still fires
+ * at zero duration under reduced motion.
+ */
+
+.uh-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--uh-spacing-16);
+  z-index: var(--uh-z-index-modal);
+}
+
+.uh-overlay__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--uh-color-bg-overlay);
+  backdrop-filter: blur(var(--uh-blur-md));
+  animation: uh-overlay-fade var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-overlay[data-state='closing'] .uh-overlay__backdrop {
+  animation: uh-overlay-fade var(--uh-motion-preset-exit-duration)
+    var(--uh-motion-preset-exit-easing) both reverse;
+}
+
+.uh-overlay__panel {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  /* The panel is portalled straight to document.body, past every themed
+     wrapper a page normally puts around its own content - without this,
+     plain text placed inside (a caller's own <p>, not wrapped in a
+     component that sets its own colour) inherits body's default instead
+     of the theme's, and in a dark-chrome host page that reads as invisible
+     white-on-white. Found exactly that way, live, in this story. */
+  color: var(--uh-color-text-primary);
+  animation: uh-overlay-enter var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-overlay[data-state='closing'] .uh-overlay__panel {
+  animation: uh-overlay-exit var(--uh-motion-preset-exit-duration)
+    var(--uh-motion-preset-exit-easing) both;
+}
+
+@keyframes uh-overlay-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes uh-overlay-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(var(--uh-spacing-8));
+  }
+}
+
+@keyframes uh-overlay-exit {
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(var(--uh-spacing-8));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-overlay__backdrop,
+  .uh-overlay__panel {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

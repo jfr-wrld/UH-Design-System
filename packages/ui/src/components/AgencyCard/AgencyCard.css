@@ -22,13 +22,21 @@
   font: inherit;
 }
 
-/* The full card is a surface of its own; the compact one inherits whatever it
-   sits on, because it rides inside another card. */
+/*
+ * The full card is a surface of its own; the compact one inherits whatever it
+ * sits on, because it rides inside another card.
+ *
+ * Not `.uh-card` here, unlike PackageCard/HotelCard/ReviewCard: this is a
+ * media-object row (logo beside text), while Card assumes a column, and its
+ * base rule sets a background unconditionally - exactly what the compact
+ * variant must not have. Same tokens as Card's shell regardless, so the two
+ * stay visually identical without borrowing a layout that does not fit.
+ */
 .uh-agency[data-variant='full'] {
   gap: var(--uh-spacing-16);
   padding: var(--uh-spacing-16);
-  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
-  border-radius: var(--uh-radius-lg);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
+  border-radius: var(--uh-radius-card);
   background-color: var(--uh-color-bg-surface);
 }
 

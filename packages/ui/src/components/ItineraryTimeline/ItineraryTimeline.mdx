@@ -1,0 +1,140 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ItineraryTimelineStories from './ItineraryTimeline.stories';
+
+<Meta of={ItineraryTimelineStories} />
+
+# ItineraryTimeline
+
+Rencana perjalanan sebuah paket, hari demi hari, sebagai satu garis
+vertikal. Data-nya adalah `days: { dayNumber, date?, title, activities?,
+location? }[]` - tiap hari punya nomor dan judul wajib, sementara tanggal,
+lokasi, dan daftar aktivitas (`{ type, label, time? }`) opsional dan
+lenyap rapi kalau tidak diisi. Tiap hari adalah _disclosure_: hari pertama
+terbuka secara default (karena "bagaimana perjalanan ini dimulai" adalah
+pertanyaan yang paling sering ditanyakan pembaca), sisanya terlipat, dan
+beberapa hari bisa dibuka sekaligus. Dengan `collapsible={false}` semua
+hari terbuka tanpa tombol sama sekali, cocok untuk tampilan cetak.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Rencana perjalanan hari-per-hari suatu paket umrah/haji, dengan struktur <code>days[]</code>{' '}
+        yang jelas
+      </td>
+      <td>
+        Linimasa acara umum tanpa struktur "hari" (mis. riwayat aktivitas akun, log transaksi) - itu
+        bukan tujuan komponen ini
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Paket panjang (9-14 hari) di mana <code>collapsible</code> menjaga daftar tetap bisa
+        dipindai sekilas
+      </td>
+      <td>
+        Satu hari tunggal tanpa kebutuhan lipat/buka - pertimbangkan daftar aktivitas biasa tanpa
+        pembungkus timeline
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>collapsible={false}</code> untuk permukaan statis/cetak di mana semua hari harus
+        terlihat sekaligus tanpa interaksi
+      </td>
+      <td>
+        Menghitung sendiri jam sholat sebagai <code>activity.time</code> - waktu itu adalah lookup
+        dari sumber lain, bukan aritmatika jam; komponen menerimanya sudah terformat
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ItineraryTimelineStories} />
+
+## Contoh penggunaan
+
+### Satu hari terlipat
+
+Satu hari dengan beberapa aktivitas - kasus minimal, disclosure default terbuka karena hanya ada satu hari.
+
+<Canvas of={ItineraryTimelineStories.SingleDayCollapsed} />
+
+### Beberapa hari terbuka sekaligus
+
+`collapsible={false}` melepas semua tombol - tiga hari tampil penuh sekaligus, cocok untuk ringkasan cetak.
+
+<Canvas of={ItineraryTimelineStories.MultiDayOpen} />
+
+### Tanpa tanggal atau lokasi
+
+Hanya `dayNumber` dan `title` - tanggal, lokasi, dan daftar aktivitas semuanya lenyap rapi tanpa meninggalkan lubang.
+
+<Canvas of={ItineraryTimelineStories.WithoutDates} />
+
+## Aksesibilitas
+
+**Peran ARIA:** root-nya `<ol>` native dengan `aria-label` (default
+"Itinerary"); setiap hari `<li>`. Saat `collapsible` aktif, judul hari
+adalah `<button>` dengan `aria-expanded` dan `aria-controls` yang menunjuk
+ke `id` badan harinya; saat `collapsible={false}`, judul jadi `<span>`
+statis tanpa tombol sama sekali.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus antar tombol toggle tiap hari, mengikuti urutan DOM</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Membuka atau melipat hari yang sedang fokus (perilaku native <code>&lt;button&gt;</code>) -
+        diuji langsung lewat simulasi <code>Enter</code> pada test suite
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Badan hari yang terlipat tetap ada di DOM lewat atribut `hidden` native,
+  bukan dihapus - jadi strukturnya tidak pernah berlubang, hanya
+  disembunyikan dari tampilan dan pohon aksesibilitas selama terlipat.
+- `aria-controls` pada tombol toggle terhubung langsung ke `id` badan yang
+  dilipatnya, sehingga assistive tech tahu persis area mana yang berubah.
+- Ikon aktivitas (`flight`, `hotel`, `ziarah`, `ibadah`, `meal`) semuanya
+  `aria-hidden` - makna sepenuhnya disampaikan lewat teks label di
+  sampingnya, termasuk saat `type` tidak dikenal dan jatuh ke ikon titik
+  generik.
+- Tanggal dirender dalam `<time dateTime={...}>` dengan teks terformat
+  lewat `Intl.DateTimeFormat` sesuai `locale`.
+
+**Wajib disediakan konsumen:**
+
+- `days` - satu-satunya prop wajib, minimal berisi `dayNumber` dan
+  `title` per hari.
+- `activity.time` sudah diformat sebagai string oleh konsumen (mis. jam
+  sholat dari sumber lain), bukan objek `Date` mentah.
+- `labels`/`locale` untuk menerjemahkan kata "Day" dan memformat tanggal
+  dalam bahasa lain.

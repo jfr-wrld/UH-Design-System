@@ -8,6 +8,7 @@ const preview: Preview = {
       storySort: {
         order: [
           'Introduction',
+          'Getting Started',
           'Foundations',
           [
             'Principles',
@@ -27,9 +28,12 @@ const preview: Preview = {
             'Accessibility',
             'Content & Localization',
             'RTL & Bidirectional',
+            'Font Comparison',
           ],
           'Components',
           'Patterns',
+          'Contributing',
+          'Troubleshooting',
         ],
       },
     },

@@ -1,0 +1,174 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as TabsStories from './Tabs.stories';
+
+<Meta of={TabsStories} />
+
+# Tabs
+
+Sebuah _switcher_ yang menampilkan satu bagian konten pada satu waktu di
+bawah satu set label yang bisa diklik atau dinavigasi lewat panah keyboard.
+Dibangun untuk mengisi celah nyata: `PackageDetail` butuh cara memisahkan
+Overview / Itinerary / Hotel / Reviews sebuah paket, dan sebelumnya keempatnya
+ditumpuk vertikal begitu saja karena belum ada komponen switcher di sistem
+ini. Hanya panel yang sedang aktif yang dirender - panel lain tidak
+dimount sampai tab-nya dipilih.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Beberapa bagian konten yang setara pentingnya dan jarang dibaca berurutan - pengguna
+        biasanya hanya butuh satu bagian dalam satu kunjungan
+      </td>
+      <td>
+        Konten yang memang harus dibaca berurutan (langkah 1 lalu 2 lalu 3) - itu alur, bukan
+        pilihan; pakai layout linear atau <code>Stepper</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ruang layar terbatas dan menumpuk semua bagian vertikal akan membuat halaman terlalu panjang
+        untuk di-scan
+      </td>
+      <td>
+        Hanya ada dua bagian singkat yang sama-sama penting dibaca - biaya interaksi ekstra (klik
+        lalu baca) tidak sepadan dibanding menumpuknya saja
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Setiap panel adalah konten statis per-item, tidak ada state yang perlu dipertahankan saat
+        berpindah tab
+      </td>
+      <td>
+        Sebuah panel menyimpan state yang mahal dibuat ulang (mis. form yang sedang diisi) -{' '}
+        <code>Tabs</code> ini tidak me-mount panel non-aktif, jadi state itu hilang; kelola state
+        itu sendiri di level pemanggil dan berikan lewat <code>content</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Jumlah tab kecil dan stabil (tiga sampai lima) - cukup untuk dibaca sekilas sebagai satu
+        grup
+      </td>
+      <td>
+        Daftar tab yang panjang dan bisa berubah jumlahnya (mis. filter kategori dinamis) - pakai{' '}
+        <code>Pagination</code> atau kontrol filter, bukan tab yang di-scroll horizontal
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={TabsStories} />
+
+## Contoh penggunaan
+
+### Bagian-bagian paket
+
+Kasus paling umum: empat bagian yang setara, tab pertama terpilih secara default.
+
+<Canvas of={TabsStories.Default} />
+
+### Mulai dari tab tertentu
+
+`defaultValue` membuka langsung ke bagian yang relevan - misalnya deep link ke bagian Hotel dari luar.
+
+<Canvas of={TabsStories.StartsOnSpecificTab} />
+
+### Salah satu bagian belum tersedia
+
+`disabled` pada satu `TabItem` mengabu-abukan tab itu dan membuat navigasi panah melompatinya, tanpa menyembunyikannya dari daftar.
+
+<Canvas of={TabsStories.WithDisabledTab} />
+
+## Aksesibilitas
+
+**Peran ARIA:** mengikuti pola WAI-ARIA Tabs - kontainer daftar tab membawa
+`role="tablist"` dengan `aria-label` dari prop `label`, setiap tombol membawa
+`role="tab"` dengan `aria-selected` dan `aria-controls` ke panelnya, dan
+kontainer konten membawa `role="tabpanel"` dengan `aria-labelledby` balik ke
+tab yang mengontrolnya.
+
+**Automatic activation.** Ini komponen yang memakai pola _automatic
+activation_ dari WAI-ARIA Tabs, bukan _manual activation_: memindahkan fokus
+dengan panah kiri/kanan langsung memilih tab itu juga, tanpa perlu menekan
+Enter/Space terpisah. Ini pola yang lebih sederhana dari dua pola yang
+diizinkan WAI-ARIA, dan dipilih dengan sengaja - berpindah bagian paket
+bukan aksi yang cukup mahal untuk dikonfirmasi dua kali.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus masuk/keluar dari tablist - hanya tab yang aktif yang ada di tab order (
+        <code>tabIndex=0</code>), tab lain <code>tabIndex=-1</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Panah Kanan</code>
+      </td>
+      <td>
+        Pindah dan langsung memilih tab enabled berikutnya, wrap dari tab terakhir ke tab pertama
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Panah Kiri</code>
+      </td>
+      <td>
+        Pindah dan langsung memilih tab enabled sebelumnya, wrap dari tab pertama ke tab terakhir
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code>
+      </td>
+      <td>Lompat ke tab enabled pertama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>End</code>
+      </td>
+      <td>Lompat ke tab enabled terakhir</td>
+    </tr>
+  </tbody>
+</table>
+
+Sebuah tab `disabled` dilewati sepenuhnya oleh navigasi panah - fokus tidak
+pernah mendarat di atasnya, sama seperti pola _skip disabled item_ pada
+kebanyakan implementasi tablist.
+
+**Catatan screen reader:**
+
+- Panel (`role="tabpanel"`) membawa `tabIndex={0}` sehingga bisa difokus
+  langsung setelah berpindah tab tanpa harus menekan Tab lagi terlebih
+  dahulu untuk masuk ke kontennya.
+- Karena hanya panel aktif yang dirender, tidak ada konten tersembunyi
+  (`hidden`/`display:none`) yang perlu disaring pembaca layar - konten yang
+  tidak aktif memang tidak ada di DOM.
+
+**Wajib disediakan konsumen:**
+
+- `label` - nama aksesibel untuk grup tablist itu sendiri, dibaca oleh
+  screen reader saat masuk ke tablist (mis. "Package sections, tab list").
+  Tidak dirender secara visual, jadi tidak ada default yang masuk akal.

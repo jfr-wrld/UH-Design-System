@@ -303,3 +303,32 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for CurrencyInput.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<CurrencyInput ... />` JSX instead of a render function
+ * body. Kept separate from CurrencyLocaleMatrix/States above, which exist to
+ * prove the whole surface works, not to be copied verbatim.
+ */
+
+export const Default: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Package price', currency: 'MYR', locale: 'ms-MY', defaultValue: 12500 },
+};
+
+export const WholeAmountCurrency: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Harga paket', currency: 'IDR', locale: 'id-ID', defaultValue: 45000000 },
+};
+
+export const WithErrorMessage: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    label: 'Deposit',
+    currency: 'MYR',
+    locale: 'ms-MY',
+    defaultValue: 100,
+    errorMessage: 'Below the minimum deposit',
+  },
+};

@@ -1,0 +1,263 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# One release/deploy at a time per ref; a PR's own runs can cancel each
+# other (someone pushed again before the first run finished), but a run on
+# main is never cancelled mid-flight - a release in progress must finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  # Storybook's own "send anonymous usage data" prompt would otherwise hang
+  # a non-interactive CI shell forever on first run.
+  STORYBOOK_DISABLE_TELEMETRY: '1'
+
+jobs:
+  # ------------------------------------------------------------------ setup
+  # One install, cached and shared, rather than every job repeating it -
+  # pnpm's store cache alone does not save the actual `pnpm install` step
+  # (resolving the workspace graph is real time), so later jobs restore the
+  # already-populated node_modules instead of reinstalling.
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+
+  restore-install: &restore-install
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+
+  # -------------------------------------------------------------------- lint
+  lint:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm lint:ds
+
+  # --------------------------------------------------------------- typecheck
+  typecheck:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      # packages/ui typechecks against @umrahhaji/tokens's build output, and
+      # apps/storybook typechecks against @umrahhaji/ui's - build first, or
+      # this checks last release's dist instead of this PR's actual changes.
+      - run: pnpm build:packages
+      - run: pnpm typecheck
+
+  # ---------------------------------------------------- unit + a11y + build
+  test:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      - run: pnpm test
+      # verify-contrast.mjs / verify-numerals.mjs run as part of
+      # `packages/tokens`'s own `pnpm test` above; this is the WCAG contract
+      # check as its own named step so a contrast regression shows up as its
+      # own red X in the PR checks list, not buried inside "test".
+      - name: contrast contracts
+        run: pnpm --filter @umrahhaji/tokens verify:contrast
+
+  build:
+    runs-on: ubuntu-latest
+    needs: install
+    outputs:
+      storybook-built: ${{ steps.build-storybook.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      - run: pnpm build:packages
+      - id: build-storybook
+        run: pnpm --filter @umrahhaji/storybook build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: apps/storybook/storybook-static
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-packages
+          path: |
+            packages/tokens/build
+            packages/ui/dist
+          retention-days: 7
+
+  a11y:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      # Playwright's own browser binary, not the pnpm store - a11y needs a
+      # real Chromium to run axe in, same as it does locally.
+      - run: pnpm --filter @umrahhaji/storybook exec playwright install --with-deps chromium
+      - run: pnpm test:a11y
+
+  # ------------------------------------------------------------ bundle size
+  bundle-size:
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            packages/*/node_modules
+            apps/*/node_modules
+          key: node-modules-${{ github.sha }}
+      - run: pnpm --filter @umrahhaji/ui build
+      - run: node packages/ui/scripts/bundle-size.mjs --json > bundle-size-current.json
+      # Baseline lives on main - a PR has nothing to diff against until one
+      # exists there. `git show` reads the committed baseline without
+      # checking out or rebuilding main itself.
+      - name: compare against main's baseline
+        if: github.event_name == 'pull_request'
+        run: |
+          if git show origin/main:bundle-size-baseline.json > bundle-size-baseline.json 2>/dev/null; then
+            node scripts/compare-bundle-size.mjs bundle-size-baseline.json bundle-size-current.json
+          else
+            echo "No bundle-size-baseline.json on main yet - nothing to compare against. Run this after v0.9.0's baseline is committed."
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bundle-size-report
+          path: bundle-size-current.json
+
+  # ---------------------------------------------------------- PR preview
+  # Uploads the built Storybook as a downloadable artifact on every PR - a
+  # real live URL per PR needs a static host account (Vercel/Netlify/
+  # Chromatic all work well for Storybook specifically); wire one in here
+  # once that decision is made. Chromatic in particular is worth a look
+  # first: it is built for exactly this job and adds visual regression
+  # testing for free once the token is in place.
+  preview-comment:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `Storybook built for this PR - download it from the **storybook-static** artifact on [this run](${runUrl}) (Summary tab, bottom of the page).\n\nNo live preview URL yet - wire a static host (Vercel/Netlify/Chromatic) into \`.github/workflows/ci.yml\`'s \`preview-comment\` job to get one automatically here instead.`,
+            });
+
+  # ---------------------------------------------------------- deploy (main)
+  # Same caveat as the PR preview: GitHub Pages needs "Pages" enabled once
+  # in the repo's Settings (source: GitHub Actions) before this job's
+  # deploy step will succeed. Swap this job for Vercel/Netlify/Chromatic's
+  # own deploy action instead if the project already uses one of those.
+  deploy-storybook:
+    runs-on: ubuntu-latest
+    needs: [lint, typecheck, test, a11y, build]
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+      - id: deployment
+        uses: actions/deploy-pages@v4

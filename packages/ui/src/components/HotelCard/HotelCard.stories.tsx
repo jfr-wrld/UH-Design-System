@@ -259,3 +259,47 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for HotelCard.mdx's
+ * "Contoh Penggunaan" section - args-only so the Docs Source panel
+ * reconstructs clean `<HotelCard ... />` JSX, wrapped only in the width the
+ * card actually gets on a listing row versus a detail page.
+ */
+
+export const ListingRow: Story = {
+  parameters: { layout: 'centered' },
+  args: base,
+  render: (args) => (
+    <div style={{ width: '420px' }}>
+      <HotelCard {...args} />
+    </div>
+  ),
+};
+
+export const HotelDetailFull: Story = {
+  parameters: { layout: 'centered' },
+  args: { ...base, variant: 'full' },
+  render: (args) => (
+    <div style={{ width: '340px' }}>
+      <HotelCard {...args} />
+    </div>
+  ),
+};
+
+export const MadinahListingRow: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    name: 'Dar Al Taqwa',
+    city: 'Madinah',
+    starRating: 4,
+    distanceToHaram: 150,
+    nights: 3,
+    amenities: AMENITIES,
+  },
+  render: (args) => (
+    <div style={{ width: '420px' }}>
+      <HotelCard {...args} />
+    </div>
+  ),
+};

@@ -1,0 +1,146 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as BookingStatusTrackerStories from './BookingStatusTracker.stories';
+
+<Meta of={BookingStatusTrackerStories} />
+
+# BookingStatusTracker
+
+Posisi sebuah booking di sepanjang perjalanannya (Booking, Payment,
+Documents, Ready to Depart secara default), dirender sebagai satu `<ol>`
+yang membaca `currentStep` untuk membagi langkah menjadi _completed_,
+_current_, dan _upcoming_ - ditambah `error` per langkah yang bisa
+menimpa posisi manapun, karena pembayaran yang gagal adalah langkah
+current yang salah, dan dokumen yang ditolak adalah langkah completed yang
+dibuka kembali. Tersedia dalam dua arah lewat prop `variant`: `horizontal`
+untuk layar lebar, `vertical` untuk layar sempit di mana deskripsi dan
+timestamp butuh ruang vertikal.
+
+Bukan cuma untuk status booking yang sudah ada, meski namanya begitu:
+`steps`/`currentStep` menerima urutan langkah apa pun, jadi komponen yang
+sama ini juga pas untuk indikator progres alur checkout bertahap _sebelum_
+booking-nya sendiri ada (Paket → Data Jamaah → Pembayaran → Review) -
+cukup lewati `timestamp` per langkah, karena langkah wizard belum "terjadi"
+di suatu waktu, ia cuma menandai sedang di mana pengguna dalam form.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Alur booking bertahap di mana pengguna perlu tahu di langkah mana mereka berada dan apa yang
+        tersisa
+      </td>
+      <td>
+        Status tunggal seperti "Dikonfirmasi" atau "Menunggu Pembayaran" tanpa langkah lain untuk
+        dibandingkan - pakai <code>Badge</code>, tracker penuh berlebihan untuk satu fakta
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="horizontal"</code> (default) di halaman lebar dengan ruang mendatar cukup
+        untuk semua langkah
+      </td>
+      <td>
+        Memaksa <code>horizontal</code> di kontainer sempit - label akan bungkus dua baris dan
+        konektor jadi sulit dibaca; ganti ke <code>vertical</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="vertical"</code> saat setiap langkah punya deskripsi dan timestamp yang perlu
+        ruang, atau di layar mobile
+      </td>
+      <td>
+        Menentukan arah lewat CSS media query di dalam styling konsumen - tracker tidak tahu apakah
+        dirinya ada di sidebar atau halaman penuh, jadi <code>variant</code> adalah prop eksplisit
+        yang dipasangkan dengan <code>useMediaQuery(...)</code> di sisi pemanggil
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code> per langkah untuk menandai kegagalan di posisi manapun dalam perjalanan
+      </td>
+      <td>
+        Daftar linear tanpa urutan progres (mis. daftar fasilitas paket) - itu bukan alur booking
+        bertahap
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={BookingStatusTrackerStories} />
+
+## Contoh penggunaan
+
+### Perjalanan sedang berlangsung
+
+Susunan horizontal default: langkah sebelum `currentStep` selesai, langkah setelahnya belum dimulai.
+
+<Canvas of={BookingStatusTrackerStories.HorizontalInProgress} />
+
+### Wizard checkout (bukan status booking)
+
+Urutan langkah kustom, tanpa `timestamp` sama sekali - progres pengisian
+form, bukan riwayat sebuah booking.
+
+<Canvas of={BookingStatusTrackerStories.CheckoutWizard} />
+
+### Vertikal dengan detail
+
+Deskripsi dan timestamp per langkah, disusun vertikal untuk layar sempit atau sidebar.
+
+<Canvas of={BookingStatusTrackerStories.VerticalWithDetails} />
+
+### Pembayaran ditolak
+
+`error` menimpa posisi langkahnya sendiri - di sini langkah kedua, meski langkah pertama sudah selesai.
+
+<Canvas of={BookingStatusTrackerStories.PaymentDeclined} />
+
+## Aksesibilitas
+
+**Peran ARIA:** root-nya `<ol>` native dengan `aria-label` (default
+"Booking progress"); setiap langkah adalah `<li>`, dan hanya langkah
+dengan state _current_ yang membawa `aria-current="step"`. Tidak ada
+peran ARIA tambahan di luar semantik list.
+
+Tracker ini murni informatif - tidak ada elemen interaktif apa pun di
+dalamnya (tidak ada `<button>`, tidak ada `tabindex` kustom), jadi tidak
+ada tabel navigasi keyboard yang berarti untuk ditulis di sini. Keyboard
+menyusuri elemen interaktif _di sekitar_ tracker (mis. tombol "Lanjutkan
+Pembayaran" di halaman yang sama), bukan tracker itu sendiri.
+
+**Catatan screen reader:**
+
+- Setiap langkah mengumumkan state-nya dalam kata lewat teks tersembunyi
+  visual yang ditambahkan di belakang label (mis. "Payment, Current
+  step") - state tidak pernah disampaikan lewat warna atau bentuk ikon
+  saja.
+- Langkah _current_ juga ditandai `aria-current="step"`, sehingga
+  assistive tech tahu posisi aktif tanpa harus membaca teks tersembunyi
+  itu.
+- Timestamp dirender dalam `<time dateTime={...}>` dengan teks terformat
+  lewat `Intl.DateTimeFormat` sesuai `locale`.
+- Ikon marker (centang, segitiga peringatan, angka) semuanya
+  `aria-hidden`, karena makna sepenuhnya sudah disampaikan lewat label
+  langkah plus teks state tersembunyi itu.
+
+**Wajib disediakan konsumen:**
+
+- `currentStep` - satu-satunya prop wajib; menentukan pembagian
+  completed/current/upcoming.
+- `steps` dan `labels` terjemahan bila localenya bukan English default -
+  `DEFAULT_STEPS` dan `DEFAULT_LABELS` diekspor untuk diperluas, bukan
+  ditulis ulang dari nol.
+- Logika pemilihan `variant` sesuai breakpoint - komponen tidak mendeteksi
+  lebar viewport sendiri, jadi pemanggil yang memutuskan lewat
+  `useMediaQuery`.

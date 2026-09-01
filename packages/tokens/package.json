@@ -4,7 +4,9 @@
   "private": true,
   "description": "Single source of truth for UmrahHaji design tokens",
   "type": "module",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
     "build",
     "assets"

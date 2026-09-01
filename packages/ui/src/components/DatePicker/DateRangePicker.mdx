@@ -1,0 +1,268 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as DateRangePickerStories from './DateRangePicker.stories';
+
+<Meta of={DateRangePickerStories} />
+
+{/* doc-agent note: folder-nya bernama `DatePicker/` tapi file yang didokumentasikan di sini adalah `DateRangePicker.tsx` sesuai penugasan; `DatePicker` (tanggal tunggal) berbagi hampir seluruh internal (Calendar, PickerLayer, date.ts) tapi tidak didokumentasikan terpisah di sini. */}
+
+# DateRangePicker
+
+Kontrol untuk memilih dua tanggal yang saling terkait - keberangkatan dan
+kepulangan, check-in dan check-out. Klik pertama menetapkan tanggal awal
+dan langsung dilaporkan lewat `onChange` (jadi consumer tidak pernah
+menyimpan state yang berbeda dari yang ditampilkan layar); klik kedua
+melengkapi rentangnya. Klik yang jatuh lebih awal dari tanggal awal tidak
+ditolak - komponen menganggap pengguna mengulang dari awal. `minRange`/
+`maxRange` mengenkode durasi paket secara langsung di kalender (mis. paket
+Umrah 9-14 hari), jadi tanggal yang bikin rentang salah dicoret sejak di
+kalender, bukan divalidasi setelah submit.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Untuk dua tanggal yang saling terkait sebagai satu keputusan (keberangkatan + kepulangan)
+      </td>
+      <td>
+        Untuk satu tanggal saja (tanggal lahir, expiry pasport) - pakai <code>DatePicker</code>,
+        bukan varian range dengan ujung kedua yang tidak pernah dipakai
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>minRange</code>/<code>maxRange</code> saat produk punya durasi tetap (paket 9-14
+        hari), supaya rentang yang salah tidak bisa dipilih sejak awal
+      </td>
+      <td>
+        Memvalidasi durasi rentang setelah submit lewat <code>errorMessage</code> - mencoret opsi
+        yang salah langsung di kalender jauh lebih jelas daripada pesan error belakangan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>disabledDates</code> untuk hari yang benar-benar tidak tersedia (penerbangan penuh,
+        hotel fully booked)
+      </td>
+      <td>
+        <code>disabledDates</code> untuk aturan bisnis lunak ("kurang disarankan tapi tetap boleh")
+        - itu tugas komunikasi di luar kalender, bukan blokir hari yang membuatnya tidak bisa
+        dipilih sama sekali
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Mengandalkan `status` (baris teks di footer panel) sebagai sumber kebenaran progres
+        pemilihan untuk automated test maupun screen reader
+      </td>
+      <td>
+        Mengandalkan warna band (<code>.uh-calendar__day[data-state]</code>) saja untuk
+        mengomunikasikan rentang - itu murni dekorasi visual, tidak terbaca screen reader
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya `<div className="uh-picker">` (`display: contents`, jadi tidak
+menyisipkan kotak layout sendiri di dalam `FieldShell`) yang membungkus
+tombol trigger, dan panel kalender yang di-portal terpisah ke
+`document.body`.
+
+- **`.uh-picker__trigger`** - `<button>` yang menggantikan peran
+  `<input>` di dalam `FieldShell`; margin negatif membatalkan padding
+  field supaya seluruh kotak berbingkai jadi target klik, bukan cuma
+  teksnya.
+- **`.uh-picker__value`** - teks rentang terformat (lewat
+  `Intl.DateTimeFormat`) atau `placeholder`.
+- **`.uh-picker__icon`** - ikon kalender, dekoratif.
+- **`.uh-picker__panel`** - kotak dialog itu sendiri; di desktop
+  posisinya `position: fixed` mengikuti trigger (`data-placement`
+  top/bottom), di ponsel jadi bottom sheet penuh lebar (`data-mobile`)
+  dengan sudut atas membulat.
+- **`.uh-picker__backdrop`** - lapisan gelap di belakang sheet, hanya
+  ada di mode ponsel; dekoratif (`aria-hidden`) karena menutup sudah
+  bisa lewat Escape dan tombol close berlabel.
+- **`.uh-picker__sheet-header`**/**`.uh-picker__sheet-title`** - judul
+  sheet plus tombol tutup, hanya dirender di mode ponsel (desktop tidak
+  punya heading terpisah karena panel sudah dinamai lewat
+  `aria-label` pada dialog).
+- **`.uh-picker__body`** - pembungkus `Calendar`.
+- **`.uh-picker__footer`**/**`.uh-picker__status`** - baris `role="status"`
+  yang membaca ulang progres pemilihan dalam kata-kata, karena band warna
+  di grid tidak terbaca screen reader.
+- **`.uh-calendar__grid`** - `<table role="grid">`, `table-layout: fixed`
+  supaya tujuh kolom selalu sama lebar dan tidak pernah meluap sheet
+  sempit.
+- **`.uh-calendar__day`** - satu `<td role="gridcell">`; `data-state`
+  (`none`/`single`/`start`/`middle`/`end`) menggambar band rentang lewat
+  CSS - sel yang bersebelahan bergabung tanpa jahitan karena band adalah
+  background sel itu sendiri, bukan elemen overlay terpisah.
+
+## Props
+
+<ArgTypes of={DateRangePickerStories} />
+
+## Contoh penggunaan
+
+### Keberangkatan dan kepulangan
+
+Rentang lengkap sudah terisi dari awal - kasus paling umum saat menampilkan
+booking yang sudah pernah dipilih.
+
+<Canvas of={DateRangePickerStories.DepartureAndReturn} />
+
+### Durasi paket tetap
+
+`minRange`/`maxRange` sekaligus, plus `minDate` untuk waktu persiapan
+minimum sebelum keberangkatan - kombinasi khas untuk paket Umrah dengan
+lama tinggal tetap.
+
+<Canvas of={DateRangePickerStories.PackageDurationLimits} />
+
+### Kepulangan wajib diisi
+
+`errorMessage` dengan tanggal keberangkatan yang sudah terisi tapi
+kepulangan belum - state error yang bisa langsung diperbaiki pengguna
+dengan membuka kalender lagi.
+
+<Canvas of={DateRangePickerStories.ReturnDateRequired} />
+
+Untuk melihat panel dalam keadaan terbuka dengan hari yang diblokir
+(`disabledDates`) lihat story `WithDisabledDates`; untuk bentuk bottom
+sheet di ponsel lihat `Mobile`; untuk kelima state trigger sekaligus
+(kosong/sebagian/lengkap/error/disabled) lihat `Matrix`.
+
+## Aksesibilitas
+
+**Peran ARIA:** trigger adalah `<button aria-haspopup="dialog"
+aria-expanded>`, dinamai lewat `aria-labelledby` yang menunjuk ke label
+field plus nilai yang ditampilkan (bukan `<label htmlFor>` biasa, karena
+ini kontrol komposit). Panel yang terbuka adalah `role="dialog"
+aria-label={label}`; `aria-modal="true"` hanya diset di mode ponsel
+(bottom sheet sungguh modal dengan focus trap), sedangkan popover
+desktop sengaja tidak modal - Tab boleh membawa fokus keluar dari panel.
+Grid tanggal adalah `role="grid"` dengan tiap sel `role="gridcell"`,
+`aria-selected` (bagian dari rentang atau tidak), `aria-disabled`, dan
+`aria-current="date"` untuk hari ini.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Pada trigger: membuka panel (semantik native <code>&lt;button&gt;</code>). Pada sel tanggal
+        yang sedang fokus: memilihnya, kecuali sedang <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>
+        Menutup panel dan mengembalikan fokus ke trigger, tanpa mengubah rentang yang sudah terpilih
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowLeft</code> / <code>ArrowRight</code>
+      </td>
+      <td>
+        Memindahkan fokus roving satu hari mundur/maju, melompati hari yang <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowUp</code> / <code>ArrowDown</code>
+      </td>
+      <td>Memindahkan fokus satu minggu (7 hari) mundur/maju, dengan aturan lompat yang sama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>PageUp</code> / <code>PageDown</code>
+      </td>
+      <td>
+        Melompat ke bulan sebelumnya/berikutnya, mendarat di hari terdekat yang tidak{' '}
+        <code>disabled</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code> / <code>End</code>
+      </td>
+      <td>Melompat ke hari pertama/terakhir pada baris minggu yang sama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Di mode ponsel: terperangkap dalam sheet (focus trap). Di mode desktop: tidak terperangkap -
+        keluar dari panel memicu penutupan otomatis karena fokus pindah ke luar
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Band rentang (warna latar sel `middle`/`start`/`end`) murni visual dan
+  tidak terbaca screen reader - `role="status"` di footer panel
+  membacakan progres yang sama dalam kalimat penuh
+  (`statusLabels.chooseStart`/`chooseEnd`/`chosen`), diperbarui setiap
+  ujung rentang berubah.
+- Grid punya satu roving tab stop: hanya sel yang sedang fokus yang
+  masuk urutan Tab (`tabIndex=0`), dan tidak pernah sel `disabled` -
+  satu-satunya cara mendarat di situ berarti ia ada di urutan tab, jadi
+  hari yang tidak valid memang harus dilewati oleh panah, bukan disentuh
+  Tab.
+- Nama bulan yang berganti saat navigasi diumumkan lewat
+  `aria-live="polite"` pada `.uh-calendar__month`, dan judul grid
+  (`aria-label` pada `role="grid"`) memuat nama bulan yang sama sehingga
+  keduanya tidak pernah berselisih.
+- Hari yang berada di dalam band tapi kebetulan `disabled` sebagai
+  _endpoint_ (mis. karena `minRange` belum terpenuhi) tetap diumumkan
+  `aria-disabled="true"`, tapi secara visual tidak dicoret seperti hari
+  yang benar-benar tidak tersedia - dua alasan `disabled` yang berbeda
+  sengaja dibedakan tampilannya.
+
+**Wajib disediakan konsumen:**
+
+- `label` - tidak ada default yang masuk akal, dan menjadi satu-satunya
+  nama aksesibel trigger maupun dialog.
+- `onChange` untuk penggunaan terkontrol (`startDate`/`endDate`)-mengabaikannya
+  membuat rentang tampak macet karena UI tidak pernah menerima nilai baru.
+- `previousMonthLabel`/`nextMonthLabel`/`closeLabel`/`statusLabels` saat
+  dipakai di luar bahasa Inggris - defaultnya bahasa Inggris, sementara
+  format tanggal itu sendiri sudah otomatis mengikuti `locale`.
+
+## Catatan i18n
+
+Format tanggal (nama bulan, urutan hari, pemisah rentang) sepenuhnya
+lewat `Intl.DateTimeFormat`/`formatRange` mengikuti `locale`, jadi tidak
+ada string tanggal yang di-hardcode. Yang tetap perlu diterjemahkan manual
+lewat props adalah `statusLabels` (kalimat status di footer) dan label
+tombol navigasi bulan - keduanya bukan sesuatu yang diketahui Intl. Baris
+status inilah string terpanjang di komponen ini dan yang paling banyak
+bertambah panjang antar bahasa, karena itu ia sengaja ditaruh sendirian
+di baris footer, bukan berdampingan dengan elemen lain yang bisa
+terdesak. Story `TextExpansion` membandingkan ketiga bahasa dengan
+`minRange`/`maxRange` aktif, di kolom 280px:
+
+<Canvas of={DateRangePickerStories.TextExpansion} />

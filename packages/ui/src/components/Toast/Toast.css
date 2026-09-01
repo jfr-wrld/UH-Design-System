@@ -1,0 +1,200 @@
+/*
+ * Toast
+ *
+ * The one overlay that is not opened - it is announced. ToastProvider
+ * portals a stack to document.body only while at least one toast is
+ * active, so the viewport costs nothing when nothing is showing. Each item
+ * runs the same open/closing/closed lifecycle as Modal and Drawer through
+ * usePresence; what a toast adds is its own auto-dismiss clock
+ * (useAutoDismiss) and the shared announce() call ToastProvider fires
+ * instead of relying on the visible stack itself to be a live region -
+ * see the note in lib/announcer.
+ */
+
+.uh-toast-viewport {
+  position: fixed;
+  z-index: var(--uh-z-index-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-8);
+  width: min(var(--uh-size-toast-width), calc(100vw - var(--uh-spacing-32)));
+  padding: var(--uh-spacing-16);
+  pointer-events: none;
+}
+
+.uh-toast-viewport > * {
+  pointer-events: auto;
+}
+
+/* Anchored edge decides which end of the stack new toasts enter from - see
+   the note in Toast.tsx on why the newest record is always pushed last. */
+.uh-toast-viewport[data-position='top-center'] {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+}
+
+.uh-toast-viewport[data-position='top-right'] {
+  top: 0;
+  right: 0;
+  flex-direction: column-reverse;
+}
+
+.uh-toast-viewport[data-position='bottom-center'] {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.uh-toast-viewport[data-position='bottom-right'] {
+  bottom: 0;
+  right: 0;
+}
+
+/* ------------------------------------------------------------------ item */
+
+.uh-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12) var(--uh-spacing-12) var(--uh-spacing-12) var(--uh-spacing-16);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-elevation-4);
+  box-shadow: var(--uh-elevation-4);
+}
+
+.uh-toast[data-state='open'] {
+  animation: uh-toast-enter var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-toast[data-state='closing'] {
+  animation: uh-toast-exit var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both;
+}
+
+/* Reverses the entrance so an item leaves the way it arrived, without a
+   second keyframe: bottom stacks slide down, top stacks slide up. */
+.uh-toast-viewport[data-position^='top'] .uh-toast {
+  --uh-toast-travel: calc(-1 * var(--uh-spacing-12));
+}
+
+.uh-toast-viewport[data-position^='bottom'] .uh-toast {
+  --uh-toast-travel: var(--uh-spacing-12);
+}
+
+.uh-toast[data-variant='success'] {
+  border-color: var(--uh-color-feedback-success-border);
+}
+.uh-toast[data-variant='success'] .uh-toast__icon {
+  color: var(--uh-color-feedback-success-solid);
+}
+
+.uh-toast[data-variant='warning'] {
+  border-color: var(--uh-color-feedback-warning-border);
+}
+.uh-toast[data-variant='warning'] .uh-toast__icon {
+  color: var(--uh-color-feedback-warning-solid);
+}
+
+.uh-toast[data-variant='error'] {
+  border-color: var(--uh-color-feedback-error-border);
+}
+.uh-toast[data-variant='error'] .uh-toast__icon {
+  color: var(--uh-color-feedback-error-solid);
+}
+
+.uh-toast[data-variant='info'] {
+  border-color: var(--uh-color-feedback-info-border);
+}
+.uh-toast[data-variant='info'] .uh-toast__icon {
+  color: var(--uh-color-feedback-info-solid);
+}
+
+.uh-toast__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-md);
+  height: var(--uh-size-icon-md);
+  margin-block-start: var(--uh-spacing-2);
+}
+
+.uh-toast__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-toast__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.uh-toast__title {
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-toast__description {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-toast__title + .uh-toast__description {
+  margin-block-start: var(--uh-spacing-2);
+}
+
+.uh-toast__action {
+  margin-block-start: var(--uh-spacing-8);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--uh-color-text-brand);
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  font-weight: var(--uh-typography-web-label-font-weight);
+  text-decoration: underline;
+  text-underline-offset: var(--uh-spacing-2);
+  cursor: pointer;
+}
+
+/* Sizing/colour/hover/focus come from the shared .uh-close-button (see
+   styles/utilities.css, data-size='sm'); this only pulls the target into
+   the row's own padding. */
+.uh-toast__close {
+  margin: calc(-1 * var(--uh-spacing-8)) calc(-1 * var(--uh-spacing-4))
+    calc(-1 * var(--uh-spacing-8)) 0;
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(var(--uh-toast-travel, var(--uh-spacing-12)));
+  }
+}
+
+@keyframes uh-toast-exit {
+  to {
+    opacity: 0;
+    transform: translateY(var(--uh-toast-travel, var(--uh-spacing-12))) scale(0.98);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-toast {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

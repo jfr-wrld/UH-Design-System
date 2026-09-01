@@ -1,0 +1,51 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as TimeFieldStories from './TimeField.stories';
+
+<Meta of={TimeFieldStories} />
+
+# TimeField
+
+Input waktu berbasis segmen - Hour, Minute, Second opsional, dan (dalam mode 12 jam)
+segmen AM/PM, masing-masing bisa difokus dan diedit sendiri dengan keyboard. Ini
+adalah interaksi yang sama seperti `<input type="time">` native, hanya saja bisa
+di-script dan diberi tema, yang tidak bisa dilakukan pada elemen native tersebut.
+
+Tidak ada dependency baru untuk ini: setiap segmen mengikuti pola WAI-ARIA
+spinbutton secara manual (`role="spinbutton"`, panah untuk menambah/mengurangi,
+angka untuk mengetik nilai), sama seperti `OTPInput` menulis sendiri penanganan
+keyboard per kotaknya alih-alih memakai library.
+
+## Props
+
+<ArgTypes of={TimeFieldStories} />
+
+## Contoh penggunaan
+
+<Canvas of={TimeFieldStories.Basic} />
+<Canvas of={TimeFieldStories.TwentyFourHour} />
+<Canvas of={TimeFieldStories.WithSeconds} />
+
+## Nilai lengkap atau `null`
+
+`value`/`defaultValue`/`onChange` selalu membawa waktu yang _lengkap_ atau `null` -
+tidak ada nilai sebagian di API publik. Mengetik satu digit ke field yang masih
+kosong tetap terlihat di layar (setiap segmen merender placeholder-nya sendiri
+secara independen), tapi `onChange` hanya terpanggil begitu setiap segmen yang
+diperlukan `granularity`/`hourCycle` saat ini punya nilai sungguhan.
+
+## Mengetik dua digit
+
+Mengetik "1" lalu "2" dengan cepat pada segmen jam menghasilkan "12", bukan "01"
+lalu mulai baru dengan "2" - field menunggu sebentar (600ms) untuk kemungkinan
+digit kedua sebelum berpindah ke segmen berikutnya, kecuali digit pertama saja
+sudah menutup kemungkinan kombinasi valid (mengetik "9" untuk jam 12-jam langsung
+berpindah, karena "9x" mana pun akan melebihi 12).
+
+## Aksesibilitas
+
+`label` selalu menjadi nama aksesibel lewat `FieldShell` (`labelAsText`, karena ini
+kontrol komposit, bukan satu elemen tunggal yang bisa dituju `<label for>`). Setiap
+segmen adalah `role="spinbutton"` dengan `aria-valuemin`/`aria-valuemax`/
+`aria-valuenow`/`aria-valuetext` sendiri, dan bisa dinavigasi dengan panah kiri/kanan
+antar segmen, panah atas/bawah untuk menambah/mengurangi nilai segmen yang sedang
+fokus, dan Backspace untuk mengosongkannya kembali.

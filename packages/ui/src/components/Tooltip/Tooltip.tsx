@@ -1,5 +1,4 @@
 import {
-  cloneElement,
   isValidElement,
   useCallback,
   useEffect,
@@ -9,11 +8,10 @@ import {
   useState,
   type ReactElement,
   type ReactNode,
-  type Ref,
 } from 'react';
 import { createPortal } from 'react-dom';
 
-import { mergeRefs } from './mergeRefs.js';
+import { cloneWithMergedRef } from '../../lib/cloneWithRef.js';
 
 export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
 export type TooltipAlign = 'start' | 'center' | 'end';
@@ -186,20 +184,9 @@ export function Tooltip({
 
   const child = children as ReactElement<Record<string, unknown>>;
   const childProps = child.props;
-  const childRef = childProps['ref'] as Ref<HTMLElement> | undefined;
-
-  /*
-   * The rule forbids touching a ref during render, and it is right to. Nothing
-   * is touched here: mergeRefs builds a callback that React invokes after
-   * commit, and every write happens inside it.
-   *
-   * Merging rather than replacing is not optional. cloneElement overwrites the
-   * child's ref, so without this `<Tooltip><Button ref={mine} /></Tooltip>`
-   * would silently stop populating the caller's ref.
-   */
-  /* eslint-disable react-hooks/refs -- see the note above. */
-  const trigger = cloneElement(child, {
-    ref: mergeRefs<HTMLElement>(triggerRef, childRef),
+  /* Safe by construction - see the note in lib/cloneWithRef. */
+  // eslint-disable-next-line react-hooks/refs
+  const trigger = cloneWithMergedRef(child, triggerRef, {
     /*
      * describedby, not labelledby: a tooltip supplements the trigger's own
      * name. Replacing that name would lose whatever the control actually says.
@@ -223,8 +210,6 @@ export function Tooltip({
       hide();
     },
   } as Record<string, unknown>);
-  /* eslint-enable react-hooks/refs */
-
   return (
     <>
       {trigger}
@@ -248,4 +233,13 @@ export function Tooltip({
   );
 }
 
-Tooltip.displayName = 'Tooltip';
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  Tooltip.displayName = 'Tooltip';
+}

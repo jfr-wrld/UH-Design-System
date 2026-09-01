@@ -1,0 +1,146 @@
+/*
+ * Chip
+ *
+ * A tappable pill, not a decorative label - that job belongs to Badge. The
+ * toggle body and the remove control are always siblings under one wrapper
+ * (see the note in Chip.tsx on why), each its own 44px tap target; the
+ * wrapper itself carries no interaction of its own, only the pill shape and
+ * the selected/unselected surface.
+ */
+
+.uh-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  min-height: var(--uh-size-tap-target-min);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-bg-surface);
+  color: var(--uh-color-text-primary);
+  transition:
+    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
+    background-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-chip[data-selected='true'] {
+  border-color: transparent;
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+/* -------------------------------------------------------------- toggle */
+
+.uh-chip__toggle {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: var(--uh-spacing-4);
+  min-width: 0;
+  padding-inline: var(--uh-spacing-16);
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+  cursor: pointer;
+}
+
+/* The static (non-interactive) form of the same slot, when there is no
+   onClick - an applied filter shown back with only a remove control. */
+span.uh-chip__toggle {
+  cursor: default;
+}
+
+button.uh-chip__toggle:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-chip[data-selected='true'] button.uh-chip__toggle:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-primary-hover);
+}
+
+button.uh-chip__toggle:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+.uh-chip[data-selected='true'] button.uh-chip__toggle:active:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-primary-active);
+}
+
+button.uh-chip__toggle[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+button.uh-chip__toggle:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-chip__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-chip__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-chip__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- remove */
+
+.uh-chip__remove {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Only the toggle's end is rounded on this side when both exist - the seam
+   between them stays a straight edge, like two pills fused into one. */
+.uh-chip:has(.uh-chip__remove) .uh-chip__toggle {
+  padding-inline-end: var(--uh-spacing-8);
+}
+
+.uh-chip__remove > svg {
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+}
+
+.uh-chip__remove:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-chip[data-selected='true'] .uh-chip__remove:hover:not([aria-disabled='true']) {
+  background-color: var(--uh-color-action-primary-hover);
+}
+
+.uh-chip__remove[aria-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-chip__remove:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}

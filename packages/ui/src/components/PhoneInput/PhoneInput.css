@@ -115,7 +115,7 @@
 .uh-phone__divider {
   flex: none;
   align-self: center;
-  width: var(--uh-border-width-1);
+  width: var(--uh-border-width-hairline);
   /* Two thirds of the control height reads as a separator, not a border. */
   height: calc(var(--uh-field-height) / 3 * 2);
   background-color: var(--uh-color-border-default);

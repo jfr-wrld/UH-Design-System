@@ -4,7 +4,10 @@
  * A review is prose from a stranger, so the card's job is restraint: the
  * author row, the text, and nothing shouting. The clamp is measured rather
  * than guessed - the Read more control appears only when four lines genuinely
- * did not hold the text.
+ * did not hold the text. The surface itself - border, radius, background -
+ * comes from the shared .uh-card shell (see components/Card); this file
+ * only adds the layout and its own padding (a review has no separate
+ * content wrapper to hang Card's padding scale off of).
  */
 
 .uh-review {
@@ -13,9 +16,6 @@
   flex-direction: column;
   gap: var(--uh-spacing-8);
   padding: var(--uh-spacing-16);
-  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
-  border-radius: var(--uh-radius-lg);
-  background-color: var(--uh-color-bg-surface);
 }
 
 /* ------------------------------------------------------------------ head */
@@ -133,7 +133,7 @@
   display: block;
   padding: 0;
   border: 0;
-  border-radius: var(--uh-radius-md);
+  border-radius: var(--uh-radius-image);
   background: none;
   cursor: pointer;
 }
@@ -147,7 +147,7 @@
   display: block;
   width: var(--uh-size-upload-thumb);
   height: var(--uh-size-upload-thumb);
-  border-radius: var(--uh-radius-md);
+  border-radius: var(--uh-radius-image);
   object-fit: cover;
   background-color: var(--uh-color-bg-muted);
 }

@@ -1,0 +1,71 @@
+/*
+ * ScrollArea
+ *
+ * Every value here resolves to a token - no literal size or colour in this
+ * file, same contract as every other component's stylesheet. `@base-ui/react`
+ * owns the pointer/drag/keyboard behaviour; this file only paints the track
+ * and thumb it renders.
+ */
+
+.uh-scroll-area {
+  position: relative;
+  overflow: hidden;
+  /* `display: flex` (not the block default) is load-bearing: the root only
+     ever gets a `max-height`/`max-width` from the `maxHeight`/`maxWidth`
+     prop, never an explicit `height`/`width`, so content shorter than the
+     cap still sizes naturally. A plain block box has no "specified" height
+     in that case (per CSS2.1 10.5 - `max-height` alone does not count), so
+     a block child's `height: 100%` resolves as `auto` and grows to fit all
+     content instead of the box's actual 200px-ish rendered size - the
+     overflow then sits behind a plain `overflow: hidden` with no scroll
+     mechanism at all, and Base UI never mounts a Scrollbar because its own
+     Viewport never appears to overflow itself. Flexbox sizes a flex-grow
+     child against the container's real used main size (its own algorithm,
+     not the block percentage-height rule), so this same markup works
+     whether the cap actually applies or not. */
+  display: flex;
+  flex-direction: column;
+}
+
+.uh-scroll-area__viewport {
+  flex: 1 1 auto;
+  /* Flex items default to `min-height: auto`, which floors them at their
+     content size and defeats the cap above exactly the same way the
+     percentage bug did (the child refuses to shrink below ~632px of
+     stacked lines). Zeroing it is the standard flexbox scroll-container
+     fix. `min-width: 0` is the same fix for the horizontal orientation. */
+  min-height: 0;
+  min-width: 0;
+}
+
+.uh-scroll-area__viewport:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-scroll-area__bar {
+  display: flex;
+  touch-action: none;
+  padding: var(--uh-spacing-2);
+  background-color: var(--uh-color-bg-surface-sunken);
+  transition: opacity var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-scroll-area__bar[data-orientation='vertical'] {
+  width: var(--uh-spacing-12);
+}
+
+.uh-scroll-area__bar[data-orientation='horizontal'] {
+  flex-direction: column;
+  height: var(--uh-spacing-12);
+}
+
+.uh-scroll-area__thumb {
+  flex: 1 1 auto;
+  border-radius: var(--uh-radius-full);
+  background-color: var(--uh-color-border-strong);
+}
+
+.uh-scroll-area__corner {
+  background-color: var(--uh-color-bg-surface-sunken);
+}

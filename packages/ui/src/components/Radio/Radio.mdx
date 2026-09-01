@@ -1,0 +1,170 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as RadioStories from './Radio.stories';
+import { Radio } from './Radio.js';
+
+<Meta of={RadioStories} />
+
+{/* doc-agent note: Radio.stories.tsx's default export has component: RadioGroup (title "Components/RadioGroup") - a lone Radio has no meaning outside a same-name group, so every story in that file composes RadioGroup + Radio together. The Props section below therefore uses `<ArgTypes of={Radio} />` with Radio imported directly from './Radio.js', so the table reflects the Radio component this page documents rather than RadioGroup's. Canvas examples still come from Radio.stories.tsx, since that is where the runnable stories live. */}
+
+# Radio
+
+One option selected out of a small, fully-visible set - a room-sharing tier,
+a payment plan. A `Radio` is never used alone: it needs at least one sibling
+sharing the same `value`-space to mean anything, so in practice it is always
+rendered inside a `RadioGroup`, which owns the shared `name`, the selected
+`value`, and the group's `disabled`/`error` state and hands them down through
+context. `RadioGroup` is a `<fieldset>` with a `<legend>`, so the group is
+named natively - `role="radiogroup"` is layered on only to carry
+`aria-orientation`, which a plain fieldset has no way to express. Arrow-key
+navigation and the single tab stop are not reimplemented; they are the
+browser's own behaviour for native radios that share a `name`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Memilih tepat satu dari sedikit opsi (kira-kira 2-5) yang semuanya bisa dilihat sekaligus
+        tanpa scroll atau cari - mis. tipe kamar Double/Triple/Quad
+      </td>
+      <td>
+        Untuk lebih dari sekitar 6-7 opsi, atau saat opsi tidak semua perlu tampil sekaligus di
+        layar - pakai <code>Select</code>, supaya layar tidak dipenuhi baris radio
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Opsi yang perlu dibandingkan langsung berdampingan sebelum memilih, misalnya lewat{' '}
+        <code>description</code> di tiap opsi (rencana pembayaran dengan penjelasan masing-masing)
+      </td>
+      <td>
+        Satu pilihan boolean tunggal ("ya/tidak") - itu domain <code>Checkbox</code> atau{' '}
+        <code>Switch</code>, bukan <code>RadioGroup</code> berisi satu opsi saja
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Selalu di dalam <code>RadioGroup</code> supaya ada <code>name</code> bersama dan{' '}
+        <code>&lt;legend&gt;</code> yang menamai grupnya untuk screen reader
+      </td>
+      <td>
+        Merender beberapa <code>&lt;Radio&gt;</code> dengan <code>value</code> berbeda tanpa{' '}
+        <code>RadioGroup</code> di sekitarnya - tanpa <code>name</code> bersama, radio-radio itu
+        tidak akan saling eksklusif dan pengguna screen reader kehilangan konteks "pilih satu dari
+        apa"
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+Tabel di bawah adalah props `Radio` itu sendiri - satu opsi di dalam grup.
+Untuk props level grup (`name`, `value`, `orientation`, `required`,
+`disabled` menyeluruh, `helperText`/`errorMessage`), lihat `RadioGroup`,
+yang dikirim turun ke tiap `Radio` lewat context dan bisa ditimpa per-opsi
+(lihat contoh `OptionDisabled` di bawah, yang menonaktifkan satu opsi saja).
+
+<ArgTypes of={Radio} />
+
+## Contoh penggunaan
+
+### Satu grup dengan pilihan terpilih
+
+Kasus paling umum: `RadioGroup` dengan `defaultValue` untuk uncontrolled, membungkus beberapa `Radio` yang berbagi `name` lewat context.
+
+<Canvas of={RadioStories.SingleSelection} />
+
+### Dengan error
+
+`errorMessage` pada `RadioGroup` mengeset `aria-invalid` dan `aria-describedby` di fieldset, serta merender pesannya dengan `role="alert"`.
+
+<Canvas of={RadioStories.WithError} />
+
+### Satu opsi dinonaktifkan
+
+`disabled` di level `Radio` menimpa `disabled` grup untuk satu opsi saja - mis. tipe kamar yang sedang habis.
+
+<Canvas of={RadioStories.OptionDisabled} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `Radio` sendiri tidak menambah peran - `<input type="radio">`
+native sudah membawa role `radio`. `RadioGroup` menambahkan
+`role="radiogroup"` di atas `<fieldset>`, semata untuk membawa
+`aria-orientation`; nama grupnya tetap berasal dari `<legend>` native, bukan
+dari `aria-label`.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke/dari seluruh grup sebagai satu tab stop - berhenti di opsi yang sedang
+        terpilih, atau opsi pertama kalau belum ada yang terpilih (roving tabindex native untuk
+        radio se-<code>name</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Panah atas/bawah/kiri/kanan</code>
+      </td>
+      <td>
+        Memindahkan fokus sekaligus memilih opsi tetangga dalam grup yang sama - perilaku native,
+        tidak ada handler custom yang menimpanya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Memilih opsi yang sedang fokus, kalau belum terpilih (perilaku native{' '}
+        <code>&lt;input type="radio"&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Label diklik lewat elemen `<label>` yang di-`htmlFor` ke id input, jadi
+  mengklik teks label atau `description` opsi sama efeknya dengan mengklik
+  boksnya.
+- `description` per opsi ditautkan lewat `aria-describedby` ke input radio
+  itu sendiri, bukan ke grup - jadi tiap opsi punya penjelasannya sendiri
+  yang terbaca setelah namanya.
+- `RadioGroup` yang punya `errorMessage` menautkan pesan itu lewat
+  `aria-describedby` di fieldset dan merendernya dengan `role="alert"`,
+  supaya screen reader mengumumkannya begitu grup difokus atau pesannya
+  muncul.
+- Boks glyph visual (dot) selalu `aria-hidden` - dia murni mencerminkan
+  state input lewat CSS, sehingga screen reader membaca input aslinya, tidak
+  pernah boksnya.
+
+**Wajib disediakan konsumen:**
+
+- `label` dan `value` pada tiap `Radio` - keduanya wajib secara tipe
+  TypeScript; `value` adalah apa yang dibaca `RadioGroup` untuk menentukan
+  opsi mana yang cocok dengan `value`/`defaultValue`-nya.
+- `label` pada `RadioGroup` - jadi teks `<legend>`, wajib karena grup tanpa
+  nama tidak menyampaikan konteks "pilih satu dari apa" ke screen reader.
+- Kalau `Radio` dipakai berdiri sendiri di luar `RadioGroup`, pemanggil
+  wajib menyediakan sendiri `name`, `checked`, dan `onChange` - di luar
+  konteks grup, `Radio` tidak tahu radio lain mana yang perlu dinonaktifkan
+  saat dirinya dipilih.

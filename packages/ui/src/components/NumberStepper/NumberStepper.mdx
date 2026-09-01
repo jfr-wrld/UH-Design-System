@@ -1,0 +1,187 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as NumberStepperStories from './NumberStepper.stories';
+
+<Meta of={NumberStepperStories} />
+
+# NumberStepper
+
+Kontrol kuantitas dengan dua tombol +/- dan satu field angka di tengahnya,
+untuk nilai kecil yang naik-turun bertahap - jumlah dewasa, kamar, malam
+menginap. Field-nya adalah `<input type="text">` dengan `role="spinbutton"`,
+bukan `input[type=number]`, karena tipe native menerima "e", "+", "-",
+melaporkan string kosong untuk apa pun yang dianggapnya tidak valid, dan
+nilainya berubah kalau scroll wheel lewat di atasnya secara tidak sengaja.
+Validasi sepenuhnya di tangan konsumen lewat `error`/`errorMessage` -
+komponen ini sendiri tidak pernah memutuskan apakah suatu angka valid.
+File yang sama juga mengekspor `PassengerStepper`, pembungkus khusus yang
+merangkai tiga `NumberStepper` (dewasa/anak/bayi) dengan satu aturan
+tambahan: jumlah bayi tidak boleh melebihi jumlah dewasa, karena satu bayi
+duduk di pangkuan satu dewasa.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Kuantitas kecil dan bertahap yang wajar diubah lewat tombol +/- atau diketik langsung
+        (jumlah dewasa, kamar, malam)
+      </td>
+      <td>
+        Rentang besar atau kontinu (mis. anggaran dalam jutaan) - tombol +/-1 jadi tidak praktis;
+        pakai <code>CurrencyInput</code> untuk nominal uang
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>step</code> untuk kelipatan selain 1 (mis. kamar dalam kelipatan 5) -{' '}
+        <code>snap()</code> membulatkan dari <code>min</code> supaya urutannya konsisten (1, 3, 5,
+        bukan 0, 2, 4)
+      </td>
+      <td>
+        Dua field <code>NumberStepper</code> independen untuk dewasa dan bayi tanpa aturan silang di
+        antaranya - pakai <code>PassengerStepper</code> yang sudah membawa aturan "bayi tidak boleh
+        melebihi dewasa"
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>/<code>errorMessage</code> untuk aturan bisnis dari luar (mis. kapasitas
+        paket) - komponen tidak pernah memutuskan validitas sendiri
+      </td>
+      <td>
+        <code>input[type=number]</code> polos untuk kebutuhan serupa - menerima karakter yang tidak
+        seharusnya dan berubah nilai saat discroll tanpa sengaja
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={NumberStepperStories} />
+
+## Contoh penggunaan
+
+### Dasar
+
+Nilai default 2, dengan batas 1-9 - tombol minus otomatis nonaktif tepat di batas bawah, tombol plus di batas atas.
+
+<Canvas of={NumberStepperStories.Default} />
+
+### Nonaktif
+
+`disabled` mematikan kedua tombol dan field-nya sekaligus; tidak ada perubahan yang bisa dipicu dari keyboard maupun klik.
+
+<Canvas of={NumberStepperStories.DisabledState} />
+
+### Dengan pesan error
+
+`error` dan `errorMessage` datang dari validasi konsumen (mis. kapasitas paket 8 kursi) - komponen menampilkannya lewat `aria-invalid` dan `role="alert"`, tidak menghitungnya sendiri.
+
+<Canvas of={NumberStepperStories.WithErrorMessage} />
+
+## Aksesibilitas
+
+**Peran ARIA:** field diberi `role="spinbutton"` secara eksplisit (karena
+elemennya sendiri adalah `<input type="text">`), dengan `aria-valuenow`,
+`aria-valuemin`, dan `aria-valuemax` yang mengikuti `min`/`max` yang
+berlaku. `aria-valuemax` sengaja dihilangkan seluruhnya ketika `max` tidak
+diberikan (unbounded), bukan diisi angka yang dikarang. Ketika `max`
+diturunkan konsumen di bawah nilai yang sedang berjalan, `aria-valuenow`
+tetap melaporkan angka yang sebenarnya - lebih tinggi dari
+`aria-valuemax` - karena itulah konflik yang sedang dijelaskan `aria-invalid`
+dan pesan error di bawahnya; menaikkan `aria-valuemax` supaya terlihat rapi
+justru menyembunyikan constraint dari orang yang paling perlu mendengarnya.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berpindah antar tiga stop: tombol minus, field angka, tombol plus, mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>↑</code> (ArrowUp)
+      </td>
+      <td>
+        Menambah nilai sebesar <code>step</code>, berhenti tepat di <code>max</code> (tidak wrap ke{' '}
+        <code>min</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>↓</code> (ArrowDown)
+      </td>
+      <td>
+        Mengurangi nilai sebesar <code>step</code>, berhenti tepat di <code>min</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code>
+      </td>
+      <td>
+        Langsung ke <code>min</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>End</code>
+      </td>
+      <td>
+        Langsung ke <code>max</code>; tidak melakukan apa pun bila <code>max</code> tidak diberikan
+        (unbounded)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>
+        Menetapkan (settle) angka yang sedang diketik tanpa meninggalkan field - nilai di luar batas
+        langsung di-clamp saat itu juga
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Selagi mengetik, angka yang di luar jangkauan tidak langsung dipotong -
+  clamping baru terjadi saat blur atau Enter, supaya caret tidak
+  "dilawan" di tengah mengetik dua digit menuju angka yang lebih besar
+  (mis. mengetik "9" pada jalan menuju "25").
+- Nilai yang sudah berada dalam jangkauan tetap diemit lewat `onChange`
+  persis saat diketik, bukan menunggu blur.
+- Pesan error diberi `role="alert"` supaya diinterupsikan segera; pesan
+  helper biasa hanya terhubung lewat `aria-describedby` dan dibaca sesuai
+  giliran, tidak menyela.
+- Field mengosongkan diri kalau isinya dihapus total, lalu kembali ke
+  nilai terakhir yang valid saat blur - bukan berubah jadi 0.
+
+**Wajib disediakan konsumen:**
+
+- `label` - satu-satunya prop wajib; menamai field, tombol minus, dan
+  tombol plus sekaligus lewat `decrementLabel`/`incrementLabel`.
+- `error`/`errorMessage` dari logika validasi eksternal, bila ada -
+  komponen tidak punya aturan validitas bawaan sama sekali.
+- Pada `PassengerStepper`: seluruh string di `labels` (termasuk
+  `infantLimitReached` dan `infantsExceedAdults`) untuk melokalkan
+  penjelasan aturan bayi-vs-dewasa, karena default-nya berbahasa Inggris.

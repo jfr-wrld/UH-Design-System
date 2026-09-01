@@ -1,0 +1,150 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as CurrencyInputStories from './CurrencyInput.stories';
+
+<Meta of={CurrencyInputStories} />
+
+# CurrencyInput
+
+Field untuk nominal uang, di mana simbol dan pemisah ribuan sengaja diambil
+dari dua sumber yang berbeda dan tidak pernah saling menurunkan satu sama
+lain: `currency` menentukan simbol dan aturan pecahan, `locale` menentukan
+pemisah grup. Harga dalam IDR yang dibaca dalam bahasa Inggris tetap
+tampil "Rp 45,000,000", bukan berubah jadi "IDR" seperti yang dilakukan
+`Intl`'s `style: "currency"` bawaan. Simbolnya sendiri berada di luar
+elemen `<input>` sebagai `<span>` terpisah, supaya Ctrl+A dan mengetik
+ulang hanya menimpa nominalnya, tidak pernah ikut menghapus simbol mata
+uang.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Nominal uang yang perlu tampil dengan simbol mata uang dan pemisah ribuan sesuai bahasa
+        pembaca (harga paket, deposit, saldo)
+      </td>
+      <td>
+        <code>Input</code> biasa dengan teks "RM" ditulis manual sebagai prefix - teks itu ikut ter-
+        <em>select</em> saat Ctrl+A dan tidak diumumkan dengan benar ke screen reader
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Kuantitas kecil bertahap seperti jumlah kamar atau tamu - pakai <code>NumberStepper</code>,
+        bukan <code>CurrencyInput</code>
+      </td>
+      <td>
+        Menurunkan simbol mata uang dari <code>locale</code> (mis. <code>Intl</code>{' '}
+        <code>style: "currency"</code>) - komponen ini sengaja memisahkan keduanya supaya harga IDR
+        tetap "Rp" walau dibaca dalam bahasa Inggris
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>fractionDigits=2</code> saat sen benar-benar berarti (MYR/SGD); biarkan default 0
+        untuk IDR atau harga paket yang memang bilangan bulat
+      </td>
+      <td>
+        Mengetik simbol mata uang di dalam nilai yang dikirim ke <code>onChange</code> - komponen
+        selalu mengembalikan <code>number</code> murni (atau <code>null</code>), tidak pernah string
+        berformat
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={CurrencyInputStories} />
+
+## Contoh penggunaan
+
+### Dasar
+
+`currency="MYR"` dan `locale="ms-MY"` bersama-sama menghasilkan "RM 12,500" - simbol dari mata uang, pemisah ribuan dari bahasa.
+
+<Canvas of={CurrencyInputStories.Default} />
+
+### Mata uang tanpa pecahan
+
+IDR tidak punya unit minor, jadi `fractionDigits` default ke 0 - delapan digit plus dua pemisah adalah lebar terpanjang yang perlu ditampung field ini.
+
+<Canvas of={CurrencyInputStories.WholeAmountCurrency} />
+
+### Dengan pesan error
+
+`errorMessage` datang dari aturan konsumen (mis. di bawah minimum deposit) - komponen tidak pernah memutuskan sendiri apakah suatu nominal valid.
+
+<Canvas of={CurrencyInputStories.WithErrorMessage} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada `role` eksplisit - `<input>` diberi nama lewat
+`<label htmlFor>` bawaan `FieldShell`, sama seperti field lain di sistem
+ini. Simbol mata uang (`.uh-currency__prefix`) diberi `aria-hidden="true"`
+karena bentuknya sendiri (mis. "RM" atau "S$") bisa terbaca janggal;
+sebagai gantinya, nama lengkap mata uang (mis. "Malaysian Ringgit")
+ditaruh di `<span>` tersembunyi visual dan dihubungkan lewat
+`aria-describedby`, sehingga screen reader tetap mengumumkan mata uangnya
+persis satu kali.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berpindah fokus ke/dari field, mengikuti urutan DOM; field <code>disabled</code> dilewati
+        otomatis oleh browser
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Ctrl</code>/<code>Cmd</code> + <code>A</code>
+      </td>
+      <td>
+        Memilih seluruh isi <code>&lt;input&gt;</code> - hanya nominalnya, karena simbol mata uang
+        berada di elemen terpisah di luar input dan tidak pernah ikut terpilih
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+Tidak ada penanganan panah atas/bawah atau Enter khusus di komponen ini -
+berbeda dari `NumberStepper`. Saat field difokus, tampilan turun ke digit
+mentah tanpa pemisah ribuan (supaya caret tidak "dilawan" tiap melewati
+ribuan); pemformatan dan pembulatan ke `min`/`max` baru terjadi saat blur,
+lewat perilaku browser native, bukan lewat key handler tertentu.
+
+**Catatan screen reader:**
+
+- Tempel (paste) teks seperti `"RM 12,500"`, `"Rp 45.000.000"`, atau
+  `"1 234 567"` dibersihkan jadi angka murni saat blur - hanya digitnya
+  yang disimpan, simbol dan pemisah apa pun yang ikut tertempel dibuang.
+- Field yang dikosongkan mengirim `onChange(null)`, bukan `0` - supaya
+  "belum diisi" tetap berbeda dari "paket gratis".
+- Pesan error diberi `role="alert"` lewat `FieldShell` supaya
+  diinterupsikan segera; pesan helper biasa hanya tersambung lewat
+  `aria-describedby`.
+
+**Wajib disediakan konsumen:**
+
+- `label` dan `currency` - keduanya wajib; `currency` tidak punya
+  default karena simbol dan aturan pecahan bergantung penuh padanya.
+- `errorMessage` dari logika validasi eksternal (mis. batas minimum/maksimum
+  bisnis) - komponen hanya meng-`clamp` ke `min`/`max` numerik, tidak
+  pernah menilai valid-tidaknya sendiri.

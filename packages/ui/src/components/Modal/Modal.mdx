@@ -1,0 +1,207 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ModalStories from './Modal.stories';
+
+<Meta of={ModalStories} />
+
+# Modal
+
+Dialog terpusat yang menginterupsi seluruh halaman dan menuntut satu keputusan
+sebelum pengguna bisa lanjut - konfirmasi booking, hapus kartu pembayaran,
+edit data traveller. Di-portal ke `document.body`, focus-trapped lewat
+`useFocusTrap` yang sama dipakai `BottomSheet` dan `Drawer`, dan menutup lewat
+Escape, klik backdrop, atau tombol close - masing-masing bisa dimatikan lewat
+prop untuk langkah yang benar-benar butuh jawaban eksplisit.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Aksi yang harus dijawab sebelum pengguna bisa kembali ke konten di belakangnya - konfirmasi
+        pembatalan, hapus data, simpan perubahan penting
+      </td>
+      <td>
+        Konten yang boleh dibiarkan terbuka sambil pengguna scroll halaman utama - pakai{' '}
+        <code>Drawer</code> (panel sisi) atau <code>Popover</code> (non-modal, tidak mem-block
+        interaksi lain)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Desktop-first, layar lebar - panel di tengah dengan <code>size</code> sm/md/lg/fullscreen
+      </td>
+      <td>
+        Layar sempit/mobile dengan aksi yang lebih natural digeser dari bawah - pakai{' '}
+        <code>BottomSheet</code>, yang juga punya snap-point dan resize handle
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="destructive"</code> untuk aksi yang tidak bisa dibatalkan (hapus kartu,
+        batalkan booking) - judul otomatis diberi warna peringatan dan ikon warning
+      </td>
+      <td>
+        Notifikasi sepihak yang tidak butuh keputusan pengguna - pakai <code>Toast</code>, yang
+        tidak mem-block dan hilang sendiri
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="confirmation"</code>/<code>"destructive"</code> untuk pertanyaan yang harus
+        dijawab - keduanya render sebagai <code>alertdialog</code>, bukan <code>dialog</code>
+      </td>
+      <td>
+        Konten yang murni untuk dibaca/dijelajahi tanpa keputusan wajib -{' '}
+        <code>variant="default"</code> (role <code>dialog</code>) sudah cukup, jangan paksa
+        alertdialog
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>initialFocus</code> pada aksi destructive, diarahkan ke tombol aman ("Keep booking")
+        supaya Enter reflex tidak menjalankan aksi berbahaya
+      </td>
+      <td>
+        Membiarkan default focus-ke-elemen-pertama untuk pertanyaan berisiko tinggi - default itu
+        cocok untuk kasus netral, bukan untuk konfirmasi hapus
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root sebenarnya dua elemen bersaudara di dalam portal: backdrop dan panel
+tidak bersarang, supaya pointer-down di panel yang berakhir di luar (drag
+yang meleset) tidak ikut menutup modal.
+
+- **`.uh-modal`** - wrapper hasil portal, posisi `fixed inset:0`, membawa
+  `data-state` (`open`/`closing`) dan `data-size`.
+- **`.uh-modal__backdrop`** - scrim blur di belakang panel; `aria-hidden`,
+  klik di sini memicu `onClose` kecuali `closeOnOverlayClick={false}`.
+- **`.uh-modal__panel`** - kotak dialog sebenarnya (`role="dialog"` atau
+  `"alertdialog"`), membawa `data-variant`. Discroll internal saat kontennya
+  lebih tinggi dari viewport.
+- **`.uh-modal__header`** - baris judul + tombol close.
+- **`.uh-modal__warning`** - ikon peringatan, hanya muncul saat
+  `variant="destructive"`.
+- **`.uh-modal__title`** - `<h2>` yang mengisi `aria-labelledby`.
+- **`.uh-modal__close`** - tombol close 44px di header (`.uh-close-button`
+  bersama, lihat `styles/utilities.css`).
+- **`.uh-modal__description`** - paragraf opsional yang mengisi
+  `aria-describedby` saat `description` diisi.
+- **`.uh-modal__body`** - pembungkus `children`.
+- **`.uh-modal__footer`** - baris aksi; konsumen mengisi `Button` sendiri,
+  Modal tidak menyediakan satu pun.
+
+## Props
+
+<ArgTypes of={ModalStories} />
+
+## Contoh penggunaan
+
+### Konfirmasi
+
+Pertanyaan yang harus dijawab sebelum aksi lanjut, tapi tidak destruktif -
+render sebagai `alertdialog` lewat `variant="confirmation"`.
+
+<Canvas of={ModalStories.ConfirmationDialog} />
+
+### Aksi destruktif
+
+`variant="destructive"` menandai judul dan menampilkan ikon peringatan;
+`closeOnOverlayClick` diset ke `false` supaya pengguna memilih salah satu
+tombol di footer, bukan klik sembarangan di luar panel.
+
+<Canvas of={ModalStories.DestructiveAction} />
+
+### Form di dalam modal
+
+`children` menerima node apa pun, termasuk form penuh - panel scroll
+internal begitu tingginya melebihi viewport, layout halaman di belakang
+tidak ikut bergeser.
+
+<Canvas of={ModalStories.FormInModal} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `role="dialog"` untuk `variant="default"`,
+`role="alertdialog"` untuk `"confirmation"`/`"destructive"` - keduanya
+membawa `aria-modal="true"`. `aria-labelledby` selalu terisi (mengarah ke
+`.uh-modal__title`); `aria-describedby` hanya ditambahkan saat `description`
+diisi, bukan default kosong.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus ke elemen fokusabel berikutnya di dalam panel; dari elemen terakhir, fokus
+        kembali ke elemen pertama (trap, tidak pernah lolos ke halaman di belakang)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Shift + Tab</code>
+      </td>
+      <td>Kebalikannya - dari elemen pertama, fokus berputar ke elemen terakhir</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Escape</code>
+      </td>
+      <td>
+        Menutup modal, kecuali <code>closeOnEsc</code> diset <code>false</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Saat dibuka, fokus otomatis pindah ke elemen fokusabel pertama di panel
+  (biasanya tombol close) - atau ke `initialFocus` kalau diisi.
+- Saat ditutup lewat cara apa pun (Escape, backdrop, tombol close), fokus
+  **dikembalikan** ke elemen yang memicu modal terbuka - trigger tidak
+  pernah kehilangan jejak fokus.
+- Modal tetap ter-mount selama animasi keluar berjalan (`data-state="closing"`)
+  supaya transisi tidak terpotong; baru dilepas dari DOM setelah animasi
+  selesai.
+- Backdrop bertanda `aria-hidden`, jadi screen reader tidak pernah
+  membacakan scrim sebagai elemen interaktif.
+
+**Wajib disediakan konsumen:**
+
+- `title` - wajib secara tipe TypeScript; dialog tanpa nama adalah kotak
+  yang menginterupsi tanpa konteks.
+- `onClose` - dipanggil dari setiap jalan keluar (tombol close, Escape,
+  backdrop); Modal murni controlled, tidak ada mode uncontrolled.
+- `open` - Modal tidak menyimpan state buka/tutup sendiri.
+- Tombol aksi di `footer` - Modal tidak menyediakan tombol bawaan apa pun,
+  termasuk untuk `variant="destructive"`.
+
+## Catatan i18n
+
+Footer adalah titik tekan yang sama seperti pada `Button`: label Bahasa
+Indonesia/Melayu bisa jauh lebih panjang dari English untuk pertanyaan yang
+sama ("Keep booking" → "Pertahankan pemesanan"). Baris aksi (`.uh-modal__footer`)
+memakai `flex-wrap`, jadi tombol pindah baris alih-alih menyusut di bawah
+target sentuh 44px. Story `TextExpansion` membandingkan ketiga bahasa pada
+modal `destructive` yang sama, satu bahasa dibuka bergantian:
+
+<Canvas of={ModalStories.TextExpansion} />

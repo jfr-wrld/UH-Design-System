@@ -1,6 +1,8 @@
 import { forwardRef, type ForwardedRef } from 'react';
+import { Check } from '@tailgrids/icons';
 
 import { formatCount } from '../../lib/units.js';
+import { StatusIcon } from '../../lib/icons.js';
 import { DEFAULT_LABELS, DEFAULT_STEPS, type BookingStatusTrackerLabels } from './labels.js';
 
 export type TrackerVariant = 'horizontal' | 'vertical';
@@ -30,31 +32,7 @@ export interface BookingStatusTrackerProps {
 }
 
 function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path
-        d="M5.5 12.5l4 4L18.5 8"
-        stroke="currentColor"
-        strokeWidth="2.25"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function WarningIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M12 4.5l8 14H4z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
-      <path
-        d="M12 10v3.5M12 16v.5"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Check aria-hidden="true" focusable="false" />;
 }
 
 /** "15 Mar, 14:32". Cached per locale, like the date module's formatters. */
@@ -115,7 +93,7 @@ function BookingStatusTrackerImpl(
               {state === 'completed' ? (
                 <CheckIcon />
               ) : state === 'error' ? (
-                <WarningIcon />
+                <StatusIcon variant="warning" />
               ) : (
                 <span className="uh-tracker__number">{formatCount(index + 1, locale)}</span>
               )}
@@ -143,5 +121,14 @@ function BookingStatusTrackerImpl(
   );
 }
 
-export const BookingStatusTracker = forwardRef(BookingStatusTrackerImpl);
-BookingStatusTracker.displayName = 'BookingStatusTracker';
+export const BookingStatusTracker = /* @__PURE__ */ forwardRef(BookingStatusTrackerImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  BookingStatusTracker.displayName = 'BookingStatusTracker';
+}

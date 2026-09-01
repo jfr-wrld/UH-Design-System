@@ -1,0 +1,88 @@
+/*
+ * Shared shell behind EmptyState and ErrorState (see lib/StateMessage.tsx).
+ * One stylesheet for both: their anatomy - icon, title, description, up to
+ * two actions - is identical, and only the icon's tone differs.
+ */
+
+.uh-state-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.uh-state-message[data-size='md'] {
+  gap: var(--uh-spacing-16);
+  padding: var(--uh-spacing-48) var(--uh-spacing-24);
+}
+
+.uh-state-message[data-size='sm'] {
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-24) var(--uh-spacing-16);
+}
+
+.uh-state-message__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-state-message__icon[data-tone='error'] {
+  color: var(--uh-color-feedback-error-solid);
+}
+
+.uh-state-message[data-size='md'] .uh-state-message__icon {
+  width: var(--uh-size-avatar-xl);
+  height: var(--uh-size-avatar-xl);
+}
+
+.uh-state-message[data-size='sm'] .uh-state-message__icon {
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+}
+
+.uh-state-message__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-state-message__title {
+  margin: 0;
+  max-width: 40ch;
+  color: var(--uh-color-text-primary);
+}
+
+.uh-state-message[data-size='md'] .uh-state-message__title {
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: var(--uh-typography-web-h6-line-height);
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+.uh-state-message[data-size='sm'] .uh-state-message__title {
+  font-family: var(--uh-typography-web-label-font-family);
+  font-size: var(--uh-typography-web-label-font-size);
+  line-height: var(--uh-typography-web-label-line-height);
+  font-weight: var(--uh-typography-web-label-font-weight);
+}
+
+.uh-state-message__description {
+  margin: 0;
+  max-width: 48ch;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-state-message__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--uh-spacing-12);
+  margin-block-start: var(--uh-spacing-8);
+}

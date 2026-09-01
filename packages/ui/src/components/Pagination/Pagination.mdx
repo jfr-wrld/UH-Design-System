@@ -1,0 +1,159 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PaginationStories from './Pagination.stories';
+
+<Meta of={PaginationStories} />
+
+# Pagination
+
+Navigasi bernomor untuk hasil yang terbagi ke banyak halaman - tombol
+Previous/Next di kedua ujung, tombol nomor halaman di tengah, dan elipsis
+yang meringkas rentang panjang jadi tetap ringkas. Dibangun untuk mengisi
+celah nyata: `SearchResults` sebelumnya berhenti di tombol "Load more" saja
+
+- berfungsi, tapi tidak bisa menyampaikan berapa total halaman ada atau
+  melompat langsung ke halaman tertentu. `Pagination` selalu _controlled_
+  (`page` dan `onChange` wajib) karena berpindah halaman di sini berarti
+  memicu refetch data - tidak ada versi _uncontrolled_ yang masuk akal untuk
+  itu.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Pengguna perlu tahu berapa total halaman ada, atau perlu melompat langsung ke halaman
+        tertentu (mis. halaman 8 dari 20)
+      </td>
+      <td>
+        Pengguna hanya perlu terus melihat lebih banyak hasil secara linear tanpa peduli posisinya -
+        tombol "Load more" atau infinite scroll lebih sesuai dan lebih sedikit interaksi
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Jumlah total hasil/halaman diketahui di awal (hasil pencarian, daftar booking) -{' '}
+        <code>pageCount</code> adalah angka pasti, bukan perkiraan
+      </td>
+      <td>
+        Total tidak diketahui sampai semuanya dimuat (mis. stream data yang terus bertambah) - tidak
+        ada <code>pageCount</code> yang bisa dihitung di muka
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Hasil per halaman cukup besar sehingga berpindah halaman terasa seperti navigasi yang
+        disengaja, bukan gulir kecil
+      </td>
+      <td>
+        Hanya satu halaman hasil - komponen ini sengaja merender <code>null</code> saat{' '}
+        <code>pageCount &lt;= 1</code>; jangan bungkus manual dengan kondisi tambahan di pemanggil,
+        itu sudah ditangani di dalam
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={PaginationStories} />
+
+## Contoh penggunaan
+
+### Rentang pendek
+
+Enam halaman muat semua tanpa elipsis - algoritma hanya meringkas rentang begitu benar-benar ada celah untuk disembunyikan.
+
+<Canvas of={PaginationStories.ShortRun} />
+
+### Rentang panjang dengan elipsis
+
+Dua puluh halaman dengan posisi di tengah - elipsis muncul di kedua sisi, tetap mempertahankan halaman 1, halaman terakhir, dan tetangga langsung halaman aktif.
+
+<Canvas of={PaginationStories.LongRunWithEllipsis} />
+
+### Satu halaman saja
+
+Kasus tepi yang layak ditunjukkan: dengan `pageCount={1}`, komponen ini merender `null` sepenuhnya - tidak ada navigasi untuk satu halaman hasil.
+
+<Canvas of={PaginationStories.SinglePage} />
+
+## Aksesibilitas
+
+**Peran ARIA:** root membawa elemen `<nav>` native dengan `aria-label` dari
+prop `label`, membungkus `<ul>` berisi tombol Previous, setiap nomor
+halaman, dan tombol Next. Halaman aktif membawa `aria-current="page"`.
+Elipsis dirender sebagai `<li aria-hidden="true">` - dekoratif, karena
+tidak ada aksi yang bisa dilakukan pada tanda elipsis itu sendiri.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus antar tombol (Previous, tiap nomor halaman yang terlihat, Next) mengikuti
+        urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol yang sedang fokus (native pada elemen <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+    <tr>
+      <td>Klik Previous</td>
+      <td>
+        Pindah satu halaman ke belakang; nonaktif (<code>disabled</code>) saat{' '}
+        <code>page === 1</code>
+      </td>
+    </tr>
+    <tr>
+      <td>Klik Next</td>
+      <td>
+        Pindah satu halaman ke depan; nonaktif (<code>disabled</code>) saat{' '}
+        <code>page === pageCount</code>
+      </td>
+    </tr>
+    <tr>
+      <td>Klik nomor halaman</td>
+      <td>Lompat langsung ke halaman itu</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Tombol halaman aktif memakai label yang berbeda dari tombol lain -
+  "Page 4, current page" alih-alih "Go to page 4" - jadi screen reader
+  mengumumkan statusnya, bukan hanya nomornya (redundan dengan
+  `aria-current`, tapi eksplisit lewat teks juga untuk pembaca layar yang
+  tidak mengumumkan `aria-current` secara konsisten).
+- Nomor halaman diformat lewat `Intl.NumberFormat` berdasarkan prop
+  `locale`, mengikuti aturan yang sama dengan angka lain di sistem ini -
+  Malay dan Indonesian sama-sama memakai digit Latin, jadi tampilannya
+  identik di ketiga bahasa, tapi tetap lewat jalur Intl yang sama.
+
+**Wajib disediakan konsumen:**
+
+- `label` - nama aksesibel untuk landmark `<nav>`, dibaca screen reader saat
+  melompat antar landmark halaman (mis. "Search results navigation").
+- `page`, `pageCount`, dan `onChange` - komponen ini selalu _controlled_;
+  tidak ada `defaultPage` atau state internal, jadi pemanggil bertanggung
+  jawab penuh menyimpan dan memperbarui `page` saat `onChange` terpanggil.

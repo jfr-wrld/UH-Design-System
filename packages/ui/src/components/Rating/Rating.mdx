@@ -1,0 +1,166 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as RatingStories from './Rating.stories';
+
+<Meta of={RatingStories} />
+
+# Rating
+
+Dua mode dari satu komponen, dipilih lewat prop mana yang diisi - tidak
+pernah lewat saklar "mode" eksplisit. Kirim `value` saja: skor dekoratif,
+`role="img"`, dengan pengisian bintang yang benar-benar proporsional (4.3
+dari 5 mengisi 86%, bukan dibulatkan ke empat setengah bintang). Tambahkan
+`onChange`, `defaultValue`, atau `readOnly`: pemilih bintang,
+`role="radiogroup"` dengan satu radio native per bintang - navigasi panah,
+fokus, dan roving tabindex semuanya gratis dari browser, tidak ada yang
+ditulis manual. Bintang terisi memakai warna `color.rating.filled`
+(orange-600) di kedua tema, token khusus yang diperiksa terhadap rasio
+kontras ikon 3:1, bukan rasio teks 4.5:1 yang lebih ketat.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>value</code> saja untuk menampilkan skor yang sudah ada - rating agensi di kartu,
+        kelas bintang hotel
+      </td>
+      <td>
+        <code>value</code> saja lalu membiarkan pengguna mengetuknya berharap bisa mengubah skor -
+        mode tampilan tidak fokusable dan tidak menerima interaksi apa pun
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>onChange</code> (dengan <code>defaultValue</code> atau <code>value</code> terkontrol)
+        untuk form pengiriman ulasan sungguhan - pengguna benar-benar memilih angka baru
+      </td>
+      <td>
+        Memakai mode input hanya supaya bintangnya "terlihat lebih interaktif" padahal skor tidak
+        pernah benar-benar bisa diubah - pakai mode tampilan yang lebih ringan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>readOnly</code> untuk menunjukkan bentuk pemilih bintang tanpa mengizinkan perubahan -
+        mis. menampilkan kembali rating yang sudah dikirim pengguna
+      </td>
+      <td>
+        <code>disabled</code> sebagai pengganti <code>readOnly</code> - radiogroup yang{' '}
+        <code>disabled</code> keluar dari tab order, sedangkan <code>readOnly</code> tetap bisa
+        dijangkau dan dibaca screen reader
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Membiarkan <code>value</code> kosong ketika skornya memang belum ada - komponen sengaja
+        tidak menggambar apa pun
+      </td>
+      <td>
+        Mengirim <code>value=0</code> sebagai pengganti "belum ada rating" - itu mencemarkan nama
+        agensi dengan skor nol yang tidak nyata
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={RatingStories} />
+
+## Contoh penggunaan
+
+### Skor tampilan
+
+Kirim `value` saja: skor dekoratif dengan `role="img"`, bintang terisi secara proporsional terhadap skor.
+
+<Canvas of={RatingStories.ScoreDisplay} />
+
+### Form kirim ulasan
+
+`onChange` bersama `defaultValue` mengubah Rating menjadi pemilih bintang sungguhan - pengguna memilih skor baru lewat klik atau keyboard.
+
+<Canvas of={RatingStories.ReviewInput} />
+
+### Rating yang sudah dikirim, tidak bisa diubah
+
+`readOnly` menampilkan bentuk pemilih yang sama tapi memblokir perubahan lewat `aria-readonly`, bukan dengan menonaktifkannya.
+
+<Canvas of={RatingStories.YourRatingReadOnly} />
+
+## Aksesibilitas
+
+**Peran ARIA:** mode tampilan memakai `role="img"` dengan skor lengkap
+sebagai `aria-label` (mis. "4.5 out of 5, 812 reviews") - bintangnya sendiri
+`aria-hidden` karena kalimat itu sudah membawa makna yang sama. Mode input
+memakai `role="radiogroup"` dengan satu `<input type="radio">` native per
+bintang, masing-masing diberi nama sendiri ("3 stars") lewat label
+tersembunyi visual - independen dari bentuk glyph bintangnya.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Memindahkan fokus masuk/keluar dari radiogroup sebagai satu unit, mengikuti perilaku roving
+        tabindex native radio group
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Panah kiri/kanan/atas/bawah</code>
+      </td>
+      <td>
+        Memindahkan pilihan antar bintang dan langsung memicu <code>onChange</code> - perilaku
+        bawaan <code>&lt;input type="radio"&gt;</code>, tidak ada handler kustom
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>Memilih bintang yang sedang fokus (perilaku native radio)</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Mode tampilan diumumkan sebagai satu kalimat lewat `label` (bisa
+  dioverride untuk terjemahan) - bukan sederet bintang tanpa makna.
+- Mode input memberi setiap radio nama sendiri lewat teks tersembunyi
+  visual (`starWord`, mis. "1 star" / "3 stars"), jadi nilai yang diumumkan
+  tidak bergantung pada bentuk SVG bintangnya.
+- `readOnly` diumumkan lewat `aria-readonly="true"` pada radiogroup -
+  kontrolnya tetap fokusable dan namanya tetap terbaca, hanya perubahan yang
+  diblokir di handler `onChange`.
+- `disabled` memakai atribut `disabled` native pada setiap radio - berbeda
+  dari `Chip`/`Button`, karena semantik radiogroup native sudah menangani
+  keluar dari tab order dengan benar saat memang dimaksudkan tidak bisa
+  diisi sama sekali.
+
+**Wajib disediakan konsumen:**
+
+- `groupLabel` di mode input saat dipakai di luar bahasa Inggris atau saat
+  ada lebih dari satu Rating input di halaman yang sama - defaultnya
+  "Rating", tidak cukup unik untuk membedakan beberapa pemilih sekaligus.
+- `label` (fungsi kalimat) di mode tampilan kalau ingin diterjemahkan -
+  defaultnya bahasa Inggris ("4.5 out of 5, 812 reviews").
+- `onChange` yang benar-benar menyimpan nilai baru saat dipakai terkontrol
+  (`value` + `onChange`) - komponen tidak menyimpan skor di luar sesi
+  render itu sendiri; tanpa penyimpanan di sisi pemanggil, pilihan
+  pengguna hilang begitu komponen di-render ulang.

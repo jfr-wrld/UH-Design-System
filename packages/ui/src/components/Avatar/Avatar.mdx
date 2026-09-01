@@ -1,0 +1,134 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as AvatarStories from './Avatar.stories';
+
+<Meta of={AvatarStories} />
+
+# Avatar
+
+Merepresentasikan satu orang lewat tiga fallback berurutan: foto, lalu
+inisial dari nama, lalu ikon generik kalau tidak ada foto maupun nama.
+Latar belakangnya netral, bukan warna yang di-hash dari nama - palet hasil
+hash menghasilkan pasangan warna yang belum pernah dicek kontrasnya,
+sementara inisial tetap teks yang wajib 4.5:1 seperti teks lain. File yang
+sama juga mengekspor `AvatarGroup`, pembungkus yang menumpuk beberapa
+`Avatar` dan melipat sisanya jadi satu counter (`+N`) ketika jumlahnya
+melewati `max`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Merepresentasikan satu orang - jemaah, agen, ketua rombongan - di daftar, kartu, atau header
+        profil
+      </td>
+      <td>
+        Untuk logo brand atau organisasi - ikon generik di <code>Avatar</code> adalah fallback
+        terakhir untuk "tidak ada nama", bukan tempat naruh logo
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>name</code> selalu diisi walau tanpa <code>src</code>, supaya inisial dan nama
+        aksesibel muncul otomatis
+      </td>
+      <td>
+        Mengandalkan <code>alt</code> saja tanpa <code>name</code> - begitu gambar gagal dimuat,
+        wrapper butuh <code>name</code> untuk mengambil alih penamaan
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>AvatarGroup</code> untuk menunjukkan siapa saja di satu rombongan/thread tanpa
+        memenuhi layar dengan foto
+      </td>
+      <td>
+        Menyusun banyak <code>Avatar</code> manual berdampingan untuk kasus yang sama -{' '}
+        <code>AvatarGroup</code> sudah menghitung overflow dan memberi <code>aria-label</code> yang
+        benar untuk sisanya
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Membungkus <code>Avatar</code> sendiri dengan <code>&lt;button&gt;</code>/
+        <code>&lt;a&gt;</code> kalau perlu bisa diklik
+      </td>
+      <td>
+        Memperlakukan <code>Avatar</code> sebagai elemen interaktif - komponen ini tidak membawa
+        semantik atau handler klik apa pun
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={AvatarStories} />
+
+## Contoh penggunaan
+
+### Dengan foto
+
+Kasus paling umum: `src` tersedia dan berhasil dimuat, jadi `<img>` yang tampil.
+
+<Canvas of={AvatarStories.WithImage} />
+
+### Fallback inisial
+
+Tanpa `src`, inisial diambil dari kata pertama dan kata terakhir nama -
+"Siti Nurhaliza binti Tarudin" menjadi ST, bukan SN, karena bagian tengah
+(patronimik) adalah bagian nama yang paling tidak identik.
+
+<Canvas of={AvatarStories.InitialsFallback} />
+
+### Grup dengan overflow
+
+Lebih dari `max` avatar dalam satu `AvatarGroup` dilipat jadi satu counter
+`+N` bersama `aria-label` yang menyebut jumlahnya.
+
+<Canvas of={AvatarStories.OverflowGroup} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada `role` eksplisit selama gambar berhasil dimuat -
+`<img alt="...">` sudah membawa semantik yang benar. Begitu gambar gagal
+atau memang tidak ada, wrapper `<span>` mengambil alih dengan
+`role="img"` dan `aria-label` dari `name` (atau `alt` sebagai cadangan).
+Kalau tidak ada `name` maupun `alt` sama sekali, wrapper diberi
+`aria-hidden="true"` - tidak ada apa pun yang bisa diumumkan, jadi memang
+tidak diumumkan. `AvatarGroup` memakai pola yang sama untuk counter
+overflow-nya: `role="img"` dengan `aria-label` dari `overflowLabel`.
+
+{/* doc-agent note: Avatar tidak punya interaksi keyboard - tidak ada elemen fokusabel di dalamnya, jadi tabel Tombol/Aksi standar tidak berlaku dan tidak ditulis di sini untuk menghindari fabrikasi. */}
+
+**Tidak ada interaksi keyboard.** `Avatar` dan `AvatarGroup` bukan elemen
+fokusabel dan tidak menangani event keyboard apa pun - keduanya dilewati
+begitu saja dalam urutan Tab. Kalau avatar perlu bisa diklik atau
+dinavigasi dengan keyboard, pembungkus (`<button>`/`<a>`) di sekitarnyalah
+yang bertanggung jawab atas semantik dan penanganan keyboard itu.
+
+**Catatan screen reader:**
+
+- Inisial dan ikon generik di dalam wrapper selalu `aria-hidden="true"` -
+  keduanya dekoratif secara visual; nama yang sebenarnya diumumkan sudah
+  dibawa oleh `aria-label` di elemen pembungkus.
+- Retry gambar dilacak lewat `src` yang gagal, bukan boolean "pernah
+  gagal" - jadi mengganti `src` ke URL baru otomatis dicoba lagi, tidak
+  terjebak status gagal dari percobaan sebelumnya.
+- Pada `AvatarGroup`, hanya counter overflow yang diberi label; avatar-avatar
+  yang tampil tetap membawa nama masing-masing seperti biasa.
+
+**Wajib disediakan konsumen:**
+
+- `name` (atau minimal `alt` bila `src` diisi) - salah satunya wajib ada
+  supaya orang yang diwakili bisa dikenali lewat screen reader; tanpa
+  keduanya, avatar sengaja disembunyikan sepenuhnya dari assistive tech.
+- `overflowLabel` pada `AvatarGroup` bila default Inggris ("N more") tidak
+  sesuai dengan bahasa antarmuka.

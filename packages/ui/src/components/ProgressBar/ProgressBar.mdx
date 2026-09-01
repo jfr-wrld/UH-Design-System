@@ -1,0 +1,117 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ProgressBarStories from './ProgressBar.stories';
+
+<Meta of={ProgressBarStories} />
+
+# ProgressBar
+
+Menunjukkan seberapa jauh sebuah proses berjalan - unggah file, form
+multi-langkah, atau pemrosesan yang durasinya tidak diketahui. Mode
+`indeterminate` menukar track menjadi garis-garis bergerak alih-alih angka
+yang tidak nyata, jadi pemanggil tidak pernah dipaksa menampilkan persentase
+palsu hanya karena butuh sesuatu untuk ditampilkan.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Progres yang nilainya benar-benar diketahui (byte terunggah, langkah ke-n dari total) -
+        pakai mode determinate dengan <code>value</code>/<code>max</code>
+      </td>
+      <td>
+        Menaikkan <code>value</code> secara artifisial (mis. lompat ke 90% lalu berhenti) hanya
+        supaya terlihat "bergerak" - pakai <code>indeterminate</code>, jangan berbohong soal angka
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Durasi proses tidak diketahui sama sekali (menunggu respons server, memproses pembayaran) -
+        pakai <code>indeterminate</code>
+      </td>
+      <td>
+        Loading singkat tanpa makna "kemajuan" (mis. membuka dropdown) - pakai <code>Spinner</code>,
+        bukan ProgressBar
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>showValue</code> saat angka persentase membantu pengguna memutuskan sesuatu (berapa
+        lama lagi menunggu)
+      </td>
+      <td>
+        <code>showValue</code> saat <code>indeterminate</code> - komponen sudah menyembunyikannya
+        sendiri karena memang tidak ada angka untuk ditampilkan
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ProgressBarStories} />
+
+## Contoh penggunaan
+
+### Unggah file
+
+Progres determinate dengan label dan persentase yang terlihat, dipakai saat nilainya benar-benar diketahui.
+
+<Canvas of={ProgressBarStories.FileUploadProgress} />
+
+### Memproses pembayaran
+
+Durasi tidak diketahui, jadi track memakai mode <code>indeterminate</code> tanpa angka apa pun.
+
+<Canvas of={ProgressBarStories.ProcessingPayment} />
+
+### Progres gagal
+
+Varian <code>error</code> menandai progres yang berhenti karena masalah, bukan sekadar warna biasa.
+
+<Canvas of={ProgressBarStories.PaymentFailedProgress} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `role="progressbar"` mengikuti pola WAI-ARIA progressbar.
+`aria-valuemin` dan `aria-valuemax` selalu ada. Pada mode determinate,
+`aria-valuenow` dan `aria-valuetext` (persentase yang sudah diformat, mis.
+"60%") ikut disertakan. Pada mode `indeterminate`, keduanya **sengaja
+dihilangkan sepenuhnya** - bukan diisi 0 atau nilai lain - karena angka yang
+tidak nyata lebih buruk daripada tidak ada angka sama sekali.
+
+Nama aksesibel elemen selalu berasal dari `label`: kalau `showLabel` aktif,
+elemen visual label itu yang menjadi `aria-labelledby`; kalau tidak,
+`label` tetap dipasang lewat `aria-label` walau tidak tergambar di layar -
+`label` wajib diisi, tidak ada default yang masuk akal untuk sebuah bar
+tanpa nama.
+
+**Interaksi keyboard:** tidak ada. ProgressBar adalah elemen status murni,
+bukan kontrol - tidak menerima fokus dan tidak punya keyboard handler.
+
+**Catatan screen reader:**
+
+- Persentase yang diumumkan (`aria-valuetext`) dan yang ditampilkan lewat
+  `showValue` sama-sama diformat lewat `Intl.NumberFormat` untuk `locale`
+  yang diberikan - bukan string buatan tangan, supaya tanda persen dan
+  urutan digit mengikuti konvensi bahasa tersebut (mis. angka Arab-Indic
+  untuk `locale="ar"`).
+- Lebar visual fill dihitung dari fraksi mentah (`value / max`), terpisah
+  dari teks persentase yang diformat - format persen sebuah locale bukan
+  satuan panjang CSS, jadi keduanya tidak boleh saling menggantikan.
+
+**Wajib disediakan konsumen:**
+
+- `label` - satu-satunya prop wajib; tanpa ini bar tidak punya nama sama
+  sekali untuk screen reader.
+- `value`/`max` saat determinate, atau `indeterminate` saat durasi memang
+  tidak diketahui - pilih salah satu secara sadar, jangan biarkan default
+  `value=0` terlihat seperti progres yang belum mulai padahal sebenarnya
+  tidak diketahui.

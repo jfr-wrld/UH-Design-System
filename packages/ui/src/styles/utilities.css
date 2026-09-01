@@ -122,3 +122,49 @@
   min-height: 0;
   overflow: hidden;
 }
+
+/*
+ * The dismiss button every overlay has: Modal, BottomSheet, Drawer, Toast,
+ * Alert, DatePicker's picker header. The Phase 5.6 audit found six near-
+ * identical copies of this exact block - same tap target, same transparent
+ * fill, same hover/focus treatment, differing only in size and resting
+ * colour. `data-size='sm'` (Toast, Alert) swaps in the smaller radius, icon
+ * and a quieter resting colour; everything else - the margin pull that
+ * tucks the 44px target into a header's own padding - stays with whichever
+ * component needs it, since that depends on a header only it owns.
+ */
+.uh-close-button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-tap-target-min);
+  height: var(--uh-size-tap-target-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--uh-close-button-radius, var(--uh-radius-md));
+  background: transparent;
+  color: var(--uh-close-button-color, var(--uh-color-text-secondary));
+  cursor: pointer;
+}
+
+.uh-close-button > svg {
+  width: var(--uh-close-button-icon, var(--uh-size-icon-md));
+  height: var(--uh-close-button-icon, var(--uh-size-icon-md));
+}
+
+.uh-close-button:hover {
+  background-color: var(--uh-color-bg-muted);
+  color: var(--uh-color-text-primary);
+}
+
+.uh-close-button:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-close-button[data-size='sm'] {
+  --uh-close-button-radius: var(--uh-radius-sm);
+  --uh-close-button-icon: var(--uh-size-icon-sm);
+  --uh-close-button-color: var(--uh-color-text-tertiary);
+}

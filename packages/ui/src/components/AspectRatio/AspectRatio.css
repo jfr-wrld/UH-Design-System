@@ -1,0 +1,45 @@
+/*
+ * AspectRatio
+ *
+ * No tokens involved beyond overflow clipping - every ratio here is a
+ * mathematical shape, not a design decision the token layer owns, the
+ * same reasoning `Grid`'s own `columns` count isn't a token either.
+ */
+
+.uh-aspect-ratio {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.uh-aspect-ratio[data-ratio='square'] {
+  aspect-ratio: 1 / 1;
+}
+
+.uh-aspect-ratio[data-ratio='video'] {
+  aspect-ratio: 16 / 9;
+}
+
+.uh-aspect-ratio[data-ratio='4/3'] {
+  aspect-ratio: 4 / 3;
+}
+
+.uh-aspect-ratio[data-ratio='3/4'] {
+  aspect-ratio: 3 / 4;
+}
+
+.uh-aspect-ratio[data-ratio='21/9'] {
+  aspect-ratio: 21 / 9;
+}
+
+.uh-aspect-ratio[data-ratio='9/16'] {
+  aspect-ratio: 9 / 16;
+}
+
+.uh-aspect-ratio[data-ratio='3/2'] {
+  aspect-ratio: 3 / 2;
+}
+
+.uh-aspect-ratio[data-ratio='2/3'] {
+  aspect-ratio: 2 / 3;
+}

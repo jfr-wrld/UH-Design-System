@@ -209,3 +209,26 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Checkbox.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Checkbox ... />` JSX instead of a render function body.
+ * Kept separate from StateMatrix/ParentAndChildren above, which exist to
+ * prove the whole surface works, not to be copied verbatim.
+ */
+
+export const Unchecked: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Travel insurance' },
+};
+
+export const Checked: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'Travel insurance', defaultChecked: true },
+};
+
+export const Indeterminate: Story = {
+  parameters: { layout: 'centered' },
+  args: { label: 'All add-ons', indeterminate: true, description: 'Two of three selected' },
+};

@@ -1,4 +1,5 @@
 import { forwardRef, useId, useState, type ForwardedRef } from 'react';
+import { InfoCircle } from '@tailgrids/icons';
 
 import { Tooltip } from '../Tooltip/Tooltip.js';
 import { MOBILE_QUERY } from '../../hooks/breakpoints.js';
@@ -6,6 +7,7 @@ import { useMediaQuery } from '../../hooks/useMediaQuery.js';
 import { formatMoney, type Currency } from '../../lib/money.js';
 import { formatCount } from '../../lib/units.js';
 import { DEFAULT_LABELS, type PriceBreakdownLabels } from './labels.js';
+import { ChevronDownIcon } from '../../lib/icons.js';
 
 export type PriceItemType = 'base' | 'addon' | 'tax' | 'fee' | 'discount' | 'total';
 
@@ -49,25 +51,7 @@ export interface PriceBreakdownProps {
 }
 
 function InfoIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="7.25" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="M12 11v4.5M12 8.5V9"
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false">
-      <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
-    </svg>
-  );
+  return <InfoCircle aria-hidden="true" focusable="false" />;
 }
 
 /** The summary fragments, joined the locale's own way: "2 Adults, 1 Infant". */
@@ -185,7 +169,7 @@ function PriceBreakdownImpl(props: PriceBreakdownProps, ref: ForwardedRef<HTMLDi
         >
           {expanded ? labels.hideDetails : labels.showDetails}
           <span className="uh-breakdown__chevron" data-open={expanded ? 'true' : undefined}>
-            <ChevronIcon />
+            <ChevronDownIcon />
           </span>
         </button>
       ) : null}
@@ -205,5 +189,14 @@ function PriceBreakdownImpl(props: PriceBreakdownProps, ref: ForwardedRef<HTMLDi
   );
 }
 
-export const PriceBreakdown = forwardRef(PriceBreakdownImpl);
-PriceBreakdown.displayName = 'PriceBreakdown';
+export const PriceBreakdown = /* @__PURE__ */ forwardRef(PriceBreakdownImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  PriceBreakdown.displayName = 'PriceBreakdown';
+}

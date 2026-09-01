@@ -6,8 +6,20 @@
  * `assets/fonts/`; ship them with the apps.
  *
  * Upstream sources are the variable fonts from github.com/google/fonts:
+ *   ofl/dmsans/DMSans[opsz,wght].ttf
  *   ofl/plusjakartasans/PlusJakartaSans[wght].ttf
  *   ofl/notonaskharabic/NotoNaskhArabic[wght].ttf
+ *
+ * DM Sans ships two variable axes (`opsz` 9-40, `wght` 100-1000) upstream,
+ * but this pipeline only ever instances a single `wght` axis per family (see
+ * `instance()` in build-fonts.mjs). `DMSans-VF.ttf` in `assets/fonts/source/`
+ * is therefore already a partial instance with `opsz` pinned to 14 - the
+ * same optical size Google Fonts' own named instances (Regular, Medium,
+ * Bold, ...) all use - leaving only `wght` free, before this manifest or
+ * build-fonts.mjs ever sees it. Re-derive it the same way (fontTools
+ * `varLib.instancer opsz=14`, then reset the name table's family/subfamily
+ * records back to plain "DM Sans" - the pin otherwise renames them to
+ * "DM Sans 14pt") if the upstream source is ever refreshed.
  */
 
 /** Google Fonts' own `latin` subset range. */
@@ -73,6 +85,33 @@ const ARABIC_FEATURES = [
 ];
 
 export const families = [
+  {
+    id: 'dm-sans',
+    cssFamily: 'DM Sans',
+    source: 'DMSans-VF.ttf',
+    license: 'LICENSE-DMSans.txt',
+    /*
+     * Latin + latin-ext, unlike Manrope's own old scoping here: this source
+     * is the true unsplit upstream TTF from google/fonts (see the file
+     * header), the same one Plus Jakarta Sans below is built from, so it
+     * genuinely has latin-ext glyph coverage to subset from - Manrope's
+     * latin-only range was a workaround for its @fontsource source file
+     * lacking those glyphs entirely, not a deliberate scoping choice worth
+     * carrying over to a source that does not share that limitation.
+     */
+    unicodeRange: `${LATIN},${LATIN_EXT}`,
+    subsetLabel: 'latin + latin-ext',
+    features: LATIN_FEATURES,
+    axis: 'wght',
+    variableRange: [200, 800],
+    staticWeights: [
+      { weight: 400, name: 'Regular' },
+      { weight: 500, name: 'Medium' },
+      { weight: 600, name: 'SemiBold' },
+      { weight: 700, name: 'Bold' },
+    ],
+    preloadWeights: [400, 600],
+  },
   {
     id: 'plus-jakarta-sans',
     cssFamily: 'Plus Jakarta Sans',

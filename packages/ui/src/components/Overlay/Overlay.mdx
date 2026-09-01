@@ -1,0 +1,41 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as OverlayStories from './Overlay.stories';
+
+<Meta of={OverlayStories} />
+
+# Overlay
+
+Mekanisme telanjang yang dibutuhkan sebuah overlay - backdrop yang di-portal,
+focus trap, scroll lock, penutupan lewat Escape dan klik di backdrop, animasi
+masuk/keluar - tanpa chrome visual apa pun. `Modal` adalah mekanisme yang sama
+persis ditambah title/body/footer miliknya sendiri; pakai `Overlay` saat konten
+tidak cocok dengan bentuk itu - form kustom, gambar, strip konfirmasi yang
+dirancang sendiri - yang kalau tidak berarti menulis ulang logika backdrop dan
+focus trap dari nol.
+
+## Props
+
+<ArgTypes of={OverlayStories} />
+
+## Contoh penggunaan
+
+<Canvas of={OverlayStories.Playground} />
+<Canvas of={OverlayStories.Bare} />
+
+## Tidak ada chrome bawaan
+
+Overlay tidak merender border, background, padding, atau heading apa pun untuk
+panelnya sendiri - hanya memusatkannya dan menjalankan animasi masuk/keluar.
+Apa pun yang diletakkan di dalamnya yang menentukan tampilannya: bungkus dengan
+`Card` untuk permukaan berbingkai (pola yang dipakai contoh di atas), atau
+biarkan telanjang untuk sesuatu seperti pratinjau gambar.
+
+## Aksesibilitas
+
+`aria-label` wajib - dialog tanpa nama adalah kotak yang menginterupsi tanpa
+menjelaskan alasannya. `role` bernilai `'alertdialog'` untuk pertanyaan yang
+harus dijawab, bukan sekadar permukaan yang dijelajahi. Fokus terperangkap di
+dalam panel selama overlay terbuka dan kembali ke elemen yang memicunya saat
+ditutup; Escape dan klik di backdrop masing-masing bisa dimatikan lewat
+`closeOnEsc`/`closeOnOverlayClick` untuk langkah yang harus dijawab secara
+eksplisit.

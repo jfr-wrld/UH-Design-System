@@ -1,0 +1,132 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ErrorStateStories from './ErrorState.stories';
+
+<Meta of={ErrorStateStories} />
+
+# ErrorState
+
+Sesuatu gagal dan pengguna perlu diberi tahu sekarang juga - request yang
+error, halaman yang gagal dimuat. Berbagi seluruh anatomi dengan
+`EmptyState` lewat `lib/StateMessage.tsx` (ikon, judul, deskripsi, sampai
+dua aksi); yang membedakan hanya warna ikon dan perannya - ErrorState
+menginterupsi lewat `role="alert"` sejak dipasang, EmptyState tidak.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Request yang benar-benar gagal (network error, 500, timeout) - "Could not load packages"
+      </td>
+      <td>
+        Hasil kosong yang valid (pencarian tanpa hasil, filter terlalu sempit) - itu{' '}
+        <code>EmptyState</code>, bukan kegagalan apa pun
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>action</code> berupa retry yang benar-benar memicu ulang request -{' '}
+        <code>{"{ label: 'Try again', onClick: refetch }"}</code>
+      </td>
+      <td>
+        Menampilkan ErrorState untuk validasi form yang bisa diperbaiki pengguna - pakai pesan error
+        field, bukan komponen yang menginterupsi seluruh section
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ikon kustom yang menjelaskan jenis kegagalan (kartu ditolak, server down) saat ikon generik
+        kurang jelas
+      </td>
+      <td>
+        Mengganti ErrorState dengan Toast untuk kegagalan yang membuat seluruh section tidak bisa
+        dipakai - Toast untuk notifikasi sekilas, ErrorState untuk section yang benar-benar butuh
+        diisi ulang kontennya
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={ErrorStateStories} />
+
+## Contoh penggunaan
+
+### Gagal memuat data
+
+Kasus paling umum: request yang gagal dengan satu aksi untuk mencoba lagi.
+
+<Canvas of={ErrorStateStories.LoadFailed} />
+
+### Sedang offline
+
+Ikon kustom yang lebih spesifik daripada ikon default, untuk kegagalan yang jelas penyebabnya.
+
+<Canvas of={ErrorStateStories.OfflineError} />
+
+### Pembayaran gagal
+
+Dua aksi independen - retry di posisi utama, jalur alternatif (hubungi dukungan) sebagai sekunder.
+
+<Canvas of={ErrorStateStories.PaymentFailedError} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `role="alert"` terpasang sejak komponen mount - inilah
+perbedaan kunci dari `EmptyState`, yang tidak membawa live region apa pun.
+Kegagalan adalah interupsi; daftar yang kosong setelah pencarian bukan.
+Ini mengikuti alasan yang sama dengan varian error `Alert` dan pengumuman
+error `Toast` di paket ini.
+
+**Interaksi keyboard:** ErrorState sendiri bukan elemen interaktif - tidak
+menerima fokus, dan `role="alert"` mengumumkan kontennya tanpa memindahkan
+fokus keyboard. Saat `action`/`secondaryAction` diisi, keduanya dirender
+sebagai `Button` biasa dengan perilaku keyboard standar:
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus antar aksi, mengikuti urutan DOM (primary lalu secondary)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>Mengaktifkan aksi yang sedang fokus (mis. retry)</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- `role="alert"` adalah live region assertive - screen reader akan
+  memotong apa pun yang sedang dibacakan untuk mengumumkan judul dan
+  deskripsi ErrorState begitu ia muncul. Karena itu ErrorState tidak boleh
+  dipasang untuk kegagalan kecil yang tidak layak menginterupsi.
+- Ikon selalu `aria-hidden` dan diberi `data-tone="error"` untuk pewarnaan
+  visual saja - makna kegagalannya disampaikan lewat teks judul, bukan
+  bentuk ikon.
+
+**Wajib disediakan konsumen:**
+
+- `title` - satu-satunya prop wajib; tanpa ini `role="alert"` akan
+  mengumumkan sesuatu tanpa isi yang jelas.
+- `onClick` untuk setiap `action`/`secondaryAction` yang diberikan -
+  biasanya fungsi refetch untuk aksi utama.

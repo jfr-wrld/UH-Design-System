@@ -1,0 +1,153 @@
+/*
+ * Drawer
+ *
+ * The desktop rail: full-height, attached to one physical side, sliding in
+ * from it. Same modal contract as Modal and BottomSheet through the same
+ * three hooks; the attached edge is square because the panel is part of the
+ * screen edge, not a floating card.
+ */
+
+.uh-drawer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  z-index: var(--uh-z-index-modal);
+}
+
+.uh-drawer[data-side='left'] {
+  justify-content: flex-start;
+}
+
+.uh-drawer[data-side='right'] {
+  justify-content: flex-end;
+}
+
+.uh-drawer__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--uh-color-bg-overlay);
+  backdrop-filter: blur(var(--uh-blur-md));
+  animation: uh-drawer-fade var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-drawer[data-state='closing'] .uh-drawer__backdrop {
+  animation: uh-drawer-fade var(--uh-motion-preset-exit-duration)
+    var(--uh-motion-preset-exit-easing) both reverse;
+}
+
+/* ---------------------------------------------------------------- panel */
+
+.uh-drawer__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--uh-drawer-width);
+  height: 100%;
+  background-color: var(--uh-color-bg-elevation-4);
+  box-shadow: var(--uh-elevation-4);
+  animation: uh-drawer-enter var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-drawer[data-state='closing'] .uh-drawer__panel {
+  animation: uh-drawer-exit var(--uh-motion-preset-exit-duration)
+    var(--uh-motion-preset-exit-easing) both;
+}
+
+.uh-drawer[data-size='sm'] {
+  --uh-drawer-width: var(--uh-size-drawer-sm);
+}
+
+.uh-drawer[data-size='md'] {
+  --uh-drawer-width: var(--uh-size-drawer-md);
+}
+
+.uh-drawer[data-size='lg'] {
+  --uh-drawer-width: var(--uh-size-drawer-lg);
+}
+
+/* The slide direction belongs to the side. */
+.uh-drawer[data-side='left'] {
+  --uh-drawer-off: -100%;
+}
+
+.uh-drawer[data-side='right'] {
+  --uh-drawer-off: 100%;
+}
+
+/* --------------------------------------------------------------- header */
+
+.uh-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-16) var(--uh-spacing-20);
+  border-block-end: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
+}
+
+.uh-drawer__title {
+  margin: 0;
+  min-width: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-typography-web-h6-font-size);
+  line-height: calc(var(--uh-typography-web-h6-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-h6-font-weight);
+}
+
+/* Sizing/colour/hover/focus come from the shared .uh-close-button (see
+   styles/utilities.css); this only pulls the 44px target into the header's
+   own padding so the visual header stays tight. */
+.uh-drawer__close {
+  margin: calc(-1 * var(--uh-spacing-8));
+  margin-inline-start: 0;
+}
+
+/* ----------------------------------------------------------------- body */
+
+.uh-drawer__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--uh-spacing-16) var(--uh-spacing-20);
+}
+
+.uh-drawer__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-12) var(--uh-spacing-20);
+  border-block-start: var(--uh-border-width-hairline) solid var(--uh-color-border-subtle);
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-drawer-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes uh-drawer-enter {
+  from {
+    transform: translateX(var(--uh-drawer-off));
+  }
+}
+
+@keyframes uh-drawer-exit {
+  to {
+    transform: translateX(var(--uh-drawer-off));
+  }
+}
+
+/* Designed replacement: durations collapse so animationend still fires. */
+@media (prefers-reduced-motion: reduce) {
+  .uh-drawer__backdrop,
+  .uh-drawer__panel {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

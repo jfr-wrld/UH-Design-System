@@ -1,0 +1,133 @@
+/*
+ * List
+ *
+ * A bordered card of rows, not an interactive menu - see List.tsx's own
+ * comment on why this deliberately has none of Dropdown's role="menu"
+ * machinery. TailGrids's own reference agrees: a plain `<ul>`, dividers
+ * between `<li>`, no extra ARIA role.
+ */
+
+.uh-list {
+  display: flex;
+  overflow: clip;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+}
+
+.uh-list[data-direction='vertical'] {
+  flex-direction: column;
+}
+
+.uh-list[data-direction='horizontal'] {
+  flex-direction: row;
+  width: fit-content;
+}
+
+.uh-list[data-direction='vertical']:not([data-hide-dividers='true'])
+  > .uh-list__item:not(:last-child) {
+  border-bottom: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}
+
+.uh-list[data-direction='horizontal']:not([data-hide-dividers='true'])
+  > .uh-list__item:not(:last-child) {
+  border-right: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+}
+
+.uh-list__item {
+  display: flex;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------- row */
+
+.uh-list__row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: var(--uh-spacing-12);
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border: none;
+  background: none;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+  text-align: left;
+  text-decoration: none;
+}
+
+a.uh-list__row,
+button.uh-list__row {
+  cursor: pointer;
+}
+
+a.uh-list__row:hover,
+button.uh-list__row:hover:not(:disabled) {
+  background-color: var(--uh-color-bg-surface-sunken);
+}
+
+a.uh-list__row:focus-visible,
+button.uh-list__row:focus-visible {
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-list__row[data-active='true'] {
+  background-color: var(--uh-color-bg-brand-subtle);
+  color: var(--uh-color-text-brand);
+}
+
+.uh-list__row[aria-disabled='true'],
+.uh-list__row:disabled,
+.uh-list__row[data-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+a.uh-list__row[aria-disabled='true']:hover,
+button.uh-list__row:disabled:hover {
+  background-color: transparent;
+}
+
+.uh-list__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-list__row[data-active='true'] .uh-list__icon {
+  color: currentColor;
+}
+
+.uh-list__icon > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-list__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.uh-list__trailing {
+  flex: none;
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+}
+
+.uh-list__row[data-active='true'] .uh-list__trailing {
+  color: currentColor;
+}

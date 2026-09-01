@@ -1,0 +1,129 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as EmptyStateStories from './EmptyState.stories';
+
+<Meta of={EmptyStateStories} />
+
+# EmptyState
+
+Keadaan istirahat sebuah list, pencarian, atau tab yang memang belum berisi
+apa pun - "No packages match your filters", "Your wishlist is empty", "No
+bookings yet". Ikon kotak-terbuka generik tampil kalau tidak diberi ikon
+khusus, tapi `icon` menerima apa saja supaya keadaan kosongnya spesifik
+dengan apa yang sebenarnya hilang (koper untuk booking kosong, hati untuk
+wishlist kosong).
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Hasil pencarian/filter yang memang kosong - "No packages match your filters"</td>
+      <td>
+        Sesuatu yang gagal dimuat (request error, koneksi putus) - itu <code>ErrorState</code>,
+        bukan <code>EmptyState</code>; keduanya beda peran ARIA dan beda urgensi
+      </td>
+    </tr>
+    <tr>
+      <td>
+        List/tab yang memang belum pernah diisi pengguna - "Your wishlist is empty", "No bookings
+        yet"
+      </td>
+      <td>
+        Saat data masih dimuat - itu skeleton/loading state, bukan EmptyState; EmptyState adalah
+        hasil <em>akhir</em>, bukan status sementara
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Ikon kustom yang relevan dengan konteks yang kosong (koper untuk booking, hati untuk
+        wishlist)
+      </td>
+      <td>
+        Membiarkan ikon default generik saat konteksnya jelas dan spesifik - ikon default hanya
+        untuk kasus yang benar-benar umum
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={EmptyStateStories} />
+
+## Contoh penggunaan
+
+### Hasil pencarian kosong
+
+Filter yang tidak menghasilkan apa pun, dengan satu aksi untuk memulihkan keadaan.
+
+<Canvas of={EmptyStateStories.NoSearchResults} />
+
+### Wishlist kosong
+
+Tab yang memang belum pernah diisi, dengan ikon yang relevan dengan konteksnya.
+
+<Canvas of={EmptyStateStories.EmptyWishlist} />
+
+### Belum ada booking
+
+Kasus paling minimal - hanya judul, ukuran <code>sm</code> untuk ditempatkan di dalam kartu atau section kecil.
+
+<Canvas of={EmptyStateStories.NoBookingsYet} />
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit dan tidak ada live region implisit.
+Ini disengaja: EmptyState biasanya adalah hasil settled dari aksi yang baru
+saja dilakukan pengguna (pencarian, filter), bukan interupsi - list di
+sekitarnya yang sudah mengumumkan jumlah hasilnya sendiri akan
+diumumkan dua kali kalau EmptyState juga punya live region. Bandingkan
+dengan `ErrorState`, yang memang menginterupsi lewat `role="alert"`.
+
+**Interaksi keyboard:** EmptyState sendiri bukan elemen interaktif - tidak
+menerima fokus. Saat `action`/`secondaryAction` diisi, keduanya dirender
+sebagai `Button` biasa dengan perilaku keyboard standar:
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>Memindahkan fokus antar aksi, mengikuti urutan DOM (primary lalu secondary)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>Mengaktifkan aksi yang sedang fokus</td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Ikon selalu `aria-hidden` - baik ikon default maupun ikon kustom yang
+  diberikan lewat prop `icon` - karena judul teks sudah menyampaikan makna
+  yang sama.
+- Kalau tidak ada `action` maupun `secondaryAction`, baris aksi tidak
+  dirender sama sekali - tidak ada kontainer kosong yang membingungkan
+  navigasi screen reader.
+
+**Wajib disediakan konsumen:**
+
+- `title` - satu-satunya prop wajib; tanpa ini tidak ada teks yang
+  menjelaskan kenapa area itu kosong.
+- `onClick` untuk setiap `action`/`secondaryAction` yang diberikan - label
+  saja tidak cukup, EmptyState tidak menyediakan default handler.

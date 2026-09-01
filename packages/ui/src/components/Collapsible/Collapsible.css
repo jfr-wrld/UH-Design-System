@@ -1,0 +1,95 @@
+/*
+ * Collapsible
+ *
+ * The same bordered-card treatment `Accordion` uses for each of its own
+ * items - this is exactly one of those, standalone, so there is no
+ * first/last-corner split to make: the trigger and content are plain
+ * rectangles and the root's own rounded corners clip them into one
+ * seamless card via `overflow: clip`, same technique, simpler here
+ * because there is only ever one segment.
+ *
+ * No open/close animation on the panel itself, matching `Accordion`'s own
+ * character exactly: `hidden` toggles instantly there too. Only the
+ * chevron rotates.
+ */
+
+.uh-collapsible {
+  overflow: clip;
+  border-radius: var(--uh-radius-card);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  background-color: var(--uh-color-bg-surface);
+}
+
+.uh-collapsible[data-disabled='true'] {
+  background-color: var(--uh-color-bg-muted);
+}
+
+.uh-collapsible__heading {
+  margin: 0;
+  font: inherit;
+}
+
+.uh-collapsible__trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--uh-spacing-16);
+  min-height: var(--uh-size-tap-target-min);
+  padding: var(--uh-spacing-16) var(--uh-spacing-20);
+  border: none;
+  border-radius: var(--uh-radius-card);
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--uh-color-text-primary);
+}
+
+.uh-collapsible__trigger[disabled] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-collapsible__trigger:focus-visible {
+  /* Negative offset: a positive one would sit outside the root's own
+     rounded bounds and get clipped away by its `overflow: clip`, the
+     same reasoning `Accordion`'s own trigger focus ring documents. */
+  outline: var(--uh-size-focus-ring-width) solid var(--uh-color-border-focus);
+  outline-offset: calc(-1 * var(--uh-size-focus-ring-offset));
+}
+
+.uh-collapsible__trigger-label {
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: var(--uh-typography-web-body-m-line-height);
+  letter-spacing: var(--uh-typography-web-body-m-letter-spacing);
+  font-weight: var(--uh-font-weight-medium);
+}
+
+.uh-collapsible__chevron {
+  display: inline-flex;
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+  transition: transform var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
+}
+
+.uh-collapsible__chevron > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.uh-collapsible__chevron[data-open='true'] {
+  transform: rotate(180deg);
+}
+
+.uh-collapsible__content-inner {
+  padding: 0 var(--uh-spacing-20) var(--uh-spacing-20);
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: var(--uh-typography-web-body-m-line-height);
+  letter-spacing: var(--uh-typography-web-body-m-letter-spacing);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}

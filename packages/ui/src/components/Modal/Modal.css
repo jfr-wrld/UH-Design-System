@@ -1,0 +1,234 @@
+/*
+ * Modal
+ *
+ * The dialog the PRD has been waiting for: destructive actions confirm here.
+ * The panel enters on the overlay pairing (slower + emphasized) and leaves on
+ * the exit pairing (fast + accelerate); both are animations rather than
+ * transitions because the unmount waits for animationend, which still fires
+ * at zero duration under reduced motion.
+ */
+
+.uh-modal {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--uh-spacing-16);
+  z-index: var(--uh-z-index-modal);
+}
+
+/* ------------------------------------------------------------- backdrop */
+
+.uh-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: var(--uh-color-bg-overlay);
+  backdrop-filter: blur(var(--uh-blur-md));
+  animation: uh-modal-fade var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+}
+
+.uh-modal[data-state='closing'] .uh-modal__backdrop {
+  animation: uh-modal-fade var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both reverse;
+}
+
+/* ---------------------------------------------------------------- panel */
+
+.uh-modal__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--uh-spacing-12);
+  width: 100%;
+  max-width: var(--uh-modal-width);
+  max-height: calc(100% - var(--uh-spacing-32));
+  overflow: auto;
+  padding: var(--uh-spacing-24);
+  /* Added in the TailGrids-character pass: their dialog pairs a border with
+     its shadow rather than relying on shadow alone - subtle (`default`, not
+     `strong`), since elevation-4 already does the heavy lifting of setting
+     the panel apart from the page. */
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-modal);
+  background-color: var(--uh-color-bg-elevation-4);
+  box-shadow: var(--uh-elevation-4);
+  animation: uh-modal-enter var(--uh-motion-preset-overlay-duration)
+    var(--uh-motion-preset-overlay-easing) both;
+  /* Lets .uh-modal__footer below respond to how wide THIS panel actually
+     rendered, not the viewport - a `size="sm"` modal is narrow even on a
+     wide desktop and should stack its actions the same way it would on a
+     phone, which no viewport breakpoint could express correctly. Unnamed
+     (no container-name): the footer's own `@container` query is unnamed
+     too, and matches the nearest container-type ancestor - see the
+     footer's comment for why that turned out to be the reliable form. */
+  container-type: inline-size;
+}
+
+.uh-modal[data-state='closing'] .uh-modal__panel {
+  animation: uh-modal-exit var(--uh-motion-preset-exit-duration) var(--uh-motion-preset-exit-easing)
+    both;
+}
+
+.uh-modal[data-size='sm'] {
+  --uh-modal-width: var(--uh-size-modal-sm);
+}
+
+.uh-modal[data-size='md'] {
+  --uh-modal-width: var(--uh-size-modal-md);
+}
+
+.uh-modal[data-size='lg'] {
+  --uh-modal-width: var(--uh-size-modal-lg);
+}
+
+/* Fullscreen is inset, not a width: the panel becomes the page. */
+.uh-modal[data-size='fullscreen'] {
+  padding: 0;
+}
+
+.uh-modal[data-size='fullscreen'] .uh-modal__panel {
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  border-radius: var(--uh-radius-none);
+}
+
+/* --------------------------------------------------------------- header */
+
+.uh-modal__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--uh-spacing-8);
+  min-width: 0;
+}
+
+.uh-modal__warning {
+  display: inline-flex;
+  flex: none;
+  color: var(--uh-color-feedback-error-text);
+}
+
+.uh-modal__warning > svg {
+  width: var(--uh-size-icon-lg);
+  height: var(--uh-size-icon-lg);
+}
+
+.uh-modal__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: var(--uh-color-text-primary);
+  font-family: var(--uh-typography-web-h5-font-family);
+  font-size: var(--uh-typography-web-h5-font-size);
+  line-height: calc(var(--uh-typography-web-h5-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-h5-font-weight);
+}
+
+.uh-modal__panel[data-variant='destructive'] .uh-modal__title {
+  color: var(--uh-color-feedback-error-text);
+}
+
+/* Sizing/colour/hover/focus come from the shared .uh-close-button (see
+   styles/utilities.css); this only pulls the 44px target into the header's
+   own padding so the visual header stays tight. */
+.uh-modal__close {
+  margin: calc(-1 * var(--uh-spacing-8));
+  margin-inline-start: 0;
+}
+
+/* ----------------------------------------------------------------- body */
+
+.uh-modal__description {
+  margin: 0;
+  color: var(--uh-color-text-secondary);
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  line-height: calc(var(--uh-typography-web-body-m-line-height) + var(--uh-line-height-adjust, 0));
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-modal__body {
+  min-height: 0;
+}
+
+/*
+ * Column-reverse below, row-and-right-aligned above, once the FOOTER's own
+ * content box (not the panel's) is wide enough for two buttons side by
+ * side - added in the TailGrids-character pass. Reversed so the LAST
+ * button in the footer (the primary action, by this system's own
+ * convention: Cancel then Confirm) lands physically first/top once
+ * stacked, the same reachability their dialog's footer gives it on a
+ * narrow viewport.
+ *
+ * A container query against the panel's own rendered width, not a
+ * viewport breakpoint: a `size="sm"` modal is this narrow on any screen,
+ * not only a phone, and no viewport media query could see that. Unnamed
+ * (`@container (...)`, not `@container uh-modal-panel (...)`) since
+ * `.uh-modal__panel` is the only container-type ancestor this has, so the
+ * unnamed nearest-container lookup is unambiguous.
+ *
+ * The threshold is 350px, not `size.modal.sm`'s 400px: a container query
+ * measures the container's CONTENT box, and `.uh-modal__panel` has
+ * `padding: spacing-24` (48px) plus a hairline border (2px) subtracted
+ * from its 400px border-box width first - 400 - 48 - 2 = 350. Confirmed
+ * against this package's own build: querying literal `400px` here left a
+ * `size="sm"` modal always stacked, even though its panel measures exactly
+ * 400px border-box, because the content box the query actually sees is
+ * 350px. Written as a literal for a second reason too: a container-query
+ * condition is evaluated before custom properties resolve, so
+ * `min-width: var(--uh-size-modal-sm)` is invalid CSS there regardless
+ * (see the matching exception in verify-tokens.mjs). If `size.modal.sm`,
+ * the panel's padding, or its border width ever change, this 350px needs
+ * recalculating by hand.
+ */
+.uh-modal__footer {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--uh-spacing-8);
+  padding-block-start: var(--uh-spacing-8);
+}
+
+@container (min-width: 350px) {
+  .uh-modal__footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+/* --------------------------------------------------------------- motion */
+
+@keyframes uh-modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes uh-modal-enter {
+  from {
+    opacity: 0;
+    /* Structural start point, like translateY's 50%. */
+    transform: scale(0.96) translateY(var(--uh-spacing-8));
+  }
+}
+
+@keyframes uh-modal-exit {
+  to {
+    opacity: 0;
+    transform: scale(0.96) translateY(var(--uh-spacing-8));
+  }
+}
+
+/*
+ * Designed replacement, not a disable: the exit choreography must still fire
+ * animationend to unmount, so durations collapse to instant rather than the
+ * animation being removed.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .uh-modal__backdrop,
+  .uh-modal__panel {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}

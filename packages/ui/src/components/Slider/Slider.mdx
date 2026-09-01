@@ -1,0 +1,44 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as SliderStories from './Slider.stories';
+
+<Meta of={SliderStories} />
+
+# Slider
+
+Slider untuk memilih satu nilai dari sebuah rentang dengan menyeret thumb, atau dua nilai
+sekaligus (rentang harga, misalnya) dengan dua thumb. `@base-ui/react` (peer dependency,
+tidak pernah dibundel ke paket ini) yang menangani drag, keyboard, dan pembatasan nilai;
+komponen ini hanya memegang styling track, indicator, dan thumb berbasis token.
+
+`value`/`defaultValue` menerima satu angka untuk satu thumb, atau array `[min, max]` untuk
+slider rentang dua thumb - bentuk mana pun yang diteruskan pertama kali menentukan jumlah
+thumb selama komponen itu ada, tidak bisa berubah setelahnya.
+
+## Props
+
+<ArgTypes of={SliderStories} />
+
+## Contoh penggunaan
+
+<Canvas of={SliderStories.VolumeControl} />
+<Canvas of={SliderStories.PriceRange} />
+<Canvas of={SliderStories.SteppedRating} />
+
+## Menampilkan nilai
+
+`valueDisplay` mengatur apakah nilai saat ini dicetak:
+
+- `'none'` (default): tidak ada teks nilai sama sekali.
+- `'text'`: nilai dicetak di bawah track, selalu terlihat - cocok saat angkanya penting
+  bahkan sebelum pengguna menyentuh slider.
+- `'tooltip'`: nilai yang sama muncul dalam pil kecil di atas thumb, hanya saat
+  hover, drag, atau fokus - cocok saat angkanya cuma berguna selagi berinteraksi.
+
+## Aksesibilitas
+
+`label` selalu menjadi nama aksesibel thumb (lewat `Slider.Label` bawaan Base UI);
+`showLabel` hanya menentukan apakah label itu juga tercetak secara visual atau tetap
+tersembunyi secara visual saja. Setiap thumb bisa difokus dan digerakkan dengan panah
+kiri/kanan (atau atas/bawah), Page Up/Page Down untuk langkah besar, dan Home/End untuk
+lompat ke ujung rentang. Pada slider rentang, kedua thumb punya nama aksesibel dan nilai
+masing-masing yang diumumkan terpisah oleh pembaca layar.

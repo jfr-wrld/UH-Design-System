@@ -1,4 +1,5 @@
 import { forwardRef, type ForwardedRef, type MouseEvent } from 'react';
+import { Heart } from '@tailgrids/icons';
 
 import { Avatar } from '../Avatar/Avatar.js';
 import { Badge } from '../Badge/Badge.js';
@@ -8,6 +9,7 @@ import { Skeleton } from '../Skeleton/Skeleton.js';
 import { formatDateShort } from '../DatePicker/date.js';
 import { formatCount, formatDistance, formatDuration } from '../../lib/units.js';
 import type { Currency } from '../../lib/money.js';
+import { VerifiedIcon } from '../../lib/icons.js';
 import {
   BADGE_VARIANT,
   DEFAULT_LABELS,
@@ -30,74 +32,74 @@ export interface HotelDistance {
   madinah?: number | undefined;
 }
 
-export interface PackageCardProps {
+interface PackageCardCommonProps {
   /** An array because the card will carry a carousel; today it shows the first. */
   image?: readonly string[] | undefined;
-  title: string;
-  agency: PackageAgency;
   rating?: number | undefined;
   reviewCount?: number | undefined;
   departureDate?: Date | undefined;
   durationDays?: number | undefined;
   hotelDistance?: HotelDistance | undefined;
-  price: number;
   originalPrice?: number | undefined;
-  currency: Currency;
-  locale: string;
   seatsRemaining?: number | undefined;
   badge?: PackageBadge | null | undefined;
   isWishlisted?: boolean | undefined;
   onWishlist?: ((next: boolean) => void) | undefined;
   onClick?: (() => void) | undefined;
   variant?: PackageCardVariant | undefined;
-  loading?: boolean | undefined;
   soldOut?: boolean | undefined;
   labels?: Partial<PackageCardLabels> | undefined;
   className?: string | undefined;
 }
+
+/*
+ * The skeleton branch renders none of title/agency/price - a caller building
+ * a loading grid before real data has arrived had to invent a title="" and
+ * an empty agency just to satisfy the type. Split on `loading` instead: true
+ * makes the content props optional, and TypeScript still requires them the
+ * moment `loading` is false or left out, which is when they are read.
+ */
+interface PackageCardLoadingProps extends PackageCardCommonProps {
+  loading: true;
+  title?: string | undefined;
+  agency?: PackageAgency | undefined;
+  price?: number | undefined;
+  currency?: Currency | undefined;
+  locale?: string | undefined;
+}
+
+interface PackageCardLoadedProps extends PackageCardCommonProps {
+  loading?: false | undefined;
+  title: string;
+  agency: PackageAgency;
+  price: number;
+  currency: Currency;
+  locale: string;
+}
+
+export type PackageCardProps = PackageCardLoadingProps | PackageCardLoadedProps;
 
 /** Seats stop being reassuring and start being useful at ten. */
 const SEATS_VISIBLE_AT = 10;
 /** Below this it is a warning rather than a note. */
 const SEATS_URGENT_AT = 5;
 
+/*
+ * @tailgrids/icons has no separate solid glyph - one Heart, outline by
+ * default. `fill="currentColor"` overrides the outer <svg>'s own
+ * `fill: none` (the <path> sets no fill of its own, so it inherits), which
+ * is what actually makes the wishlisted state read as filled.
+ */
 function HeartIcon({ filled }: { filled: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M12 20.2l-1.35-1.23C6.4 15.13 4 12.95 4 9.9 4 7.4 5.9 5.5 8.4 5.5c1.4 0 2.75.65 3.6 1.68A4.75 4.75 0 0115.6 5.5C18.1 5.5 20 7.4 20 9.9c0 3.05-2.4 5.23-6.65 9.07z"
-        fill={filled ? 'currentColor' : 'none'}
-        stroke="currentColor"
-        strokeWidth="1.75"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function VerifiedIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path
-        d="M12 3l2.2 1.6 2.7-.2.9 2.6 2.2 1.6-1 2.6 1 2.6-2.2 1.6-.9 2.6-2.7-.2L12 21l-2.2-1.6-2.7.2-.9-2.6L4 15.4l1-2.6-1-2.6 2.2-1.6.9-2.6 2.7.2z"
-        fill="currentColor"
-      />
-      <path
-        d="M8.75 12.2l2.1 2.1 4.4-4.4"
-        fill="none"
-        stroke="var(--uh-color-bg-surface)"
-        strokeWidth="1.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Heart fill={filled ? 'currentColor' : 'none'} aria-hidden="true" focusable="false" />;
 }
 
 function CardSkeleton({ variant, label }: { variant: PackageCardVariant; label: string }) {
   return (
     <article
-      className="uh-package"
+      className="uh-card uh-package"
+      data-card-variant="outlined"
+      data-hoverable="true"
       data-variant={variant}
       data-loading="true"
       aria-busy="true"
@@ -124,6 +126,17 @@ function CardSkeleton({ variant, label }: { variant: PackageCardVariant; label: 
 }
 
 function PackageCardImpl(props: PackageCardProps, ref: ForwardedRef<HTMLElement>) {
+  const { variant = 'grid', labels: labelOverrides, className } = props;
+  const labels: PackageCardLabels = { ...DEFAULT_LABELS, ...labelOverrides };
+
+  /*
+   * Checked on `props.loading`, not a destructured local - only that keeps
+   * TypeScript's discriminated-union narrowing linked to `props`, so the
+   * destructure below can require title/agency/price/currency/locale again
+   * once this returns.
+   */
+  if (props.loading) return <CardSkeleton variant={variant} label={labels.loading} />;
+
   const {
     image,
     title,
@@ -142,16 +155,8 @@ function PackageCardImpl(props: PackageCardProps, ref: ForwardedRef<HTMLElement>
     isWishlisted = false,
     onWishlist,
     onClick,
-    variant = 'grid',
-    loading = false,
     soldOut = false,
-    labels: labelOverrides,
-    className,
   } = props;
-
-  const labels: PackageCardLabels = { ...DEFAULT_LABELS, ...labelOverrides };
-
-  if (loading) return <CardSkeleton variant={variant} label={labels.loading} />;
 
   const cover = image?.[0];
   const showSeats =
@@ -195,7 +200,9 @@ function PackageCardImpl(props: PackageCardProps, ref: ForwardedRef<HTMLElement>
   return (
     <article
       ref={ref}
-      className={['uh-package', className].filter(Boolean).join(' ')}
+      className={['uh-card', 'uh-package', className].filter(Boolean).join(' ')}
+      data-card-variant="outlined"
+      data-hoverable="true"
       data-variant={variant}
       data-sold-out={soldOut ? 'true' : undefined}
     >
@@ -315,5 +322,14 @@ function PackageCardImpl(props: PackageCardProps, ref: ForwardedRef<HTMLElement>
   );
 }
 
-export const PackageCard = forwardRef(PackageCardImpl);
-PackageCard.displayName = 'PackageCard';
+export const PackageCard = /* @__PURE__ */ forwardRef(PackageCardImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  PackageCard.displayName = 'PackageCard';
+}

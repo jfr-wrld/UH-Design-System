@@ -3,29 +3,25 @@
  *
  * Three layouts of one card. The parts are all components in their own right -
  * Avatar, Badge, Rating, PriceDisplay, Skeleton - and nothing here re-implements
- * any of them.
+ * any of them. The surface itself - border, radius, background, the hover/
+ * focus-within elevation - comes from the shared .uh-card shell (see
+ * components/Card): this file only adds what is specific to a package -
+ * height-matching in a grid, the three layouts, and the media/action pieces
+ * below.
  *
- * Two things drive the whole file. The card must be the same height as its
- * neighbours in a grid whether its title runs to one line or two, and the whole
- * card must be clickable without nesting one interactive element inside
- * another. The first is solved by reserving two lines of title; the second by
- * stretching one button's ::after over the card and lifting the wishlist
- * control above it.
+ * Two things drive the rest of the file. The card must be the same height as
+ * its neighbours in a grid whether its title runs to one line or two, and the
+ * whole card must be clickable without nesting one interactive element
+ * inside another. The first is solved by reserving two lines of title; the
+ * second by stretching one button's ::after over the card and lifting the
+ * wishlist control above it.
  */
 
 .uh-package {
-  position: relative;
-  display: flex;
   /* Stretches to the tallest card in the row when the grid says so. */
   height: 100%;
   min-width: 0;
   overflow: hidden;
-  border: var(--uh-border-width-1) solid var(--uh-color-border-subtle);
-  border-radius: var(--uh-radius-lg);
-  background-color: var(--uh-color-bg-surface);
-  transition:
-    border-color var(--uh-motion-duration-fast) var(--uh-motion-easing-standard),
-    box-shadow var(--uh-motion-duration-fast) var(--uh-motion-easing-standard);
 }
 
 .uh-package[data-variant='grid'],
@@ -39,14 +35,6 @@
 
 .uh-package[data-variant='mobile'] {
   width: 100%;
-}
-
-/* The hover belongs to the card, and is driven by the one focusable thing in
-   it, so a keyboard gets the same lift a pointer does. */
-.uh-package:hover,
-.uh-package:focus-within {
-  border-color: var(--uh-color-border-strong);
-  box-shadow: var(--uh-elevation-2);
 }
 
 /* ----------------------------------------------------------------- media */
@@ -189,24 +177,10 @@
 /* ----------------------------------------------------------------- title */
 
 .uh-package__title {
-  /*
-   * Exactly two lines, always. Clamped so a long name cannot push the card
-   * taller than its neighbours, and floored at two lines so a short one cannot
-   * pull it shorter. Reserving the second line is the whole reason a grid of
-   * these stays level.
-   */
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
-  min-height: calc(2 * var(--uh-package-title-size) * var(--uh-package-title-leading));
+  /* A plain heading wrapper now - the clamp lives on .uh-package__action
+     below, since that is the element that actually holds the text. See the
+     note there for why. */
   margin: 0;
-  color: var(--uh-color-text-primary);
-  font-family: var(--uh-typography-web-body-m-font-family);
-  font-size: var(--uh-package-title-size);
-  line-height: var(--uh-package-title-leading);
-  font-weight: var(--uh-font-weight-semibold);
 }
 
 /*
@@ -227,12 +201,47 @@
 }
 
 .uh-package__action {
-  display: inline;
+  /*
+   * Exactly two lines, always - the clamp had lived on the <h3> wrapper
+   * instead of here, and silently did nothing: -webkit-line-clamp only
+   * clamps the box whose own text it is, and the actual text node lives on
+   * this button, one layer further in. The Fase 6 verification pass caught
+   * it with a genuinely long Indonesian title (the shorter fixtures never
+   * ran long enough to expose it) - a title past the fold grew the card
+   * taller instead of clamping, silently breaking "a grid of these stays
+   * level" for exactly the language the grid is least tested in by habit.
+   *
+   * display: -webkit-box replaces the previous `inline` - required for
+   * line-clamp to apply at all, and harmless here since this button has no
+   * inline siblings to flow around; width: 100% replaces the block-level
+   * sizing `inline` used to inherit from the <h3> wrapping it, since
+   * -webkit-box does not stretch to its parent's width on its own.
+   */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  width: 100%;
+  min-height: calc(2 * var(--uh-package-title-size) * var(--uh-package-title-leading));
   padding: 0;
   border: 0;
   background: none;
-  color: inherit;
-  font: inherit;
+  color: var(--uh-color-text-primary);
+  /*
+   * h6's family, not body-m's - the package name is a title, not a paragraph.
+   * Borrowing body-m used to be harmless when every role shared one font;
+   * now that display/heading roles carry the brand face (Plus Jakarta Sans)
+   * and body roles carry the functional face (DM Sans), the two have
+   * genuinely different values and this reference has to say which one it
+   * actually means. Only the family comes from h6 - size and leading still
+   * come from --uh-package-title-size/-leading below, which is what keeps
+   * the grid variant's smaller title fitting two lines in a tighter column.
+   */
+  font-family: var(--uh-typography-web-h6-font-family);
+  font-size: var(--uh-package-title-size);
+  line-height: var(--uh-package-title-leading);
+  font-weight: var(--uh-font-weight-semibold);
   letter-spacing: inherit;
   text-align: start;
   cursor: pointer;

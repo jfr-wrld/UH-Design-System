@@ -1,0 +1,185 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as PackageCardStories from './PackageCard.stories';
+
+<Meta of={PackageCardStories} />
+
+# PackageCard
+
+Kartu paket umrah/haji, dirakit dari `Avatar`, `Badge`, `Rating`,
+`PriceDisplay` dan `Skeleton` - tidak ada satu pun yang diimplementasikan
+ulang di sini, dan tidak ada angka yang diformat manual. Tiga layout
+(`grid`/`list`/`mobile`) berbagi satu markup: kartu bisa diklik lewat satu
+tombol saja (nama paket), sehingga hanya ada satu tab stop dengan nama
+paket sebagai accessible name-nya, dan tidak ada elemen interaktif yang
+bersarang di dalam elemen interaktif lain.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>variant="grid"</code> di dalam grid multi-kolom - kartu otomatis{' '}
+        <code>height: 100%</code>, tinggal set <code>grid-auto-rows: 1fr</code> di kontainernya
+        supaya setiap baris rata dengan yang tertinggi
+      </td>
+      <td>
+        Mengubah tinggi kartu lewat CSS eksternal - judul sudah dikunci dua baris (
+        <code>-webkit-line-clamp: 2</code>) dan harga sudah dipin ke bawah; menimpa ini merusak
+        alasan kartu-kartu di satu grid tetap rata
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>loading</code> saat data belum tiba - hanya perlu <code>loading</code> dan{' '}
+        <code>variant</code>, tidak perlu mengarang <code>title=""</code> atau agency kosong
+      </td>
+      <td>
+        Mengarang data placeholder (judul kosong, nama agensi kosong) supaya lolos TypeScript - itu
+        justru gejala salah pakai; pindah ke branch <code>loading: true</code>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Membiarkan <code>rating</code>/<code>seatsRemaining</code>/<code>hotelDistance</code> kosong
+        saat datanya memang belum ada - kartu dirancang untuk data yang setengah terisi
+      </td>
+      <td>
+        Mengirim <code>rating</code> bernilai nol untuk paket tanpa ulasan - itu memfitnah agensinya
+        dengan bintang nol; biarkan <code>undefined</code> supaya baris Rating tidak dirender sama
+        sekali
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Bentuk luar (border, radius, background, elevasi saat hover/focus-within)
+datang dari shell `.uh-card` bersama (lihat komponen `Card`); file ini
+hanya menambah yang spesifik milik sebuah paket.
+
+- **`.uh-package`** - root `<article>`. Membawa `data-variant` (`grid`/`list`/`mobile`), `data-sold-out`, dan saat loading `data-loading="true"` + `aria-busy="true"`.
+- **`.uh-package__media`** - kontainer gambar; rasio 3:2 untuk `grid`/`mobile`, sepertiga lebar kartu untuk `list`.
+- **`.uh-package__image`** / **`.uh-package__image-fallback`** - gambar pertama dari array `image` (sisanya disimpan untuk carousel nanti), atau kotak polos saat tidak ada gambar sama sekali.
+- **`.uh-package__badge`** - badge `bestSeller`/`promo`/`almostFull` di pojok kiri atas gambar.
+- **`.uh-package__wishlist`** - tombol hati; berlapis di atas hit-area judul lewat `z-index`, jadi tap di hati tidak pernah membuka paket.
+- **`.uh-package__sold-out`** - scrim + label di atas gambar; badan kartu **tidak** diredupkan (lihat catatan kontras di CSS-nya).
+- **`.uh-package__body`** - pembungkus konten di bawah gambar.
+- **`.uh-package__action`** - tombol nama paket; `::after`-nya membentang menutupi seluruh kartu, jadi satu tombol inilah yang membuat seluruh kartu bisa diklik. Judulnya dikunci dua baris lewat `-webkit-line-clamp: 2` yang diletakkan di sini, bukan di `<h3>` pembungkusnya - `line-clamp` hanya bekerja pada elemen yang benar-benar memegang teksnya.
+- **`.uh-package__agency`** - baris `Avatar` + nama agensi + tanda `.uh-package__verified` bila `agency.verified`.
+- **`.uh-package__meta`** - tanggal keberangkatan + durasi, dipisah titik pemisah yang digambar lewat CSS (bukan karakter, supaya tidak terbaca screen reader).
+- **`.uh-package__hotels`** - jarak ke Haram/Nabawi, satu kalimat per baris tanpa pemisah (kalimat yang wrap tidak boleh dimulai dengan bullet nyasar).
+- **`.uh-package__seats`** - hanya render saat sisa kursi antara 1-10; `data-urgent="true"` begitu turun ke 5 atau kurang.
+- **`.uh-package__price`** - dipin ke bagian bawah kartu (`margin-block-start: auto`) supaya harga rata sebaris di seluruh grid.
+
+## Props
+
+`PackageCardProps` adalah discriminated union pada `loading`, bukan satu
+interface datar - ini yang membuat `<ArgTypes>` di bawah menampilkan
+gabungan kedua sisi. **`loading: true` membuat `title`, `agency`, `price`,
+`currency` dan `locale` opsional**; begitu `loading` bernilai `false` atau
+dihilangkan, kelimanya wajib diisi lagi - dipaksa oleh TypeScript sendiri,
+bukan sekadar konvensi. Efeknya di kode nyata: sebuah grid skeleton-loading
+cukup me-render `<PackageCard loading variant="grid" />` tanpa perlu
+mengarang string kosong untuk field yang datanya belum tiba.
+
+<ArgTypes of={PackageCardStories} />
+
+## Contoh penggunaan
+
+### Kartu standar
+
+Bentuk penuh dengan seluruh field opsional terisi: rating, tanggal perjalanan, jarak hotel, badge promo, dan harga coret.
+
+<Canvas of={PackageCardStories.StandardCard} />
+
+### Skeleton loading
+
+Cabang `loading: true` dari union propsnya - hanya `loading` dan `variant` yang dikirim, dua baris skeleton mencerminkan dua baris yang direservasi judul asli supaya grid tidak melompat begitu data nyata tiba.
+
+<Canvas of={PackageCardStories.LoadingSkeleton} />
+
+### Paket habis terjual
+
+Scrim dan label menutupi gambar; aksi paket dapat `aria-disabled` tanpa kehilangan tab stop, dan wishlist tetap aktif - paket yang habis justru yang paling layak dipantau untuk musim berikutnya.
+
+<Canvas of={PackageCardStories.SoldOutCard} />
+
+Untuk ketiga layout berdampingan lihat story `Variants`; untuk kombinasi state (default/wishlisted/loading/sold out) sekaligus lihat `States`; untuk grid enam kartu dengan judul bervariasi panjang lihat `GridOfSix`.
+
+## Aksesibilitas
+
+**Peran ARIA:** tidak ada peran eksplisit di root - `<article>` native
+sudah cukup. Seluruh kartu dapat diklik lewat satu `<button>` (nama paket)
+yang `::after`-nya membentang menutupi kartu; tombol wishlist berdiri
+sendiri sebagai kontrol kedua. Total selalu dua tombol per kartu, tidak
+pernah satu bersarang di dalam yang lain - dites langsung di
+`PackageCard.test.tsx` ("has exactly two controls").
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Wishlist dulu, baru aksi paket - mengikuti urutan visual di DOM (hati ada di atas gambar,
+        judul ada di bawahnya)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>
+      </td>
+      <td>Membuka paket (di tombol aksi) atau toggle wishlist (di tombol hati)</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Space</code>
+      </td>
+      <td>
+        Sama seperti <code>Enter</code> - keduanya elemen <code>&lt;button&gt;</code> native
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Rating dibacakan sebagai satu kalimat ("4.8 out of 5, 128 reviews") lewat `Rating`, bukan lima ikon bintang terpisah yang masing-masing perlu diterjemahkan sendiri oleh pendengar.
+- Gambar sampul selalu `alt=""` - judul di sebelahnya sudah menyampaikan apa paketnya, dan keterangan otomatis hanya akan mengulanginya.
+- Saat `soldOut`, tombol aksi memakai `aria-disabled` (bukan atribut `disabled` native) supaya kartu tetap bisa dibaca dan tetap punya tab stop; hanya klik dan aktivasi keyboard yang diblokir di handler.
+- Saat `loading`, kartu memakai `aria-busy="true"` plus `aria-label` dari `labels.loading` ("Loading package") di elemen `<article>`-nya, dan tidak menawarkan tombol apa pun untuk diklik.
+
+**Wajib disediakan konsumen:**
+
+- `title`, `agency`, `price`, `currency`, `locale` - wajib kecuali `loading` bernilai `true`, dipaksa lewat discriminated union di atas.
+- `onClick` untuk membuka paket dan `onWishlist` untuk menyimpannya - keduanya opsional secara tipe, tapi tanpa `onWishlist` tombol hati tetap tampil namun tidak melakukan apa-apa.
+
+## Catatan i18n
+
+Nama paket dalam Melayu dan Indonesia berjalan sekitar 15-18% lebih panjang
+dari Inggris untuk paket yang sama. Itu sebabnya varian `grid` - kolom
+tersempit yang pernah didapat kartu ini - menurunkan ukuran judul ke 14px,
+sementara `list` dan `mobile` yang lebih lebar tetap di 16px; nama paket
+sendiri tidak pernah dipotong atau disingkat karena itu kata-kata agensi,
+dan bagian yang akan hilang lebih dulu justru bagian yang sedang
+dibandingkan pilgrim. Label lain (jarak hotel, sisa kursi, status
+wishlist) semuanya lewat fungsi di `labels`, bukan string tetap, karena
+"dari" mendahului nama tempat dalam Melayu/Indonesia sementara "from"
+mengikutinya dalam Inggris - hanya penerjemah yang tahu urutannya.
+
+<Canvas of={PackageCardStories.TextExpansion} />

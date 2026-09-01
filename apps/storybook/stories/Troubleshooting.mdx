@@ -1,0 +1,166 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Troubleshooting" />
+
+# Troubleshooting
+
+## Font tidak muncul
+
+Almost always: **`@umrahhaji/ui/styles.css` was never imported**, so
+everything falls back to `system-ui` and the fallback stack looks close
+enough at a glance to not register as broken. Check the network tab for a
+request to `plus-jakarta-sans-variable.woff2` or `dm-sans-variable.woff2` -
+if there's no request at all, the CSS import is missing; add it once at
+your app's entry point (see **Getting Started**, step 2).
+
+If the CSS _is_ loading but the font request 404s: your bundler resolved
+`styles.css` but didn't follow the `@font-face url(./fonts/...)` references
+inside it to copy the actual `.woff2` files into your build output. Most
+modern bundlers (Vite, webpack 5, Next.js) do this automatically for any
+CSS they process - if yours doesn't, check whether it treats
+`node_modules` CSS differently from your own (a common cause: an
+"only process CSS from `src/`" rule that excludes the package's stylesheet
+from asset resolution even though it still gets concatenated into the
+final bundle).
+
+If a strict Content-Security-Policy is in place, confirm `font-src` allows
+`'self'` - the fonts are same-origin (bundled into your own build output),
+never a third-party font CDN, so `font-src 'self'` is sufficient and no CSP
+exception for an external host is ever needed.
+
+## CSS variables tidak ter-inject
+
+Every `var(--uh-*)` resolving to nothing (components rendering completely
+unstyled - no colors, no spacing, no border-radius) has the same root cause
+as the font problem above in the vast majority of cases: the stylesheet
+import is missing. Confirm it's actually in your bundle by searching the
+browser's Elements panel for `--uh-color-text-primary` on `:root` or
+`[data-theme]` - if it's not there, the import didn't make it into your
+build, not just this page.
+
+If the variables **are** present on `:root` but a specific component still
+looks unstyled, check whether your own build tooling strips "unused" CSS -
+a PurgeCSS-style content scanner configured to look only at your own
+`src/**` files has no way to see that `@umrahhaji/ui`'s compiled classes
+(`.uh-btn`, `.uh-card`, etc.) are in use, and can delete them as dead code.
+The fix is telling your purge tool's `content`/`safelist` to also cover
+`node_modules/@umrahhaji/ui/dist/**` - or simpler, exclude that file from
+purging entirely, since it's already a minified, finished stylesheet with
+nothing left to purge.
+
+## Dark mode tidak berubah
+
+Dark mode is a plain `data-theme="dark"` HTML attribute your app sets
+itself - there is no theme provider or toggle component shipped with this
+design system (see **Getting Started**, step 3). If nothing changes when
+you flip it:
+
+- Confirm the attribute is actually landing in the DOM (inspect the
+  element in devtools) - a common miss is setting state in React but never
+  wiring it to an actual `data-theme` attribute on a real DOM node.
+- Confirm it's set on an **ancestor** of the components you expect to
+  change, not a sibling or a detached portal root - `Modal`, `Popover`,
+  `Toast` and similar overlay components render into a portal attached to
+  `document.body` by default, so `data-theme` needs to sit high enough
+  (typically `<html>`) to be an ancestor of the portal too, not just the
+  part of the tree you can see in your component's own JSX.
+- Check you haven't left an explicit `data-theme="light"` sitting on some
+  ancestor by accident. An explicit `light` always wins over both `dark`
+  set further out and the OS's own `prefers-color-scheme: dark` - this is
+  intentional (an explicit choice should never be silently overridden by a
+  more general one), but it means a stray leftover `data-theme="light"`
+  from earlier testing is a real, easy-to-miss cause.
+
+## Currency salah format
+
+This is almost never a formatting bug - it's `currency` being derived from
+`locale` somewhere, which this design system's whole numeric layer is built
+to assume never happens. `currency` and `locale` are two fully independent
+props on every price-rendering component (`PriceDisplay`, `PriceBreakdown`,
+`CurrencyInput`, `PackageCard`'s price fields) - a Malay-speaking pilgrim
+looking at a package priced in Indonesian Rupiah, or an English-reading
+admin reviewing a Ringgit price, are both completely ordinary cases this
+design system is built to handle correctly, not edge cases to special-case
+around.
+
+If a price is showing the wrong currency symbol or the wrong number of
+decimal places, look for a line that says something like
+`currency={locale === 'id' ? 'IDR' : 'MYR'}` - that's the bug. `currency`
+should come from wherever the actual transaction/listing currency is known
+(the package's own listed price currency, the user's selected currency
+preference), never inferred from what language the UI happens to be
+displayed in.
+
+## Komponen tidak responsif
+
+Individual components in this design system generally do **not** contain
+their own internal `@media` breakpoint logic for layout - that's a
+deliberate scope boundary, not an oversight (there is no `Stack`, `Grid`,
+or `Container` layout-primitive component yet either - see `HANDOFF.md`).
+Two different things fall under "not responsive," with two different
+fixes:
+
+- **A component doesn't reflow inside a narrow container** - most
+  components (`Input`, `Button`, `Badge`, and so on) are meant to fill
+  whatever width their parent gives them; if the _parent_ layout isn't
+  responsive (a fixed-width flex row instead of a wrapping grid, say), no
+  component-level fix addresses that - the responsive layout is your own
+  app's CSS to write, the same way every `Patterns/*` screen in this
+  Storybook does it (plain CSS Grid/Flexbox with breakpoint utility
+  classes at the screen level, not inside any one component).
+- **A component has a `variant` for different screen sizes but shows the
+  wrong one** - a few components (`PackageCard`'s `grid`/`list`/`mobile`,
+  `BookingStatusTracker`'s `horizontal`/`vertical`) expose the size-
+  dependent layout as an explicit prop rather than switching on their own
+  via CSS. That prop has to be driven by your own breakpoint check (the
+  `useMediaQuery` hook this package exports is exactly for this) - it will
+  never change on its own just because the viewport resized, since the
+  component has no way to know your app's own breakpoint definitions.
+
+## Import gagal / tree-shaking tidak jalan
+
+**Import outright fails (a resolution or runtime error):** check your
+installed React version against the peer range (`^18.2.0 || ^19.0.0` in
+`packages/ui/package.json`) - a project still on React 17 will fail here.
+If you're on a very old bundler that predates support for the `package.json`
+`exports` field (pre-2021 tooling, roughly), it may fail to resolve the
+package at all; updating the bundler is the real fix, there's no
+workaround on the package side for that.
+
+A resolution error naming `@tailgrids/icons` specifically ("Cannot find
+module" or similar) means the **Install** step in Getting Started was only
+half-followed: `@tailgrids/icons` is a peer dependency, not bundled into
+`@umrahhaji/ui`'s own dist, precisely so it tree-shakes correctly (see point
+2 below) - `npm install @tailgrids/icons` alongside the rest fixes it.
+
+**Import succeeds, but bringing in one component pulls in the whole
+library:** this needs two things to both be true, and it's easy to have
+only one:
+
+1. **Named imports, not a namespace import** -
+   `import { Button } from '@umrahhaji/ui'`, never
+   `import * as UI from '@umrahhaji/ui'` and then `UI.Button`. The
+   namespace form defeats tree-shaking outright, in any bundler.
+2. **Your build actually replaces `process.env.NODE_ENV` with the literal
+   string `"production"`.** Every component's dev-only `displayName`
+   assignment is guarded behind
+   `if (process.env.NODE_ENV !== 'production')` specifically so a real
+   production build's dead-code elimination can drop it - but that only
+   happens if something in your build pipeline defines that constant.
+   Webpack, Next.js, and Vite's own app builds (as opposed to _library_
+   builds - if you are yourself building another library on top of this
+   one, check your own bundler's config the same way) all do this by
+   default in production mode. If you've hand-rolled a minimal esbuild or
+   Rollup config, confirm it sets
+   `define: { 'process.env.NODE_ENV': '"production"' }` (esbuild) or the
+   equivalent - `packages/ui/scripts/bundle-size.mjs` in this repo is a
+   working example of exactly that define, and is also literally how this
+   whole failure mode was first found and fixed (every component measured
+   identically at ~117 kB before the fix - see that script's own comment
+   for the full story if you want the details).
+
+Both rules apply equally to `@tailgrids/icons`'s own ~245 icons, not just to
+this library's components - it is a real, separately-installed peer
+dependency exactly so your bundler resolves it fresh from your own
+`node_modules` and tree-shakes it the normal way, rather than inheriting
+whatever `@umrahhaji/ui` bundled at publish time.

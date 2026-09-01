@@ -1,0 +1,69 @@
+/*
+ * ButtonGroup
+ *
+ * The TailGrids reference owns the actual button painting itself (a `cva`
+ * targeting any `<button>` child generically) - this system already has a
+ * real `Button` with its own full variant/size/icon/loading matrix, so
+ * `ButtonGroup` only ever touches its children's outer edges: corner
+ * radius trimmed to the two visible ends, and one shared divider between
+ * segments.
+ *
+ * The divider is a 1px negative-margin overlap onto the *next* button's own
+ * start-edge border, recoloured to a neutral token, rather than each
+ * button's own variant border meeting its neighbour's - `Button` already
+ * draws a full `border: 1px solid` on every side for every variant (even
+ * `primary`, whose border is simply transparent), so overlapping that
+ * existing border by 1px and only recolouring it is enough; nothing here
+ * adds a new box-shadow layer or changes any button's own box size.
+ */
+
+.uh-button-group {
+  display: inline-flex;
+}
+
+.uh-button-group[data-orientation='vertical'] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.uh-button-group > .uh-btn {
+  border-radius: 0;
+}
+
+/* Raised on interaction so a `:focus-visible` ring (drawn outside the
+   button's own border box) or a hover fill is not visually clipped by the
+   neighbouring segment sitting flush against it with no gap. */
+.uh-button-group > .uh-btn:hover,
+.uh-button-group > .uh-btn:focus-visible {
+  z-index: 1;
+}
+
+.uh-button-group[data-orientation='horizontal'] > .uh-btn:first-child {
+  border-start-start-radius: var(--uh-radius-md);
+  border-end-start-radius: var(--uh-radius-md);
+}
+
+.uh-button-group[data-orientation='horizontal'] > .uh-btn:last-child {
+  border-start-end-radius: var(--uh-radius-md);
+  border-end-end-radius: var(--uh-radius-md);
+}
+
+.uh-button-group[data-orientation='horizontal'] > .uh-btn:not(:first-child) {
+  margin-inline-start: calc(-1 * var(--uh-border-width-1));
+  border-inline-start-color: var(--uh-color-border-default);
+}
+
+.uh-button-group[data-orientation='vertical'] > .uh-btn:first-child {
+  border-start-start-radius: var(--uh-radius-md);
+  border-start-end-radius: var(--uh-radius-md);
+}
+
+.uh-button-group[data-orientation='vertical'] > .uh-btn:last-child {
+  border-end-start-radius: var(--uh-radius-md);
+  border-end-end-radius: var(--uh-radius-md);
+}
+
+.uh-button-group[data-orientation='vertical'] > .uh-btn:not(:first-child) {
+  margin-block-start: calc(-1 * var(--uh-border-width-1));
+  border-block-start-color: var(--uh-color-border-default);
+}

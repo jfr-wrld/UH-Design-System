@@ -82,7 +82,11 @@ function ReviewCardImpl(props: ReviewCardProps, ref: ForwardedRef<HTMLElement>) 
   const helpfulText = showHelpful ? labels.helpful(formatCount(helpfulCount, locale)) : '';
 
   return (
-    <article ref={ref} className={['uh-review', className].filter(Boolean).join(' ')}>
+    <article
+      ref={ref}
+      className={['uh-card', 'uh-review', className].filter(Boolean).join(' ')}
+      data-card-variant="outlined"
+    >
       <header className="uh-review__head">
         <Avatar size="sm" name={author.name} {...(author.avatar ? { src: author.avatar } : {})} />
         <div className="uh-review__who">
@@ -178,5 +182,14 @@ function ReviewCardImpl(props: ReviewCardProps, ref: ForwardedRef<HTMLElement>) 
   );
 }
 
-export const ReviewCard = forwardRef(ReviewCardImpl);
-ReviewCard.displayName = 'ReviewCard';
+export const ReviewCard = /* @__PURE__ */ forwardRef(ReviewCardImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  ReviewCard.displayName = 'ReviewCard';
+}

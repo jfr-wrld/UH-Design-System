@@ -74,7 +74,8 @@ function HotelCardImpl(props: HotelCardProps, ref: ForwardedRef<HTMLElement>) {
   return (
     <article
       ref={ref}
-      className={['uh-hotel', className].filter(Boolean).join(' ')}
+      className={['uh-card', 'uh-hotel', className].filter(Boolean).join(' ')}
+      data-card-variant="outlined"
       data-variant={variant}
     >
       <div className="uh-hotel__media">
@@ -135,5 +136,14 @@ function HotelCardImpl(props: HotelCardProps, ref: ForwardedRef<HTMLElement>) {
   );
 }
 
-export const HotelCard = forwardRef(HotelCardImpl);
-HotelCard.displayName = 'HotelCard';
+export const HotelCard = /* @__PURE__ */ forwardRef(HotelCardImpl);
+/*
+ * Guarded, not a bare assignment: an unconditional property write is a
+ * side effect no bundler can prove away, which pins this whole file
+ * together for tree-shaking - see scripts/bundle-size.mjs. Stripped from
+ * production builds by dead-code elimination once NODE_ENV is inlined,
+ * same as every mature React library does this.
+ */
+if (process.env.NODE_ENV !== 'production') {
+  HotelCard.displayName = 'HotelCard';
+}

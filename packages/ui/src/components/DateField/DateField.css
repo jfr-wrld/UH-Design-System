@@ -1,0 +1,77 @@
+/*
+ * DateField
+ *
+ * `TimeField`'s own sibling, styled identically - reuses `.uh-field*` from
+ * Input.css untouched for the label row, border, focus ring, and state
+ * colours, and the same spinbutton-not-input reasoning TimeField's own
+ * header comment documents (no native text-selection/caret to fight).
+ */
+
+.uh-date-field__segments {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.uh-date-field__group {
+  display: flex;
+  align-items: center;
+}
+
+.uh-date-field__separator {
+  color: var(--uh-color-text-tertiary);
+  padding-inline: var(--uh-spacing-2);
+}
+
+.uh-date-field__segment {
+  border-radius: var(--uh-radius-sm);
+  padding-inline: var(--uh-spacing-2);
+  color: var(--uh-color-text-primary);
+  font-variant-numeric: tabular-nums;
+  cursor: default;
+  user-select: none;
+}
+
+.uh-date-field__segment[data-empty='true'] {
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-date-field__segment:focus {
+  outline: none;
+  background-color: var(--uh-color-action-primary-default);
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-date-field__segment[data-empty='true']:focus {
+  color: var(--uh-color-action-primary-label);
+}
+
+.uh-field__control[data-disabled='true'] .uh-date-field__segment {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------- sizes
+ * Mirrors Input.css's own per-size type scale exactly, same reasoning
+ * `TimeField.css` already documents: these segments sit in the same field
+ * row an `<input>` would, and the two need to line up when a form mixes
+ * DateField with Input.
+ */
+.uh-field[data-size='sm'] .uh-date-field__segment {
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+.uh-field[data-size='md'] .uh-date-field__segment {
+  font-family: var(--uh-typography-web-body-m-font-family);
+  font-size: var(--uh-typography-web-body-m-font-size);
+  font-weight: var(--uh-typography-web-body-m-font-weight);
+}
+
+.uh-field[data-size='lg'] .uh-date-field__segment {
+  font-family: var(--uh-typography-web-body-l-font-family);
+  font-size: var(--uh-typography-web-body-l-font-size);
+  font-weight: var(--uh-typography-web-body-l-font-weight);
+}

@@ -391,6 +391,34 @@ const ID: Partial<PriceDisplayLabels> = {
   originalPrice: 'Harga asli',
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for PriceDisplay.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<PriceDisplay ... />` JSX instead of a render function
+ * body. Kept separate from Matrix/Sizes/IncompleteData above, which exist to
+ * prove the whole surface works, not to be copied verbatim.
+ */
+
+export const Basic: Story = {
+  parameters: { layout: 'centered' },
+  args: { amount: 9800, currency: 'MYR', locale: 'en' },
+};
+
+export const DiscountedPrice: Story = {
+  parameters: { layout: 'centered' },
+  args: { amount: 9800, originalAmount: 12500, currency: 'MYR', locale: 'en', size: 'lg' },
+};
+
+/**
+ * Same component, only `currency` changed - `locale` stays `en`. The symbol
+ * still reads "Rp", not "IDR": it comes from `currency` alone, never derived
+ * from the language the page happens to be in.
+ */
+export const IdrReadInEnglish: Story = {
+  parameters: { layout: 'centered' },
+  args: { amount: 38500000, currency: 'IDR', locale: 'en' },
+};
+
 export const TextExpansion: Story = {
   args: { amount: 9800, currency: 'MYR', locale: 'en' },
   parameters: {

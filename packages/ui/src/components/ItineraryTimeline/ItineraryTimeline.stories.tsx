@@ -256,6 +256,49 @@ export const DarkMode: Story = {
   ),
 };
 
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for
+ * ItineraryTimeline.mdx's "Contoh penggunaan" section - args-only stories
+ * so the Docs Source panel reconstructs clean `<ItineraryTimeline ... />`
+ * JSX instead of a render function body. Kept separate from the stories
+ * above, which exist to prove the whole surface works, not to be copied
+ * verbatim.
+ */
+
+export const SingleDayCollapsed: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    days: [
+      {
+        dayNumber: 1,
+        date: start,
+        title: 'Arrival in Madinah',
+        location: 'Madinah',
+        activities: [
+          { type: 'flight', label: 'KUL to MED, direct', time: '08:30' },
+          { type: 'hotel', label: 'Check in at Dar Al Taqwa' },
+        ],
+      },
+    ],
+    locale: 'en-MY',
+  },
+};
+
+export const MultiDayOpen: Story = {
+  parameters: { layout: 'padded' },
+  args: { days: NINE_DAYS.slice(0, 3), locale: 'en-MY', collapsible: false },
+};
+
+export const WithoutDates: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    days: [
+      { dayNumber: 1, title: 'Arrival' },
+      { dayNumber: 2, title: 'Ziarah day' },
+    ],
+  },
+};
+
 const MS_LABELS: Partial<ItineraryTimelineLabels> = {
   itinerary: 'Jadual perjalanan',
   day: (n) => `Hari ${n}`,

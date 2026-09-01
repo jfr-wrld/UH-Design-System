@@ -1,0 +1,142 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as AlertStories from './Alert.stories';
+
+<Meta of={AlertStories} />
+
+# Alert
+
+Status inline yang duduk di dalam alur halaman - tidak di-portal, tidak
+punya z-index, berbeda dari Modal atau Toast. Empat varian (`success`,
+`warning`, `error`, `info`) menentukan urgensi dan warna; dua layout
+(`inline` untuk kotak berbingkai di dalam card/form, `banner` edge-to-edge
+untuk bagian atas halaman/section) menentukan bentuknya. Alert tidak punya
+timer dan tidak hilang sendiri - ia tetap ada selama pemanggil merender-nya,
+kecuali pengguna sendiri yang menutupnya lewat `dismissible`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Status yang relevan selama pengguna berada di layar itu - ringkasan error validasi, notice
+        sold-out pada halaman paket
+      </td>
+      <td>
+        Notifikasi sekali-lewat yang wajar hilang sendiri - berhasil disimpan, item ditambahkan ke
+        keranjang - pakai <code>Toast</code>, yang di-portal dan menghilang otomatis
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>layout="inline"</code> di dalam card atau form yang sudah punya batasan lebarnya
+        sendiri
+      </td>
+      <td>
+        <code>layout="inline"</code> untuk pesan level halaman/section besar - pakai{' '}
+        <code>layout="banner"</code>, yang dirancang edge-to-edge
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="error"</code>/<code>"warning"</code> untuk kondisi yang harus segera
+        diketahui pengguna - keduanya <code>role="alert"</code>, diumumkan segera
+      </td>
+      <td>
+        <code>variant="success"</code>/<code>"info"</code> untuk pesan yang menuntut tindakan
+        darurat - keduanya <code>role="status"</code>, sengaja diumumkan sopan (polite), tidak
+        menyela tugas lain yang sedang dibaca screen reader
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={AlertStories} />
+
+## Contoh penggunaan
+
+### Notice sold-out
+
+Alert error tanpa aksi maupun tombol tutup - status murni yang menjelaskan kenapa sebuah aksi tidak tersedia.
+
+<Canvas of={AlertStories.SoldOutNotice} />
+
+### Banner offline
+
+`layout="banner"` untuk pesan level halaman, edge-to-edge di bagian atas layar.
+
+<Canvas of={AlertStories.OfflineBanner} />
+
+### Pembayaran gagal dengan aksi
+
+`actions` merender tombol tambahan di dalam body, dan `dismissible` menambah tombol tutup terpisah - keduanya independen satu sama lain.
+
+<Canvas of={AlertStories.PaymentFailedWithActions} />
+
+## Aksesibilitas
+
+**Peran ARIA:** `error` dan `warning` merender `role="alert"` (assertive -
+menyela apa pun yang sedang dibacakan screen reader); `success` dan `info`
+merender `role="status"` (polite - menunggu jeda alami). Role ini melekat
+langsung pada elemen sejak dirender, bukan lewat utilitas `announce()`
+tersembunyi seperti Toast - Alert tidak di-portal dan tidak berada dalam
+daftar yang terus berubah, jadi role bawaan ini sudah kasus yang andal.
+`aria-labelledby` terpasang ke `title` saat ada.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berpindah di antara tombol aksi (<code>actions</code>) dan tombol tutup, mengikuti urutan
+        DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code>/<code>Space</code>
+      </td>
+      <td>
+        Menjalankan aksi yang sedang fokus, atau menutup Alert bila fokus ada di tombol tutup -
+        native lewat elemen <code>&lt;button&gt;</code>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Alert bukan dialog - tidak ada penanganan `Escape`; satu-satunya jalan
+  menutup adalah tombol tutup eksplisit, sesuai sifatnya yang inline dan
+  bukan overlay.
+- `onDismiss` baru dipanggil setelah animasi keluar (`usePresence`) selesai,
+  bukan pada saat klik tombol tutup itu sendiri - pemanggil cukup berhenti
+  merender Alert begitu `onDismiss` terpanggil, tidak perlu mengelola
+  animasinya sendiri.
+- Ikon status selalu `aria-hidden` - maknanya sudah dibawa oleh `role` dan
+  warna teks/border, bukan oleh bentuk SVG-nya.
+
+**Wajib disediakan konsumen:**
+
+- `children` (deskripsi) - hampir selalu perlu, meski secara teknis
+  opsional; Alert tanpa isi tidak menyampaikan apa pun ke screen reader
+  selain judulnya.
+- `onDismiss` setiap kali `dismissible` diisi `true` - tanpa itu, tombol
+  tutup akan tampil tapi pemanggil tidak pernah tahu kapan harus berhenti
+  merender Alert-nya.

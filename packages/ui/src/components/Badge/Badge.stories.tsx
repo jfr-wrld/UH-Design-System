@@ -287,3 +287,31 @@ export const TextExpansion: Story = {
     </Page>
   ),
 };
+
+/* --------------------------------------------------------- documentation
+ * Three small, individually copy-pasteable examples for Badge.mdx's
+ * "Contoh Penggunaan" section - args-only stories so the Docs Source panel
+ * reconstructs clean `<Badge ... />` JSX instead of a render function body.
+ * Kept separate from Variants/BookingStatus/IconAndRemovable above, which
+ * exist to prove the whole surface works, not to be copied verbatim.
+ */
+
+export const Status: Story = {
+  parameters: { layout: 'centered' },
+  args: { variant: 'confirmed', dot: true, children: 'Confirmed' },
+};
+
+export const Removable: Story = {
+  parameters: { layout: 'centered' },
+  args: {
+    variant: 'neutral',
+    removable: true,
+    removeLabel: 'Remove filter: Ramadan',
+    children: 'Ramadan',
+  },
+};
+
+export const WithIcon: Story = {
+  parameters: { layout: 'centered' },
+  args: { variant: 'warning', icon: <SeatIcon />, children: 'Almost Full' },
+};

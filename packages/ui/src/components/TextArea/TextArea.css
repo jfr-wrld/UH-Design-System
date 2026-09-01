@@ -1,0 +1,21 @@
+/*
+ * TextArea
+ *
+ * Reuses every `.uh-field*` class from Input.css untouched - border, focus
+ * ring, state colours, label row, and the message/counter footer all come
+ * from there, so a form mixing Input and TextArea never drifts. The only
+ * new rules are these two, scoped to `.uh-field--multiline` so they can
+ * never reach Input or PhoneInput's own markup: a single-line control
+ * vertically centers its content and pads only inline (a row height is the
+ * whole story), but a multi-line one grows downward and needs its own
+ * block padding and top-aligned content instead.
+ */
+
+.uh-field--multiline .uh-field__control {
+  align-items: flex-start;
+  padding-block: var(--uh-spacing-12);
+}
+
+.uh-field--multiline .uh-field__input {
+  resize: vertical;
+}

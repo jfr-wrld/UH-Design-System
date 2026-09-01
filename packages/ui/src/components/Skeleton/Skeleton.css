@@ -19,7 +19,9 @@
   height: calc(
     var(--uh-typography-web-body-m-font-size) * var(--uh-typography-web-body-m-line-height)
   );
-  border-radius: var(--uh-radius-sm);
+  /* full, not sm - a text-line placeholder reads as a soft pill in the
+     TailGrids-character pass, distinct from rect's own softer 8px corner. */
+  border-radius: var(--uh-radius-full);
 }
 
 .uh-skeleton[data-variant='rect'] {
@@ -101,8 +103,8 @@
   flex-direction: column;
   gap: var(--uh-spacing-12);
   padding: var(--uh-spacing-16);
-  border: var(--uh-border-width-1) solid var(--uh-color-border-default);
-  border-radius: var(--uh-radius-lg);
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-card);
   background-color: var(--uh-color-bg-surface);
 }
 

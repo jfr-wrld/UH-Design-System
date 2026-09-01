@@ -1,0 +1,194 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as OTPInputStories from './OTPInput.stories';
+
+<Meta of={OTPInputStories} />
+
+# OTPInput
+
+Satu kotak per karakter dari kode sekali pakai - kode OTP yang dikirim lewat
+SMS untuk verifikasi nomor telepon, atau kode akses pendek dari agen
+perjalanan. Setiap kotak adalah `<input>` sungguhan yang membawa
+`autocomplete="one-time-code"`, jadi autofill SMS di iOS dan Android bisa
+mengisinya, dan tidak satu pun kotak dibatasi `maxLength` - pembatasan itu
+justru akan membuat browser memotong kode yang di-autofill jadi hanya
+digit pertamanya. Nilainya selalu string rata-kiri tanpa celah: memfokuskan
+kotak kosong yang jauh di depan kode akan melompat ke kotak kosong pertama,
+dan menghapus dari tengah selalu menutup celahnya. Benar-salahnya kode
+bukan urusan komponen ini - itu ditentukan konsumen lewat `error` dan
+`errorMessage`.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Kode dengan panjang tetap dan diketahui di muka - OTP SMS 6 digit, kode akses agen 4
+        karakter
+      </td>
+      <td>Password atau input teks bebas panjang variabel - pakai field teks biasa</td>
+    </tr>
+    <tr>
+      <td>
+        Kode yang dikirim lewat SMS/email dan perlu autofill mobile (
+        <code>autocomplete="one-time-code"</code>)
+      </td>
+      <td>
+        Kode yang tidak pernah datang lewat SMS - autofill tidak relevan, satu field teks sederhana
+        sudah cukup
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>type="numeric"</code> untuk kode digit saja - keyboard mobile yang muncul juga numerik
+      </td>
+      <td>
+        <code>type="numeric"</code> untuk kode yang bisa berisi huruf - pakai{' '}
+        <code>type="alphanumeric"</code> supaya karakter tidak tersaring diam-diam
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>/<code>errorMessage</code> diisi setelah server menolak kode yang dikirim
+      </td>
+      <td>
+        Mengandalkan komponen ini untuk menilai benar-salahnya kode sendiri - ia tidak pernah
+        memvalidasi, hanya menampilkan apa yang diberitahu
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Props
+
+<ArgTypes of={OTPInputStories} />
+
+## Contoh penggunaan
+
+### Kode verifikasi SMS
+
+Kasus paling umum: enam kotak numerik, fokus otomatis ke kotak pertama saat layar terbuka.
+
+<Canvas of={OTPInputStories.SmsCode} />
+
+### Kode akses agen
+
+Kode empat karakter dari portal agen bisa berisi huruf - `type="alphanumeric"` menerima huruf besar/kecil apa adanya, tanpa mengubah kapitalisasinya.
+
+<Canvas of={OTPInputStories.AgencyAccessCode} />
+
+### Kode salah
+
+`error` dan `errorMessage` datang dari konsumen setelah verifikasi ke server gagal; pesannya diumumkan lewat `role="alert"`.
+
+<Canvas of={OTPInputStories.IncorrectCode} />
+
+## Aksesibilitas
+
+**Peran ARIA:** kontainer kotak membawa `role="group"` dengan `aria-labelledby`
+mengarah ke `label` - screen reader membacakan nama grup sekali saat masuk,
+bukan berulang di tiap kotak. Setiap `<input>` punya `aria-label` sendiri
+("Digit 1 of 6" / "Character 1 of 4", atau `boxLabel` kustom untuk
+lokalisasi) dan `aria-invalid="true"` saat `error`. Pesan bantuan/error
+melekat pada grup lewat `aria-describedby`, bukan pada tiap kotak - supaya
+"kode salah" tidak dibacakan enam kali berturut-turut saat pengguna
+menavigasi kotak demi kotak. Saat state-nya error, pesan itu sendiri punya
+`role="alert"`; saat sekadar helper text, tidak ada role tambahan.
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>ArrowLeft</code>
+      </td>
+      <td>Fokus mundur satu kotak; berhenti di kotak pertama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>ArrowRight</code>
+      </td>
+      <td>Fokus maju satu kotak; berhenti di kotak kosong pertama, tidak melewati akhir kode</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Home</code>
+      </td>
+      <td>Fokus ke kotak pertama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>End</code>
+      </td>
+      <td>Fokus ke kotak kosong pertama - posisi yang sama dengan tempat ketikan akan berlanjut</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Backspace</code> di kotak terisi
+      </td>
+      <td>Menghapus karakter di posisi itu dan menutup celah; fokus tetap di kotak yang sama</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Backspace</code> di kotak kosong ujung
+      </td>
+      <td>Menghapus karakter terakhir yang ada, fokus mundur satu kotak</td>
+    </tr>
+    <tr>
+      <td>
+        <code>Delete</code>
+      </td>
+      <td>Menghapus karakter di posisi itu dan menutup celah tanpa memindahkan fokus</td>
+    </tr>
+    <tr>
+      <td>Ketik satu karakter</td>
+      <td>
+        Mengisi kotak yang difokus, otomatis maju ke kotak berikutnya (mengganti isi kalau kotak
+        sudah terisi)
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Cmd/Ctrl+V</code> (paste)
+      </td>
+      <td>
+        Kode sepanjang atau lebih dari <code>length</code> selalu ditempatkan mulai dari kotak
+        pertama, siapa pun kotak yang menerimanya; kode yang lebih pendek melanjutkan dari posisi
+        kotak yang di-paste
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Autofill SMS di iOS/Android sering menaruh seluruh kode ke satu kotak yang
+  sedang fokus, bukan menyebar per karakter - komponen mendeteksi perubahan
+  multi-karakter dan memperlakukannya sama seperti paste, lalu mengumumkan
+  kode lengkap lewat `onComplete` sekali saja.
+- `onComplete` tidak pernah berbunyi untuk kode yang sudah dibawa `defaultValue`
+  saat mount - itu data milik konsumen sendiri, bukan penyelesaian baru yang
+  layak memicu submit otomatis.
+- Karena tidak ada `maxLength`, pembaca layar tidak pernah menemui potongan
+  kode akibat truncation browser.
+
+**Wajib disediakan konsumen:**
+
+- `label` yang bermakna (default "Verification code") - ini nama yang
+  dibacakan untuk seluruh grup.
+- `error` dan `errorMessage` setelah verifikasi ke server gagal - komponen
+  tidak pernah menilai kodenya sendiri.
+- `onComplete` untuk memicu submit/verifikasi; ia hanya berbunyi sekali per
+  kode unik dan berbunyi lagi setelah kode itu berubah (dipecah lalu
+  dilengkapi kembali).

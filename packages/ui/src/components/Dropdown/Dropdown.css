@@ -1,0 +1,114 @@
+/*
+ * Dropdown
+ *
+ * The floating panel reuses Popover's own surface treatment (elevation-3,
+ * radius.md, the same entrance animation) minus the arrow - a native menu
+ * never points one back at its trigger, and the TailGrids reference here
+ * agrees (`shadow-md rounded-xl`, no arrow either).
+ */
+
+.uh-dropdown__content {
+  position: fixed;
+  min-width: var(--uh-size-dropdown-min-width);
+  overflow: clip;
+  border: var(--uh-border-width-hairline) solid var(--uh-color-border-default);
+  border-radius: var(--uh-radius-md);
+  background-color: var(--uh-color-bg-elevation-3);
+  box-shadow: var(--uh-elevation-3);
+  z-index: var(--uh-z-index-popover);
+  padding: var(--uh-spacing-4);
+  animation: uh-dropdown-enter var(--uh-motion-preset-state-duration)
+    var(--uh-motion-preset-state-easing) both;
+}
+
+@keyframes uh-dropdown-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uh-dropdown__content {
+    animation-duration: var(--uh-motion-duration-instant) !important;
+  }
+}
+
+/* ---------------------------------------------------------------- item */
+
+.uh-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--uh-spacing-8);
+  padding: var(--uh-spacing-8) var(--uh-spacing-12);
+  border-radius: var(--uh-radius-sm);
+  color: var(--uh-color-text-primary);
+  cursor: pointer;
+  font-family: var(--uh-typography-web-body-s-font-family);
+  font-size: var(--uh-typography-web-body-s-font-size);
+  line-height: var(--uh-typography-web-body-s-line-height);
+  font-weight: var(--uh-typography-web-body-s-font-weight);
+}
+
+/*
+ * :hover and :focus both, not :focus-visible - once the menu is open,
+ * whichever item is current (mouse-hovered or arrow-key-navigated) should
+ * read as highlighted regardless of input modality, the same way a native
+ * OS menu behaves. :focus-visible's own "only for keyboard" distinction is
+ * for controls sitting in a page's ordinary flow, not a transient menu that
+ * exists only to be navigated.
+ */
+.uh-dropdown__item:hover,
+.uh-dropdown__item:focus {
+  background-color: var(--uh-color-bg-surface-sunken);
+  outline: none;
+}
+
+.uh-dropdown__item[data-disabled='true'] {
+  color: var(--uh-color-text-disabled);
+  cursor: not-allowed;
+}
+
+.uh-dropdown__item[data-disabled='true']:hover {
+  background-color: transparent;
+}
+
+.uh-dropdown__item[data-destructive='true'] {
+  color: var(--uh-color-feedback-error-text);
+}
+
+.uh-dropdown__item[data-destructive='true']:hover,
+.uh-dropdown__item[data-destructive='true']:focus {
+  background-color: var(--uh-color-feedback-error-bg);
+}
+
+.uh-dropdown__item > svg {
+  flex: none;
+  width: var(--uh-size-icon-sm);
+  height: var(--uh-size-icon-sm);
+  color: var(--uh-color-text-tertiary);
+}
+
+.uh-dropdown__item[data-destructive='true'] > svg {
+  color: var(--uh-color-feedback-error-text);
+}
+
+/* --------------------------------------------------------------- group */
+
+.uh-dropdown__group-heading {
+  padding: var(--uh-spacing-8) var(--uh-spacing-12) var(--uh-spacing-4);
+  color: var(--uh-color-text-tertiary);
+  font-family: var(--uh-typography-web-caption-font-family);
+  font-size: var(--uh-typography-web-caption-font-size);
+  line-height: var(--uh-typography-web-caption-line-height);
+  letter-spacing: var(--uh-typography-web-caption-letter-spacing);
+  font-weight: var(--uh-typography-web-caption-font-weight);
+}
+
+/* ------------------------------------------------------------ separator */
+
+.uh-dropdown__separator {
+  block-size: var(--uh-border-width-hairline);
+  margin-block: var(--uh-spacing-4);
+  background-color: var(--uh-color-border-default);
+}

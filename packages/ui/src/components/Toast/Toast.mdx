@@ -1,0 +1,246 @@
+import { Meta, ArgTypes, Canvas } from '@storybook/blocks';
+import * as ToastStories from './Toast.stories';
+
+<Meta of={ToastStories} />
+
+{/* doc-agent note: Toast's public surface is ToastProvider + useToast(), not a bare component - ArgTypes below only covers ToastProvider's own props (position, limit); the hook's real call shape is documented as a code block further down in Props instead. */}
+
+# Toast
+
+Feedback yang tidak dibuka, melainkan diumumkan. `ToastProvider` memasang
+satu stack ke `document.body` hanya selagi ada toast aktif; `useToast()`
+mengembalikan `show`/`success`/`warning`/`error`/`info`, masing-masing
+menaruh satu record ke stack yang sama. Ini satu-satunya overlay di sistem
+ini yang tidak punya `open`/`onClose` - siklus hidupnya sepenuhnya dikelola
+lewat pemanggilan fungsi dan timer auto-dismiss-nya sendiri.
+
+## Kapan pakai / kapan jangan
+
+<table>
+  <thead>
+    <tr>
+      <th>✅ Pakai</th>
+      <th>❌ Jangan</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        Feedback sekali-lewat atas aksi yang baru saja dilakukan pengguna sendiri - booking
+        dikonfirmasi, item disimpan, perubahan tersimpan
+      </td>
+      <td>
+        Pesan yang wajib dibaca sebelum pengguna boleh melanjutkan - toast bisa lewat sebelum sempat
+        dibaca; pakai <code>Modal</code> atau <code>BottomSheet</code> untuk itu
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>variant="error"</code> untuk kegagalan yang butuh keputusan orang - defaultnya tidak
+        pernah auto-dismiss
+      </td>
+      <td>
+        Validasi form inline - taruh pesan error di dekat field yang salah; toast sudah lewat begitu
+        form disubmit ulang, dan tidak terhubung ke field yang bermasalah
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>action</code> untuk lanjutan yang murah dibatalkan dan langsung relevan (Undo, Lihat
+        pesanan)
+      </td>
+      <td>
+        Menembak <code>show()</code> berulang dalam loop atau untuk setiap event kecil -{' '}
+        <code>limit</code> (default 4) akan mulai membuang yang tertua, dan pengguna kehilangan
+        konteks
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Anatomi
+
+Root-nya diportalkan ke `document.body` hanya saat ada toast aktif.
+
+- **`.uh-toast-viewport`** - kontainer stack; `data-position` menentukan sudut (`top-center`/`top-right`/`bottom-center`/`bottom-right`) dan arah tumpukan.
+- **`.uh-toast`** - satu item; `data-state` (open/closing/closed lewat `usePresence`, sama seperti Modal dan BottomSheet) dan `data-variant`.
+- **`.uh-toast__icon`** - ikon status, hanya render untuk `success`/`warning`/`error`/`info` - `default` tidak punya ikon.
+- **`.uh-toast__body`** - pembungkus `title` + `description` + `action`.
+- **`.uh-toast__title`** - opsional, baris pertama yang lebih tebal.
+- **`.uh-toast__description`** - satu-satunya field wajib di `ToastOptions`.
+- **`.uh-toast__action`** - tombol teks opsional, terpisah dari tombol close; klik-nya tidak menutup toast.
+- **`.uh-toast__close`** - berbagi styling dengan `.uh-close-button` bersama (`data-size="sm"`).
+
+## Props
+
+`ToastProvider` sendiri hanya membawa tiga prop:
+
+<ArgTypes of={ToastStories} />
+
+Permukaan yang sesungguhnya dipakai konsumen adalah `useToast()`, yang
+mengembalikan objek ini (dari `useToastContext.ts`):
+
+```ts
+interface ToastOptions {
+  title?: string;
+  description: string; // satu-satunya field wajib
+  variant?: 'default' | 'success' | 'warning' | 'error' | 'info';
+  duration?: number | null; // ms; null menonaktifkan auto-dismiss
+  action?: { label: string; onClick: () => void };
+  closeLabel?: string; // accessible name tombol close, default "Dismiss"
+}
+
+interface ToastContextValue {
+  show: (options: ToastOptions) => { id: string; dismiss: () => void };
+  success: (
+    description: string,
+    options?: Omit<ToastOptions, 'description' | 'variant'>,
+  ) => ToastHandle;
+  warning: (
+    description: string,
+    options?: Omit<ToastOptions, 'description' | 'variant'>,
+  ) => ToastHandle;
+  error: (
+    description: string,
+    options?: Omit<ToastOptions, 'description' | 'variant'>,
+  ) => ToastHandle;
+  info: (
+    description: string,
+    options?: Omit<ToastOptions, 'description' | 'variant'>,
+  ) => ToastHandle;
+  dismiss: (id: string) => void;
+  dismissAll: () => void;
+}
+```
+
+Durasi bawaan per varian (bisa ditimpa lewat `duration`, termasuk
+menonaktifkannya dengan `null`):
+
+<table>
+  <thead>
+    <tr>
+      <th>Varian</th>
+      <th>Durasi default</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>default</code>
+      </td>
+      <td>5000 ms</td>
+    </tr>
+    <tr>
+      <td>
+        <code>success</code>
+      </td>
+      <td>4000 ms</td>
+    </tr>
+    <tr>
+      <td>
+        <code>info</code>
+      </td>
+      <td>5000 ms</td>
+    </tr>
+    <tr>
+      <td>
+        <code>warning</code>
+      </td>
+      <td>8000 ms - biasanya meminta sebuah keputusan</td>
+    </tr>
+    <tr>
+      <td>
+        <code>error</code>
+      </td>
+      <td>
+        <code>null</code> (tidak pernah auto-dismiss)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+## Contoh penggunaan
+
+### Konfirmasi berhasil
+
+Shorthand `toast.success(description, { title })` - varian paling umum, hilang sendiri setelah 4 detik.
+
+<Canvas of={ToastStories.BookingConfirmed} />
+
+### Kegagalan yang menunggu keputusan
+
+`toast.error(...)` tidak pernah auto-dismiss kecuali `duration` ditimpa - "Payment failed" yang hilang sendiri adalah cara seseorang kehilangan jejak pembayarannya.
+
+<Canvas of={ToastStories.PaymentFailed} />
+
+### Dengan aksi Undo
+
+`action` merender tombol kedua yang terpisah dari tombol close; mengkliknya memicu `onClick` sendiri tanpa menutup toast, jadi pembaca yang lambat tetap punya tombol close untuk menutup sesuai waktunya sendiri.
+
+<Canvas of={ToastStories.UndoAction} />
+
+Untuk melihat kelima varian plus bentuk title+description dan action sekaligus, lihat story `Matrix`.
+
+## Aksesibilitas
+
+**Peran ARIA:** item toast sendiri **tidak** membawa `role="status"` atau
+`role="alert"`. Ini disengaja - lihat komentar di `Toast.css`: penyisipan
+`role` diumumkan secara tidak konsisten antar screen reader, khususnya
+Safari + VoiceOver. Sebagai gantinya, `ToastProvider` memanggil `announce()`
+dari `lib/announcer.ts`, yang menulis ke live region tersembunyi yang sudah
+ada sejak awal (`aria-live="polite"` untuk `default`/`success`/`info`/
+`warning`, `aria-live="assertive"` untuk `error`) - dites langsung di
+`Toast.test.tsx` ("announces the description through the shared live
+region", "announces error toasts assertively").
+
+<table>
+  <thead>
+    <tr>
+      <th>Tombol</th>
+      <th>Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <code>Tab</code>
+      </td>
+      <td>
+        Berpindah ke tombol <code>action</code> (jika ada) lalu tombol close di dalam toast,
+        mengikuti urutan DOM
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <code>Enter</code> / <code>Space</code>
+      </td>
+      <td>
+        Mengaktifkan tombol yang sedang fokus (native pada <code>&lt;button&gt;</code>)
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+**Catatan screen reader:**
+
+- Timer auto-dismiss berhenti selama hover **atau** fokus berada di dalam toast, dan baru lanjut lagi setelah _keduanya_ dilepas - bukan begitu salah satu saja lepas (WCAG 2.2.1 Timing Adjustable). Ini dites lewat kasus "hover lalu fokus tombol action lalu lepas fokus": timer tetap tertahan selama pointer masih di atasnya.
+- `error` tidak pernah kedaluwarsa sendiri kecuali dipaksa lewat `duration` - seseorang harus benar-benar menutupnya.
+- Melebihi `limit` (default 4) menutup toast aktif tertua, bukan memotong toast terbaru dari tampilan - dites di "dismisses the oldest active toast once the limit is exceeded".
+
+**Wajib disediakan konsumen:**
+
+- `<ToastProvider>` di root aplikasi (atau di scope yang relevan) sebelum komponen mana pun memanggil `useToast()` - hook ini melempar error di development jika dipanggil di luar provider: `"useToast must be used within a ToastProvider."`
+- `description` - satu-satunya field wajib di `ToastOptions`; `title` dan sisanya opsional.
+- `closeLabel` untuk melokalkan nama aksesibel tombol close saat bahasa aplikasinya bukan Inggris.
+
+## Catatan i18n
+
+Deskripsi Melayu dan Indonesia berjalan lebih panjang dari Inggris untuk
+pesan yang sama; kartu toast melebar ke bawah (wrap) dan tidak pernah
+memotong teks, sementara lebarnya tetap dibatasi oleh token
+`size.toast.width`. Story `TextExpansion` menonaktifkan `duration` lewat
+`null` supaya ketiga bahasa bisa berdiri berdampingan untuk dibandingkan -
+dalam pemakaian nyata, kontennya tetap kedaluwarsa (atau tidak) mengikuti
+aturan durasi yang sama untuk setiap bahasa:
+
+<Canvas of={ToastStories.TextExpansion} />
