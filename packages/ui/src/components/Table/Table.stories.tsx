@@ -95,9 +95,15 @@ const STATUS_VARIANT: Record<Booking['status'], 'success' | 'warning' | 'error'>
   cancelled: 'error',
 };
 
-function BookingsTable({ fullBleed = false }: { fullBleed?: boolean }) {
+function BookingsTable({
+  fullBleed = false,
+  label = 'Recent bookings',
+}: {
+  fullBleed?: boolean;
+  label?: string;
+}) {
   return (
-    <Table fullBleed={fullBleed} aria-label="Recent bookings">
+    <Table fullBleed={fullBleed} aria-label={label}>
       <TableHeader>
         <TableRow>
           <TableHead>Booking ID</TableHead>
@@ -136,15 +142,18 @@ export const Matrix: Story = {
   parameters: {
     docs: {
       description: {
-        story: 'Bordered (default) above a full-bleed table below, for direct comparison.',
+        story:
+          'Bordered (default) above a full-bleed table below, for direct comparison. Each ' +
+          "gets its own `aria-label` here - two regions on one page can't share a name, or a " +
+          'screen reader has no way to tell them apart in the landmarks list.',
       },
     },
   },
   render: () => (
     <Page>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--uh-spacing-32)' }}>
-        <BookingsTable />
-        <BookingsTable fullBleed />
+        <BookingsTable label="Recent bookings, bordered" />
+        <BookingsTable fullBleed label="Recent bookings, full width" />
       </div>
     </Page>
   ),
@@ -181,7 +190,9 @@ export const TextExpansion: Story = {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--uh-spacing-24)' }}>
         {COPY.map((entry) => (
           <div key={entry.lang} lang={entry.lang} style={{ maxWidth: '360px' }}>
-            <Table aria-label="Booking">
+            {/* Distinct per language - two regions on one page can't share
+                an aria-label, see Matrix's own note above. */}
+            <Table aria-label={`Booking (${entry.lang})`}>
               <TableHeader>
                 <TableRow>
                   <TableHead>Pilgrim</TableHead>

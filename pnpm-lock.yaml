@@ -114,6 +114,9 @@ importers:
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
+      playwright:
+        specifier: ^1.62.1
+        version: 1.62.1
       storybook:
         specifier: ^8.6.18
         version: 8.6.18(prettier@3.9.6)

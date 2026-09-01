@@ -92,7 +92,18 @@ export function Slider<Value extends number | readonly number[] = number>(
       disabled={disabled}
       locale={locale}
     >
-      <BaseSlider.Label className={showLabel ? 'uh-slider__label' : 'uh-sr-only'}>
+      {/*
+       * aria-disabled, not just the data-disabled Base UI already stamps on
+       * its own: axe's color-contrast check has no way to know
+       * `--uh-opacity-disabled` is an intentional, documented exemption
+       * (see the token's own description) without a state ARIA already
+       * recognises - a bare data attribute leaves it reading the label's
+       * opacity-dimmed text as a genuine contrast failure.
+       */}
+      <BaseSlider.Label
+        className={showLabel ? 'uh-slider__label' : 'uh-sr-only'}
+        aria-disabled={disabled || undefined}
+      >
         {label}
       </BaseSlider.Label>
 
