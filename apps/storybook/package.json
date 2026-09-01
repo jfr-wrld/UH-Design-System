@@ -2,6 +2,7 @@
   "name": "@umrahhaji/storybook",
   "version": "0.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Documentation and preview surface for the UmrahHaji design system",
   "type": "module",
   "scripts": {

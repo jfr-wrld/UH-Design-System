@@ -2,6 +2,7 @@
   "name": "@umrahhaji/ui",
   "version": "0.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "React component library for the UmrahHaji design system",
   "type": "module",
   "sideEffects": [

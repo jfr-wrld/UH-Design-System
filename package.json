@@ -2,6 +2,7 @@
   "name": "umrahhaji-ds",
   "version": "0.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "UmrahHaji Design System monorepo",
   "type": "module",
   "packageManager": "pnpm@10.34.5",

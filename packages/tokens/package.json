@@ -2,6 +2,7 @@
   "name": "@umrahhaji/tokens",
   "version": "0.0.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "Single source of truth for UmrahHaji design tokens",
   "type": "module",
   "sideEffects": [
