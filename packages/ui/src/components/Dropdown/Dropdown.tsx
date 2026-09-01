@@ -89,7 +89,6 @@ export function DropdownTrigger(props: DropdownTriggerProps): ReactElement | nul
   };
 
   /* Safe by construction - see the note in lib/cloneWithRef. */
-  // eslint-disable-next-line react-hooks/refs
   return cloneWithMergedRef(children as ReactElement<Record<string, unknown>>, ctx.anchorRef, {
     id: ctx.triggerId,
     onClick: (event: unknown) => {
@@ -177,6 +176,12 @@ export function DropdownContent(props: DropdownContentProps): ReactNode {
     }
     document.addEventListener('keydown', onKeyDown, true);
     return () => document.removeEventListener('keydown', onKeyDown, true);
+    // `ctx` itself isn't a dependency: it's a fresh object literal every
+    // `Dropdown` render (its Provider `value` isn't memoized), so depending
+    // on it would tear down and re-add this listener on every such render
+    // instead of only when what it actually reads - open, anchorRef, setOpen
+    // - changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ctx.open, ctx.anchorRef, ctx.setOpen]);
 
   function move(delta: 1 | -1) {

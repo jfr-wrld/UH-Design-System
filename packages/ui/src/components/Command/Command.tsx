@@ -5,7 +5,6 @@ import {
   useEffect,
   useId,
   useMemo,
-  useReducer,
   useState,
   type ForwardedRef,
   type HTMLAttributes,
@@ -90,66 +89,72 @@ export function Command(props: CommandProps) {
     defaultValue: defaultValue ?? '',
     onChange: onValueChange,
   });
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const itemsRef = useMemo(() => new Map<string, RegisteredItem>(), []);
-  const [tick, bump] = useReducer((n: number) => n + 1, 0);
+  const [rawActiveId, setActiveId] = useState<string | null>(null);
+  // Plain state, not a mutated Map - refs can't be read during render (the
+  // `visibleIds`/`navigableIds` memos below do exactly that), and a value
+  // merely returned from a hook (the old `useMemo`) may not be written to
+  // directly either. Register/unregister each copy the map, the same
+  // immutable-update shape any other list-of-things state in this package
+  // already follows.
+  const [items, setItems] = useState<Map<string, RegisteredItem>>(() => new Map());
 
-  const registerItem = useCallback(
-    (id: string, item: RegisteredItem) => {
-      itemsRef.set(id, item);
-      bump();
-      return () => {
-        itemsRef.delete(id);
-        bump();
-      };
-    },
-    [itemsRef],
-  );
+  const registerItem = useCallback((id: string, item: RegisteredItem) => {
+    setItems((prev) => new Map(prev).set(id, item));
+    return () => {
+      setItems((prev) => {
+        if (!prev.has(id)) return prev;
+        const next = new Map(prev);
+        next.delete(id);
+        return next;
+      });
+    };
+  }, []);
 
-  const getItem = useCallback((id: string) => itemsRef.get(id), [itemsRef]);
+  const getItem = useCallback((id: string) => items.get(id), [items]);
 
   const matchesFilter = useCallback(
     (id: string) => {
-      const item = itemsRef.get(id);
+      const item = items.get(id);
       if (!item) return false;
       if (!shouldFilter) return true;
       return filter(item.value, query, item.keywords);
     },
-    [itemsRef, query, shouldFilter, filter],
+    [items, query, shouldFilter, filter],
   );
 
   /* Both lists share registration order (== render order), recomputed
-     whenever the query changes or an item mounts/unmounts (`tick`).
-     `visibleIds` is what a disabled item still belongs to - filtering is a
-     text match, independent of whether the item can be run - while
-     `navigableIds` is the subset Up/Down and the initial highlight
-     actually walk. */
+     whenever the query changes or an item mounts/unmounts. `visibleIds` is
+     what a disabled item still belongs to - filtering is a text match,
+     independent of whether the item can be run - while `navigableIds` is the
+     subset Up/Down and the initial highlight actually walk. */
   const visibleIds = useMemo(() => {
     const ids: string[] = [];
-    for (const id of itemsRef.keys()) {
+    for (const id of items.keys()) {
       if (matchesFilter(id)) ids.push(id);
     }
     return ids;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [matchesFilter, tick]);
+  }, [items, matchesFilter]);
 
   const navigableIds = useMemo(
-    () => visibleIds.filter((id) => !itemsRef.get(id)?.disabled),
-    [visibleIds, itemsRef],
+    () => visibleIds.filter((id) => !items.get(id)?.disabled),
+    [visibleIds, items],
   );
 
-  useEffect(() => {
-    if (activeId && navigableIds.includes(activeId)) return;
-    setActiveId(navigableIds[0] ?? null);
-  }, [navigableIds, activeId]);
+  // Derived, not stored-then-corrected: computing the fallback inline (rather
+  // than committing `null`/a stale id and patching it up via a setState in an
+  // effect afterward) keeps every render already consistent with the current
+  // `navigableIds`, instead of painting one frame behind and cascading into a
+  // second render to fix it up.
+  const activeId =
+    rawActiveId && navigableIds.includes(rawActiveId) ? rawActiveId : (navigableIds[0] ?? null);
 
   const runItem = useCallback(
     (id: string) => {
-      const item = itemsRef.get(id);
+      const item = items.get(id);
       if (!item || item.disabled) return;
       item.onSelect?.();
     },
-    [itemsRef],
+    [items],
   );
 
   const context = useMemo(
@@ -169,6 +174,7 @@ export function Command(props: CommandProps) {
     }),
     [
       query,
+      setQuery,
       activeId,
       visibleIds,
       navigableIds,

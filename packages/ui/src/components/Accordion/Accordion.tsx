@@ -51,13 +51,26 @@ export type AccordionProps = AccordionModeProps & {
 function useAccordionState(
   props: AccordionModeProps,
 ): Pick<AccordionContextValue, 'isOpen' | 'toggle'> {
-  if (props.type === 'multiple') {
-    const { value, defaultValue, onValueChange } = props;
-    const [openValues, setOpenValues] = useControllableState<string[]>({
-      value,
-      defaultValue: defaultValue ?? [],
-      onChange: onValueChange,
-    });
+  const isMultiple = props.type === 'multiple';
+
+  // Both branches call `useControllableState` unconditionally, every render -
+  // rules-of-hooks forbids gating a hook call behind `props.type`, since
+  // React tracks hooks by call order, not by name. `type` is a discriminant
+  // that never changes across an instance's lifetime, so only one branch's
+  // state is ever actually read; the other sits inert.
+  const [openValues, setOpenValues] = useControllableState<string[]>({
+    value: isMultiple ? props.value : undefined,
+    defaultValue: (isMultiple ? props.defaultValue : undefined) ?? [],
+    onChange: isMultiple ? props.onValueChange : undefined,
+  });
+
+  const [openValue, setOpenValue] = useControllableState<string | null>({
+    value: isMultiple ? undefined : props.value,
+    defaultValue: (isMultiple ? undefined : props.defaultValue) ?? null,
+    onChange: isMultiple ? undefined : props.onValueChange,
+  });
+
+  if (isMultiple) {
     return {
       isOpen: (itemValue) => openValues.includes(itemValue),
       toggle: (itemValue) =>
@@ -69,12 +82,7 @@ function useAccordionState(
     };
   }
 
-  const { value, defaultValue, onValueChange, collapsible = true } = props;
-  const [openValue, setOpenValue] = useControllableState<string | null>({
-    value,
-    defaultValue: defaultValue ?? null,
-    onChange: onValueChange,
-  });
+  const collapsible = props.collapsible ?? true;
   return {
     isOpen: (itemValue) => openValue === itemValue,
     toggle: (itemValue) => {
