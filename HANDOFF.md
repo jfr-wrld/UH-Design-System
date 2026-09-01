@@ -202,9 +202,6 @@ ada yang meng-install-nya.
 
 ## Bug & kontak
 
-Belum ada maintainer resmi yang ditentukan untuk hand-off ini, tapi repo
-sekarang punya alamat:
-[github.com/jfr-wrld/UH-Design-System](https://github.com/jfr-wrld/UH-Design-System)
-— issue tracker-nya di situ begitu maintainer ditentukan. Sampai saat itu,
-laporkan lewat jalur yang sama dengan permintaan yang menghasilkan dokumen
-ini.
+Maintainer: **[@jfr-wrld](https://github.com/jfr-wrld)** (lihat
+`.github/CODEOWNERS`). Laporkan bug atau ajukan komponen baru lewat
+[issue tracker repo ini](https://github.com/jfr-wrld/UH-Design-System/issues).
