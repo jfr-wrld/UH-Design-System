@@ -3,9 +3,11 @@
 Monorepo for the UmrahHaji design system: design tokens, React components, and
 their documentation.
 
-> **Status: tokens and typography landed, components not started.**
-> `packages/tokens` is complete and building; `packages/ui` is still an empty
-> barrel.
+> **Start with [`HANDOFF.md`](./HANDOFF.md), not this file.** It's the
+> current, actively-maintained entry point — what exists, what doesn't, the
+> non-negotiable rules, and release status. This README stays as the deeper
+> reference for the token pipeline and package internals below; it isn't
+> kept as current on component count and release state as `HANDOFF.md` is.
 
 ## Structure
 
@@ -37,15 +39,20 @@ pnpm dev        # Storybook on http://localhost:6006
 
 Run from the repository root:
 
-| Script                | What it does                                                     |
-| --------------------- | ---------------------------------------------------------------- |
-| `pnpm build`          | Builds every workspace in dependency order (tokens → ui → docs). |
-| `pnpm build:packages` | Builds `packages/*` only, skipping the Storybook static site.    |
-| `pnpm dev`            | Starts Storybook in watch mode.                                  |
-| `pnpm typecheck`      | Runs `tsc --noEmit` in every workspace.                          |
-| `pnpm lint`           | ESLint across the repo.                                          |
-| `pnpm format`         | Prettier write. `pnpm format:check` verifies instead.            |
-| `pnpm clean`          | Removes build output and `node_modules`.                         |
+| Script                | What it does                                                                                                      |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `pnpm build`          | Builds every workspace in dependency order (tokens → ui → docs).                                                  |
+| `pnpm build:packages` | Builds `packages/*` only, skipping the Storybook static site.                                                     |
+| `pnpm dev`            | Starts Storybook in watch mode.                                                                                   |
+| `pnpm typecheck`      | Runs `tsc --noEmit` in every workspace.                                                                           |
+| `pnpm test`           | Unit tests (vitest) across every workspace.                                                                       |
+| `pnpm test:a11y`      | Builds Storybook, then runs axe against every story in a real browser.                                            |
+| `pnpm lint`           | ESLint across the repo.                                                                                           |
+| `pnpm lint:ds`        | Design-system-specific guard (see `HANDOFF.md`'s non-negotiable rules) — portable, runs against any repo's `src`. |
+| `pnpm bundle-size`    | Per-component gzipped bundle size, diffed against `bundle-size-baseline.json`.                                    |
+| `pnpm format`         | Prettier write. `pnpm format:check` verifies instead.                                                             |
+| `pnpm changeset`      | Records a changeset for the next release. See `.changeset/README.md` for this project's v0.x semver rules.        |
+| `pnpm clean`          | Removes build output and `node_modules`.                                                                          |
 
 ## Packages
 
@@ -259,8 +266,10 @@ the pipeline stays safe to run in CI.
 
 ### `@umrahhaji/ui`
 
-Components so far: `Button`, `Input`, `PhoneInput`, `Select`, `Checkbox`,
-`Radio` / `RadioGroup`.
+67 components as of this writing — the list drifts, so it's kept in exactly
+one place rather than duplicated here: browse `Components/*` in Storybook,
+or see `HANDOFF.md`'s own tiered list (which also names what's deliberately
+_not_ built, and why).
 
 **`Input` has no `type="tel"`.** Every phone number this platform collects
 crosses a border, so the country code is structured data, not a prefix someone

@@ -5,9 +5,12 @@
 1. Storybook: **[not yet deployed]** - CI (`.github/workflows/ci.yml`) builds
    and deploys it to GitHub Pages on every merge to `main`, but that needs
    GitHub Pages turned on once in this repo's Settings → Pages (source:
-   GitHub Actions) before the first deploy succeeds, and this repo currently
-   has no `git remote` configured at all. Until then: `pnpm dev` from the
-   repo root runs it locally at `localhost:6006`.
+   GitHub Actions) before the first deploy succeeds. The repo now has a
+   `git remote` - `main` was pushed to
+   [github.com/jfr-wrld/UH-Design-System](https://github.com/jfr-wrld/UH-Design-System)
+   on 1 Sep 2026, so CI will actually run from here on; Pages just hasn't
+   been switched on yet. Until then: `pnpm dev` from the repo root runs it
+   locally at `localhost:6006`.
 2. `npm install @umrahhaji/ui @umrahhaji/tokens`
 3. Ikuti **Getting Started** di Storybook.
 
@@ -19,7 +22,10 @@ laporkan, jangan cari sendiri di source code.
 ## Apa yang ADA
 
 Semua di bawah punya halaman dokumentasi sendiri di Storybook (**Components/\***)
-dan lolos axe di browser sungguhan (`pnpm test:a11y`, 441 test, semua hijau).
+dan lolos axe di browser sungguhan (`pnpm test:a11y` - satu test axe per
+story, jumlahnya naik seiring komponen baru; jalankan sendiri untuk angka
+terkini, jangan percaya angka statis di sini). Unit test murni
+(`pnpm --filter @umrahhaji/ui test`) ada di 1.401 dan hijau per 1 Sep 2026.
 
 ### Tier 1 — dokumentasi penuh (7 bagian: deskripsi, kapan pakai/jangan,
 
@@ -39,12 +45,25 @@ sudah dipindah untuk memakainya, bukan cuma didokumentasikan terpisah.
 Checkbox, Radio, Switch, Badge, Avatar, NumberStepper, CurrencyInput,
 PhoneInput, OTPInput, Drawer, Popover, Alert, ProgressBar, EmptyState,
 ErrorState, Card, Chip, Rating, AgencyCard, HotelCard, ReviewCard,
-BookingStatusTracker, ItineraryTimeline, **Tabs, Carousel, Pagination**
+BookingStatusTracker, ItineraryTimeline, **Tabs, Carousel, Pagination**,
+**Separator, Dropdown, DateField, AspectRatio, Collapsible, List,
+NativeSelect**
 
-Tiga yang dicetak tebal (Tabs/Carousel/Pagination) tidak ada di daftar tier
-asli — dibangun di sesi sebelumnya (Fase 6 Sesi 2) untuk mengisi gap nyata
-yang ditemukan saat menguji `PackageDetail`/`SearchResults`, dan
-ditambahkan ke Tier 2 di sini karena kompleksitasnya sebanding.
+Tiga yang dicetak tebal pertama (Tabs/Carousel/Pagination) tidak ada di
+daftar tier asli — dibangun di sesi sebelumnya (Fase 6 Sesi 2) untuk
+mengisi gap nyata yang ditemukan saat menguji `PackageDetail`/
+`SearchResults`, dan ditambahkan ke Tier 2 di sini karena kompleksitasnya
+sebanding.
+
+Tujuh yang dicetak tebal kedua dibangun setelah gap analysis menyeluruh
+terhadap katalog TailGrids sendiri (61 komponen) dibanding yang sudah ada
+di sini. Dua nama yang sempat direkomendasikan dari analisis itu ternyata
+BUKAN gap sungguhan begitu dicek langsung: "AlertDialog" sudah tercakup
+`Modal` (varian `destructive`/`confirmation` +
+`closeOnOverlayClick={false}`/`closeOnEsc={false}`), dan "Stepper/Wizard"
+sudah tercakup `BookingStatusTracker`'s `steps`/`currentStep` yang generik
+— keduanya tidak dibangun ulang secara terpisah, cuma didokumentasikan
+ulang di halaman yang sudah ada.
 
 ### Tier 3 — deskripsi singkat + props table
 
@@ -53,9 +72,10 @@ Spinner, Skeleton, Tooltip, **Stack, Grid, Container**
 Tiga yang dicetak tebal juga tadinya dilaporkan sebagai Blocker (drift lebar
 rail/container yang berulang di setiap layar `Patterns/*`) — kini sudah ada,
 lengkap dengan token ukuran baru (`size.container.sm/md/lg/xl`) untuk
-`Container`. `Divider`, `Box`, `Spacer`, `AspectRatio`, `VisuallyHidden`,
-`Icon`, `Show` dari daftar tier asli masih belum ada — lihat "Apa yang TIDAK
-ADA".
+`Container`. `Divider` dan `AspectRatio` dari daftar tier asli sekarang
+juga ada (sebagai `Separator` dan `AspectRatio` sendiri, di Tier 2 di
+atas); `Box`, `Spacer`, `VisuallyHidden`, `Icon`, `Show` masih belum —
+lihat "Apa yang TIDAK ADA".
 
 ### Halaman lain
 
@@ -71,10 +91,23 @@ Supaya kalian tidak menunggu sesuatu yang tidak akan datang — ini semua
 dicek langsung di kode (`packages/ui/src/components/`, `src/index.ts`),
 bukan diasumsikan:
 
-- **Divider, Box, Spacer, AspectRatio, VisuallyHidden, Icon, Show.** Tujuh
-  dari tiga belas nama di daftar Tier 3 asli — tidak satu pun ada.
-  `Stack`/`Grid`/`Container` (tiga lainnya) dan `FilterPanel` sudah dibangun —
-  lihat "Apa yang ADA" di atas.
+- **Box, Spacer, VisuallyHidden, Icon, Show.** Lima dari tiga belas nama di
+  daftar Tier 3 asli — tidak satu pun ada. `Stack`/`Grid`/`Container` (tiga
+  lainnya) dan `FilterPanel` sudah dibangun; `Divider` dan `AspectRatio`
+  (dua nama tersisa di daftar asli) juga sudah dibangun sejak, sebagai
+  `Separator` dan `AspectRatio` sendiri — lihat "Apa yang ADA" di atas.
+- **Link, Calendar, RangeCalendar.** Dicek langsung terhadap katalog
+  TailGrids sendiri: `Link` bukan gap sungguhan — sudah tercakup penuh oleh
+  `Button`'s `as="a"` + `variant="link"` + `leftIcon`/`rightIcon`.
+  `Calendar`/`RangeCalendar` sengaja tidak dibangun - referensi TailGrids-nya
+  sendiri butuh `react-aria-components` + `@internationalized/date`,
+  dependency baru yang berat dan tidak konsisten dengan grid kalender
+  hand-rolled yang sudah ada di dalam `DatePicker`
+  (`packages/ui/src/components/DatePicker/Calendar.tsx`) tanpa dependency
+  itu sama sekali.
+- **ContextMenu, HoverCard, InputGroup.** Tidak ada padanan di katalog
+  TailGrids sendiri (61 komponen) — genuinely niche untuk produk travel
+  ini. Belum dibangun secara sengaja, bukan belum sempat.
 - **`DesignSystemProvider`.** Diminta sebagai bagian dari Getting Started —
   tidak ada, dan ternyata tidak dibutuhkan: setiap komponen membaca
   langsung dari CSS custom property begitu `@umrahhaji/ui/styles.css`
@@ -135,17 +168,22 @@ Changesets) — tidak pernah ada kombinasi versi yang mismatch antara
 keduanya.
 
 **Status rilis saat ini: infrastruktur siap, belum benar-benar di-tag.**
-`bundle-size-baseline.json` sudah dicatat di root repo (46 komponen,
-rata-rata 2.5 kB gzip, terbesar `DateRangePicker` di 6.1 kB — lihat file
+`bundle-size-baseline.json` sudah dicatat di root repo (67 komponen,
+rata-rata 2.5 kB gzip, terbesar `DateRangePicker` di 6.3 kB — lihat file
 itu untuk baseline penuh), `.changeset/config.json` sudah dikonfigurasi
-fixed-version, dan CI (`.github/workflows/ci.yml`) sudah lengkap. Yang
-belum: paket `packages/ui`/`packages/tokens` masih bertanda `"private":
-true` di `package.json` masing-masing (menandakan belum pernah diputuskan
-untuk dipublikasikan ke registry npm), dan repo ini belum punya
-`git remote`. **Menjalankan `changeset publish` sungguhan, membuka akses
-paket, dan mendorong tag `v0.9.0` adalah keputusan yang sengaja tidak
-dieksekusi di sini** — itu tindakan publikasi nyata dan tidak bisa ditarik
-balik dengan mudah begitu ada yang meng-install-nya.
+fixed-version, dan CI (`.github/workflows/ci.yml`) sudah lengkap. Repo ini
+sekarang punya `git remote` (`origin` → GitHub, `main` ter-push per
+1 Sep 2026), jadi CI akan mulai benar-benar berjalan mulai push
+berikutnya — tapi GitHub Pages belum dinyalakan sekali di Settings repo
+(Settings → Pages → source: GitHub Actions), jadi job `deploy-storybook`
+masih akan gagal sampai itu dilakukan. Yang belum: paket
+`packages/ui`/`packages/tokens` masih bertanda `"private": true` di
+`package.json` masing-masing (menandakan belum pernah diputuskan untuk
+dipublikasikan ke registry npm, dan ke registry mana). **Menjalankan
+`changeset publish` sungguhan, membuka akses paket, dan mendorong tag
+`v0.9.0` adalah keputusan yang sengaja tidak dieksekusi di sini** — itu
+tindakan publikasi nyata dan tidak bisa ditarik balik dengan mudah begitu
+ada yang meng-install-nya.
 
 ---
 
@@ -164,8 +202,9 @@ balik dengan mudah begitu ada yang meng-install-nya.
 
 ## Bug & kontak
 
-Belum ada channel/maintainer resmi yang ditentukan untuk hand-off ini —
-isi bagian ini begitu itu diputuskan (repo issue tracker paling mungkin,
-tapi ini belum ada `git remote` untuk mengarahkannya ke mana). Sampai saat
-itu, laporkan lewat jalur yang sama dengan permintaan yang menghasilkan
-dokumen ini.
+Belum ada maintainer resmi yang ditentukan untuk hand-off ini, tapi repo
+sekarang punya alamat:
+[github.com/jfr-wrld/UH-Design-System](https://github.com/jfr-wrld/UH-Design-System)
+— issue tracker-nya di situ begitu maintainer ditentukan. Sampai saat itu,
+laporkan lewat jalur yang sama dengan permintaan yang menghasilkan dokumen
+ini.
